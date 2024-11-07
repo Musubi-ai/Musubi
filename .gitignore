@@ -1,0 +1,4 @@
+crawler/
+data/
+websites.json
+utils/__pycache__/

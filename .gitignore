@@ -1,4 +1,4 @@
 crawler/
 data/
 websites.json
-utils/__pycache__/
+src/__pycache__/

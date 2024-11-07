@@ -1,4 +1,4 @@
-from utils import Crawl, Scan
+from src import Crawl, Scan
 import os
 import pandas as pd
 import argparse
@@ -6,7 +6,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("--index", default=24, help="index of website in the website list", type=int)
+parser.add_argument("--index", default=25, help="index of website in the website list", type=int)
 
 args = parser.parse_args()
 
@@ -81,5 +81,5 @@ class Pipeline:
 
 if __name__ == "__main__":
     pipe = Pipeline()
-    # pipe.start()
+    pipe.start()
     # pipe.start_all()

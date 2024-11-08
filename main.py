@@ -6,7 +6,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("--index", default=25, help="index of website in the website list", type=int)
+parser.add_argument("--index", default=0, help="index of website in the website list", type=int)
 
 args = parser.parse_args()
 
@@ -17,6 +17,7 @@ class Pipeline:
         website_list: str = "websites.json",
     ):
         self.website_list = pd.read_json(website_list, lines=True)
+        print(self.website_list)
         self.website_list_length = len(self.website_list)
         self.is_nan = self.website_list.apply(pd.isna)
 

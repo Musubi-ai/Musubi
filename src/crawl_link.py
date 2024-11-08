@@ -69,7 +69,7 @@ class Scan():
             link_list = self.get_urls(page=page)
             for link in link_list:
                 if url_list and link in url_list:
-                    return 
+                    continue 
                 dictt = {"link": link}
                 with open(self.url_path, "a+", encoding="utf-8") as file:
                     file.write(json.dumps(dictt, ensure_ascii=False) + "\n")

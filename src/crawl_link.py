@@ -36,6 +36,7 @@ class Scan():
                 self.pages_lst = [self.prefix + str(i+1) for i in range(self.pages)]
 
         self.length = len(self.pages_lst)
+        self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")
 
     def get_urls(self, page):
         link_list = []
@@ -50,9 +51,15 @@ class Scan():
 
         for block in blocks:
             if self.prefix3:
-                link = self.prefix3 + block.a["href"]
+                if self.plural_a_tag:
+                    link = self.prefix3 + block["href"]
+                else:
+                    link = self.prefix3 + block.a["href"]
             else:
-                link = block.a["href"]
+                if self.plural_a_tag:
+                    link = block["href"]
+                else:
+                    link = block.a["href"]
             link_list.append(link)
 
         return link_list

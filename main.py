@@ -4,20 +4,12 @@ import pandas as pd
 import argparse
 
 
-parser = argparse.ArgumentParser()
-
-parser.add_argument("--index", default=0, help="index of website in the website list", type=int)
-
-args = parser.parse_args()
-
-
 class Pipeline:
     def __init__(
         self, 
         website_list: str = "websites.json",
     ):
         self.website_list = pd.read_json(website_list, lines=True)
-        print(self.website_list)
         self.website_list_length = len(self.website_list)
         self.is_nan = self.website_list.apply(pd.isna)
 
@@ -25,7 +17,7 @@ class Pipeline:
         self, 
         start_page: int = 0,
         start_idx: int = 0,
-        idx: int = args.index
+        idx: int = None
     ):
         self.name = self.website_list.iloc[idx]["name"]
         self.prefix = None if self.is_nan.iloc[idx]["prefix"] else self.website_list.iloc[idx]["prefix"]
@@ -81,6 +73,10 @@ class Pipeline:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--index", default=27, help="index of website in the website list", type=int)
+    args = parser.parse_args()
+
     pipe = Pipeline()
-    pipe.start()
+    pipe.start(idx=args.index)
     # pipe.start_all()

@@ -1,5 +1,7 @@
 import json
 from typing import List, Optional
+import warnings
+import pandas as pd
 
 
 def add_new_website(
@@ -16,6 +18,15 @@ def add_new_website(
     type: str = None,
     websitelist_path = "websites.json"
 ):
+    exist_idx_list = pd.read_json(websitelist_path, lines=True)["idx"].to_list()
+
+    if not idx:
+        idx = max(exist_idx_list) + 1
+
+    if idx in exist_idx_list:
+        warnings.warn("The index of new website is not assigned or exists alraedy, the index will be automatically assigned to avoid error.")
+        idx = max(exist_idx_list) + 1
+
     if not (idx and dir and name and lang and prefix and pages and block1 and type):
         raise ValueError("Essential information for crawling website is not complete, please check carefully before changing website.json.")
     
@@ -36,17 +47,19 @@ def add_new_website(
     with open(websitelist_path, "a+", encoding="utf-8") as file:
         file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
 
+    return idx
+
 
 if __name__ == "__main__":
     add_new_website(
-        idx = 25,
-        dir = "everylittled",
-        name = "最新文章",
+        # idx = 25,
+        dir = "報導者",
+        name = "教育校園",
         lang = "中文",
-        prefix = "https://everylittled.com/articles?page=",
+        prefix = "https://www.twreporter.org/categories/education?page=",
         prefix2 = None,
-        prefix3 = None,
-        pages = 505,
-        block1 = ["div", "list-box"],
+        prefix3 = "https://www.twreporter.org",
+        pages = 14,
+        block1 = ["div", "list-item__Container-sc-1dx5lew-0 kCnicz"],
         type = "scan"
     )

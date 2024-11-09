@@ -2,3 +2,4 @@ crawler/
 data/
 websites.json
 src/__pycache__/
+utils/__pycache__/

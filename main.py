@@ -1,5 +1,5 @@
-from src import Crawl, Scan
-from utils.helpers import add_new_website
+from src import Crawl, Scan, Scroll
+from utils import add_new_website
 from typing import List, Optional
 import os
 import pandas as pd
@@ -44,6 +44,7 @@ class Pipeline:
             os.makedirs(self.save_dir)
 
         # start scanning the links
+        print("---------------------------------------------\nGetting urls from {}!\n---------------------------------------------".format(self.name))
         if self.type == "scan":
             scan = Scan(
                 self.prefix,
@@ -54,6 +55,7 @@ class Pipeline:
                 self.block2,
                 self.urls_path
             )
+            scan.crawl_link(start_page=start_page)
 
         # TODO: add scroll implementation
         elif self.type == "scroll":
@@ -61,10 +63,6 @@ class Pipeline:
         else:
             raise ValueError("The type can only be scan or scroll but got {}.".format(self.type))
         
-        # Start getting the urls
-        print("---------------------------------------------\nGetting urls from {}!\n---------------------------------------------".format(self.name))
-        scan.crawl_link(start_page=start_page)
-
         # Start crawling the websites
         print("---------------------------------------------\nCrawling contents in urls from {}!\n---------------------------------------------".format(self.name))
         crawl = Crawl(self.urls_path)

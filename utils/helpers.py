@@ -50,16 +50,40 @@ def add_new_website(
     return idx
 
 
+def delete_website_by_idx(
+    idx: int = None,
+    websitelist_path = "websites.json"
+):
+    """
+    Delete website config in website.json by index and sort all configs. 
+    """
+    website_df = pd.read_json(websitelist_path, lines=True)
+    dictts = website_df[website_df["idx"] != idx].to_dict("records")
+    length = len(dictts)
+
+    for i in range(length):
+        if dictts[i]["idx"] >= idx:
+            dictts[i]["idx"] -= 1
+        if i == 0:
+            with open(websitelist_path, "w", encoding="utf-8") as file:
+                file.write(json.dumps(dictts[i], ensure_ascii=False) + "\n")
+        else:
+            with open(websitelist_path, "a+", encoding="utf-8") as file:
+                file.write(json.dumps(dictts[i], ensure_ascii=False) + "\n")
+
+
 if __name__ == "__main__":
-    add_new_website(
-        # idx = 25,
-        dir = "報導者",
-        name = "教育校園",
-        lang = "中文",
-        prefix = "https://www.twreporter.org/categories/education?page=",
-        prefix2 = None,
-        prefix3 = "https://www.twreporter.org",
-        pages = 14,
-        block1 = ["div", "list-item__Container-sc-1dx5lew-0 kCnicz"],
-        type = "scan"
-    )
+    # add_new_website(
+    #     # idx = 25,
+    #     dir = "報導者",
+    #     name = "教育校園",
+    #     lang = "中文",
+    #     prefix = "https://www.twreporter.org/categories/education?page=",
+    #     prefix2 = None,
+    #     prefix3 = "https://www.twreporter.org",
+    #     pages = 14,
+    #     block1 = ["div", "list-item__Container-sc-1dx5lew-0 kCnicz"],
+    #     type = "scan"
+    # )
+
+    delete_website_by_idx(idx=0, websitelist_path="test.json")

@@ -56,10 +56,17 @@ class Pipeline:
                 self.urls_path
             )
             scan.crawl_link(start_page=start_page)
-
-        # TODO: add scroll implementation
         elif self.type == "scroll":
-            pass
+            scroll = Scroll(
+                self.prefix,
+                self.prefix2,
+                self.prefix3,
+                self.pages,
+                self.block1,
+                self.block2,
+                self.urls_path
+            )
+            scroll.crawl_link()
         else:
             raise ValueError("The type can only be scan or scroll but got {}.".format(self.type))
         
@@ -112,16 +119,16 @@ class Pipeline:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--index", default=33, help="index of website in the website list", type=int)
-    parser.add_argument("--dir", default="HEHO", help="webiste name and its corresponding directory", type=str)
-    parser.add_argument("--name", default="HEHO食藥安全", help="category of articels in the website", type=str)
+    parser.add_argument("--dir", default="POPDAILY", help="webiste name and its corresponding directory", type=str)
+    parser.add_argument("--name", default="POPDAILY妝漂亮版", help="category of articels in the website", type=str)
     parser.add_argument("--lang", default="中文", help="main language of the website", type=str)
-    parser.add_argument("--prefix", default="https://heho.com.tw/archives/category/health-care/food-drug-safety/page/", help="prefix 1", type=str)
+    parser.add_argument("--prefix", default="https://www.popdaily.com.tw/explore/beauty", help="prefix 1", type=str)
     parser.add_argument("--prefix2", default=None, help="prefix 2", type=str)
     parser.add_argument("--prefix3", default=None, help="prefix 3", type=str)
-    parser.add_argument("--pages", default=79, help="pages of websites", type=int)
-    parser.add_argument("--block1", default=["div", "box-text-inner blog-post-inner"], help="main list of tag and class", type=list)
+    parser.add_argument("--pages", default=500, help="pages of websites", type=int)
+    parser.add_argument("--block1", default=["div", "DesktopGridContainer-sc-1eawaw9-0.cutvQW"], help="main list of tag and class", type=list)
     parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
-    parser.add_argument("--type", default="scan", help="way of crawling websites", type=str)
+    parser.add_argument("--type", default="scroll", help="way of crawling websites", type=str)
     args = parser.parse_args()
 
     pipe = Pipeline()

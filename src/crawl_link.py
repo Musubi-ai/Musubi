@@ -143,6 +143,11 @@ class Scroll:
             last_height = new_height
 
     def crawl_link(self):
+        is_url_path = os.path.isfile(self.url_path)
+        if is_url_path:
+            url_list = pd.read_json(self.url_path, lines=True)["link"].to_list()
+        else:
+            url_list = None
         self.browse_website()
         self.scroll()
         element = self.driver.find_element(By.CLASS_NAME, self.block1[1])
@@ -152,6 +157,8 @@ class Scroll:
             url = item.get_attribute("href")
             if self.prefix3:
                 url = self.prefix3 + url
+            if url_list and url in url_list:
+                continue 
             dictt = {"link": url}
 
             with open(self.url_path, "a+", encoding="utf-8") as file:

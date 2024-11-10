@@ -17,8 +17,11 @@ class Pipeline:
         self,
         start_page: int = 0,
         start_idx: int = 0,
-        idx: int = None
+        idx: int = None,
+        upgrade_pages: int = None
     ):
+        if idx is None:
+            raise ValueError("The index cannot be unassigned, please fill index argument.")
         self.website_df = pd.read_json(self.website_path, lines=True)
         self.website_df_length = len(self.website_df)
         self.is_nan = self.website_df.apply(pd.isna)
@@ -26,7 +29,7 @@ class Pipeline:
         self.prefix = None if self.is_nan.iloc[idx]["prefix"] else self.website_df.iloc[idx]["prefix"]
         self.prefix2 = None if self.is_nan.iloc[idx]["prefix2"] else self.website_df.iloc[idx]["prefix2"]
         self.prefix3 = None if self.is_nan.iloc[idx]["prefix3"] else self.website_df.iloc[idx]["prefix3"]
-        self.pages = self.website_df.iloc[idx]["pages"]
+        self.pages = upgrade_pages if upgrade_pages else self.website_df.iloc[idx]["pages"]
         self.dir = self.website_df.iloc[idx]["dir"]
         self.lang = self.website_df.iloc[idx]["lang"]
         self.block1 = None if self.is_nan.iloc[idx]["block1"] else self.website_df.iloc[idx]["block1"]
@@ -36,6 +39,12 @@ class Pipeline:
         self.urls_path = "crawler\{}\{}_link.json".format(self.dir, self.name)
         self.save_path = "data\{}\{}\{}.json".format(self.lang, self.dir, self.name)
         self.type = self.website_df.iloc[idx]["type"]
+
+        if upgrade_pages:
+            print("---------------------------------------------\nIn upgrade mode now, checking whether the index exists or not.\n---------------------------------------------")
+            indices = self.website_df["idx"].to_list()
+            if idx not in indices:
+                raise ValueError("In upgrade mode but assigned index does not exists in website.json file.")
 
         # First check the existence of the directories. If not, build them.
         if not os.path.isdir(self.urls_dir):
@@ -71,13 +80,27 @@ class Pipeline:
             raise ValueError("The type can only be scan or scroll but got {}.".format(self.type))
         
         # Start crawling the websites
-        print("---------------------------------------------\nCrawling contents in urls from {}!\n---------------------------------------------".format(self.name))
+        print("Crawling contents in urls from {}!\n---------------------------------------------".format(self.name))
         crawl = Crawl(self.urls_path)
         crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx)
 
-    def start_all(self):
-        for i in range(self.website_df_length):
-            self.start_by_idx(idx=i)
+    def start_all(
+        self,
+        upgrade_page: int = None
+    ):
+        self.website_df = pd.read_json(self.website_path, lines=True)
+        length = len(self.website_df)
+        if upgrade_page:
+            print("---------------------------------------------\nIn upgrade mode now, setting the upgraded page for each website based on upgrade_page argument.\n---------------------------------------------")
+            pages = self.website_df["pages"].to_list()
+            pages = [page if page <= upgrade_page else upgrade_page for page in pages]
+            print("Upgrading text data of each website.\n---------------------------------------------")
+            for i in range(length):
+                self.start_by_idx(idx=i, upgrade_pages=pages[i])
+        else:
+            print("---------------------------------------------\nIn add mode now.\n---------------------------------------------")
+            for i in range(length):
+                self.start_by_idx(idx=i)
 
     def pipeline(
         self,
@@ -118,7 +141,10 @@ class Pipeline:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--index", default=33, help="index of website in the website list", type=int)
+    # arguments for upgrade mode
+    parser.add_argument("--index", default=3, help="index of website in the website list", type=int)
+    parser.add_argument("--upgrade-pages", default=50, help="expected pages to scan or scroll in upgrade mode", type=int)
+    # arguments for add mode
     parser.add_argument("--dir", default="HEHO癌症", help="webiste name and its corresponding directory", type=str)
     parser.add_argument("--name", default="HEHO癌症復健運動", help="category of articels in the website", type=str)
     parser.add_argument("--lang", default="中文", help="main language of the website", type=str)
@@ -132,17 +158,20 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     pipe = Pipeline()
-    pipe.pipeline(
-        dir = args.dir,
-        name = args.name,
-        lang = args.lang,
-        prefix = args.prefix,
-        prefix2 = args.prefix2,
-        prefix3 = args.prefix3,
-        pages = args.pages,
-        block1 = args.block1,
-        block2 = args.block2,
-        type =args.type
+    # pipe.pipeline(
+    #     dir = args.dir,
+    #     name = args.name,
+    #     lang = args.lang,
+    #     prefix = args.prefix,
+    #     prefix2 = args.prefix2,
+    #     prefix3 = args.prefix3,
+    #     pages = args.pages,
+    #     block1 = args.block1,
+    #     block2 = args.block2,
+    #     type =args.type
+    # )
+    pipe.start_by_idx(
+        idx=args.index, 
+        upgrade_pages=args.upgrade_pages
     )
-    # pipe.start_by_idx(idx=args.index)
-    # pipe.start_all()
+    # pipe.start_all(upgrade_page=args.upgrade_pages)

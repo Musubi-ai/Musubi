@@ -1,4 +1,4 @@
-from src import Crawl, Scan, Scroll
+from src import Crawl, Scan, Scroll, OnePage
 from utils import add_new_website
 from typing import List, Optional
 import os
@@ -76,8 +76,17 @@ class Pipeline:
                 self.urls_path
             )
             scroll.crawl_link()
+        elif self.type == "onepage":
+            onepage = OnePage(
+                self.prefix,
+                self.prefix3,
+                self.block1,
+                self.block2,
+                self.urls_path
+            )
+            onepage.crawl_link()
         else:
-            raise ValueError("The type can only be scan or scroll but got {}.".format(self.type))
+            raise ValueError("The type can only be scan, scroll, or onepage but got {}.".format(self.type))
         
         # Start crawling the websites
         print("Crawling contents in urls from {}!\n---------------------------------------------".format(self.name))
@@ -142,36 +151,36 @@ class Pipeline:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # arguments for upgrade mode
-    parser.add_argument("--index", default=3, help="index of website in the website list", type=int)
+    parser.add_argument("--index", default=77, help="index of website in the website list", type=int)
     parser.add_argument("--upgrade-pages", default=50, help="expected pages to scan or scroll in upgrade mode", type=int)
     # arguments for add mode
-    parser.add_argument("--dir", default="HEHO癌症", help="webiste name and its corresponding directory", type=str)
-    parser.add_argument("--name", default="HEHO癌症復健運動", help="category of articels in the website", type=str)
+    parser.add_argument("--dir", default="Edenred", help="webiste name and its corresponding directory", type=str)
+    parser.add_argument("--name", default="Edenred所有文章", help="category of articels in the website", type=str)
     parser.add_argument("--lang", default="中文", help="main language of the website", type=str)
-    parser.add_argument("--prefix", default=r"https://cancer.heho.com.tw/archives/category/cancer_encyclopedia/rehabilitation-conditioning/rehabilitation-exercise/page/", help="prefix 1", type=str)
+    parser.add_argument("--prefix", default="https://blog.edenred.com.tw/all", help="prefix 1", type=str)
     parser.add_argument("--prefix2", default=None, help="prefix 2", type=str)
     parser.add_argument("--prefix3", default=None, help="prefix 3", type=str)
-    parser.add_argument("--pages", default=3, help="pages of websites", type=int)
-    parser.add_argument("--block1", default=["div", "image-cover"], help="main list of tag and class", type=list)
+    parser.add_argument("--pages", default=1, help="pages of websites", type=int)
+    parser.add_argument("--block1", default=["article", "latest__article"], help="main list of tag and class", type=list)
     parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
-    parser.add_argument("--type", default="scan", help="way of crawling websites", type=str)
+    parser.add_argument("--type", default="onepage", help="way of crawling websites", type=str)
     args = parser.parse_args()
 
     pipe = Pipeline()
-    # pipe.pipeline(
-    #     dir = args.dir,
-    #     name = args.name,
-    #     lang = args.lang,
-    #     prefix = args.prefix,
-    #     prefix2 = args.prefix2,
-    #     prefix3 = args.prefix3,
-    #     pages = args.pages,
-    #     block1 = args.block1,
-    #     block2 = args.block2,
-    #     type =args.type
-    # )
-    pipe.start_by_idx(
-        idx=args.index, 
-        upgrade_pages=args.upgrade_pages
+    pipe.pipeline(
+        dir = args.dir,
+        name = args.name,
+        lang = args.lang,
+        prefix = args.prefix,
+        prefix2 = args.prefix2,
+        prefix3 = args.prefix3,
+        pages = args.pages,
+        block1 = args.block1,
+        block2 = args.block2,
+        type =args.type
     )
-    # pipe.start_all(upgrade_page=args.upgrade_pages)
+    # pipe.start_by_idx(
+    #     idx=args.index, 
+    #     # upgrade_pages=args.upgrade_pages
+    # )
+    # pipe.start_all(upgrade_page=args.upgrade_pages) 

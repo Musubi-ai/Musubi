@@ -22,7 +22,8 @@ class Scan():
         pages: int = None,
         block1: List[str] = None,
         block2: List[str] = None,
-        url_path: str = None
+        url_path: str = None,
+        **kwargs
     ):
         self.prefix = prefix
         self.prefix2 = prefix2
@@ -102,6 +103,7 @@ class Scroll:
         block2: List[str] = None,
         url_path: str = None,
         sleep_time: int = 3,
+        **kwargs
     ):
         self.prefix = prefix
         self.prefix2 = prefix2
@@ -111,7 +113,6 @@ class Scroll:
         self.block2 = block2
         self.sleep_time = sleep_time
         self.scroll_time = pages
-        self.url_path = url_path
 
     def browse_website(self):
         options = Options()
@@ -182,17 +183,85 @@ class Scroll:
         print(check_list)
 
 
+class OnePage:
+    def __init__(
+        self,
+        prefix: str = None,
+        prefix3: str = None,
+        block1: List[str] = None,
+        block2: List[str] = None,
+        url_path: str = None,
+        **kwargs
+    ):
+        self.prefix = prefix
+        self.prefix3 = prefix3
+        self.url_path = url_path
+        self.block1 = block1
+        self.block2 = block2
+        self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")
+
+    def get_urls(self):
+        link_list = []
+        r = requests.get(self.prefix, headers=headers)
+        soup = BeautifulSoup(r.text, features="html.parser")
+
+        if self.block2:
+            blocks = soup.find(self.block1[0], class_=self.block1[1])
+            blocks = blocks.find_all(self.block2[0], class_=self.block2[1])
+        else:
+            blocks = soup.find_all(self.block1[0], class_=self.block1[1])
+
+        for block in blocks:
+            if self.prefix3:
+                if self.plural_a_tag:
+                    link = self.prefix3 + block["href"]
+                else:
+                    link = self.prefix3 + block.a["href"]
+            else:
+                if self.plural_a_tag:
+                    link = block["href"]
+                else:
+                    link = block.a["href"]
+            link_list.append(link)
+
+        return link_list
+    
+    def crawl_link(self):
+        is_url_path = os.path.isfile(self.url_path)
+        if is_url_path:
+            url_list = pd.read_json(self.url_path, lines=True)["link"].to_list()
+        else:
+            url_list = None
+
+        link_list = self.get_urls()
+        for link in link_list:
+            if url_list and link in url_list:
+                continue 
+            dictt = {"link": link}
+            with open(self.url_path, "a+", encoding="utf-8") as file:
+                file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+
+    def check_link_result(self):
+        link_list = self.get_urls()
+        print(link_list[0])
+
+
 if __name__ == "__main__":
-    prefix =  "https://www.popdaily.com.tw/explore/press"
+    prefix =  "https://blog.edenred.com.tw/all"
     prefix2 = None
     prefix3 = None
-    pages = 5
-    block1 = ["div", "DesktopGridContainer-sc-1eawaw9-0.cutvQW"]
+    pages = 1
+    block1 = ["article", "latest__article"]
     block2 = None
     url_path = "test.json"
     # scan = Scan(prefix, prefix2, prefix3, pages, block1, block2, url_path)
     # scan.check_link_reslt()
     # scan.crawl_link()
-    scroll = Scroll(prefix, prefix2, prefix3, pages, block1, block2, url_path)
+
+    # scroll = Scroll(prefix, prefix2, prefix3, pages, block1, block2, url_path)
     # scroll.check_link_result()
-    scroll.crawl_link()    
+    # scroll.crawl_link()    
+
+    # onepage = OnePage(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
+    # onepage.check_link_result()
+    # onepage.crawl_link()

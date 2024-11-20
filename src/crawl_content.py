@@ -55,8 +55,8 @@ class Crawl():
 
 
 if __name__ == "__main__":
-    urls_path = f"G:\Crawl4LLM\crawler\台灣經貿網\台灣經貿網新聞_link.json"
-    save_path = f"G:\Crawl4LLM\data\中文\台灣經貿網\台灣經貿網新聞.json"
+    urls_path = f"G:\Crawl4LLM\crawler\Peopo公民新聞\Peopo公民新聞最新報導_link.json"
+    save_path = f"G:\Crawl4LLM\data\中文\Peopo公民新聞\Peopo公民新聞最新報導.json"
 
     crawl = Crawl(urls_path=urls_path)
     crawl.crawl_contents(save_path=save_path)

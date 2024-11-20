@@ -151,17 +151,17 @@ class Pipeline:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # arguments for upgrade mode
-    parser.add_argument("--index", default=96, help="index of website in the website list", type=int)
+    parser.add_argument("--index", default=101, help="index of website in the website list", type=int)
     parser.add_argument("--upgrade-pages", default=50, help="expected pages to scan or scroll in upgrade mode", type=int)
     # arguments for add mode
-    parser.add_argument("--dir", default="Peopo公民新聞", help="webiste name and its corresponding directory", type=str)
-    parser.add_argument("--name", default="Peopo公民新聞最新報導", help="category of articels in the website", type=str)
+    parser.add_argument("--dir", default="農業知識入口網", help="webiste name and its corresponding directory", type=str)
+    parser.add_argument("--name", default="農業知識入口網優質農業人", help="category of articels in the website", type=str)
     parser.add_argument("--lang", default="中文", help="main language of the website", type=str)
-    parser.add_argument("--prefix", default="https://www.peopo.org/list/post/all/all/all?page=", help="prefix 1", type=str)
-    parser.add_argument("--prefix2", default=None, help="prefix 2", type=str)
-    parser.add_argument("--prefix3", default="https://www.peopo.org", help="prefix 3", type=str)
-    parser.add_argument("--pages", default=6018, help="pages of websites", type=int)
-    parser.add_argument("--block1", default=["h3", "view-list-title"], help="main list of tag and class", type=list)
+    parser.add_argument("--prefix", default="https://kmweb.moa.gov.tw/theme_list.php?theme=news&sub_theme=quality_farmer&page=", help="prefix 1", type=str)
+    parser.add_argument("--prefix2", default="&display_num=10", help="prefix 2", type=str)
+    parser.add_argument("--prefix3", default="https://kmweb.moa.gov.tw/", help="prefix 3", type=str)
+    parser.add_argument("--pages", default=95, help="pages of websites", type=int)
+    parser.add_argument("--block1", default=["div", "txtbox"], help="main list of tag and class", type=list)
     parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
     parser.add_argument("--type", default="scan", help="way of crawling websites", type=str)
     args = parser.parse_args()
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     #     type =args.type
     # )
     pipe.start_by_idx(
-        idx=args.index, 
-        # upgrade_pages=args.upgrade_pages
+        idx=args.index,
+        start_page=68
     )
     # pipe.start_all(upgrade_page=args.upgrade_pages)

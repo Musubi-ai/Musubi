@@ -26,14 +26,14 @@ def add_new_website(
         idx = max(exist_idx_list) + 1
 
     if idx in exist_idx_list:
-        warnings.warn("=======================================================\nThe index of new website is not assigned or exists alraedy, the index will be automatically assigned to avoid error.\n=======================================================")
+        warnings.warn("The index of new website is not assigned or exists alraedy, the index will be automatically assigned to avoid error.")
         idx = max(exist_idx_list) + 1
 
     if not (idx and dir and name and lang and prefix and pages and block1 and type):
-        raise ValueError("=======================================================\nEssential information for crawling website is not complete, please check carefully before changing website.json.\n=======================================================")
+        raise ValueError("Essential information for crawling website is not complete, please check carefully before changing website.json.")
     
     if (dir in dir_list) and (name in name_list):
-        warnings.warn("=======================================================\nThe dir and name of new website exists alraedy.\n=======================================================")
+        warnings.warn("The dir and name of new website exists alraedy.")
     
     dictt = {
         "idx": idx,

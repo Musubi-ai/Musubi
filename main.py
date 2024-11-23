@@ -1,6 +1,7 @@
 from src import Crawl, Scan, Scroll, OnePage
-from utils import add_new_website
+from utils import add_new_website, delete_website_by_idx
 from typing import List, Optional
+import warnings
 import os
 import pandas as pd
 import argparse
@@ -141,11 +142,16 @@ class Pipeline:
             type = type,
         )
 
-        self.start_by_idx(
-            start_page = start_page,
-            start_idx = start_idx,
-            idx = new_website_idx
-        )
+        try:
+            self.start_by_idx(
+                start_page = start_page,
+                start_idx = start_idx,
+                idx = new_website_idx
+            )
+        except:
+            warnings.warn("Failed to parse website, delete the idx from webiste.json now.")
+            delete_website_by_idx(idx=idx)
+
 
 
 if __name__ == "__main__":
@@ -154,16 +160,16 @@ if __name__ == "__main__":
     parser.add_argument("--index", default=102, help="index of website in the website list", type=int)
     parser.add_argument("--upgrade-pages", default=50, help="expected pages to scan or scroll in upgrade mode", type=int)
     # arguments for add mode
-    parser.add_argument("--dir", default="法律百科", help="webiste name and its corresponding directory", type=str)
-    parser.add_argument("--name", default="法律百科文章", help="category of articels in the website", type=str)
+    parser.add_argument("--dir", default="健康遠見", help="webiste name and its corresponding directory", type=str)
+    parser.add_argument("--name", default="健康遠見最新文章", help="category of articels in the website", type=str)
     parser.add_argument("--lang", default="中文", help="main language of the website", type=str)
-    parser.add_argument("--prefix", default="https://www.legis-pedia.com/article?page=", help="prefix 1", type=str)
+    parser.add_argument("--prefix", default="https://health.gvm.com.tw/newest?page=", help="prefix 1", type=str)
     parser.add_argument("--prefix2", default=None, help="prefix 2", type=str)
     parser.add_argument("--prefix3", default=None, help="prefix 3", type=str)
-    parser.add_argument("--pages", default=106, help="pages of websites", type=int)
-    parser.add_argument("--block1", default=["div", "list-acticle-head tw-mb-2"], help="main list of tag and class", type=list)
+    parser.add_argument("--pages", default=1111, help="pages of websites", type=int)
+    parser.add_argument("--block1", default=["div", "work-item"], help="main list of tag and class", type=list)
     parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
-    parser.add_argument("--type", default="scan", help="way of crawling websites", type=str)
+    parser.add_argument("--type", default="scan", help="way of crawling websites", type=str, choices=["scan", "scroll", "onepage"])
     args = parser.parse_args()
 
     pipe = Pipeline()

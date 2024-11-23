@@ -7,6 +7,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from typing import List
 import json
+import warnings
 import time
 from tqdm import tqdm
 
@@ -66,7 +67,6 @@ class Scan:
                 else:
                     link = block.a["href"]
             link_list.append(link)
-
         return link_list
     
     def crawl_link(self, start_page: int=0):

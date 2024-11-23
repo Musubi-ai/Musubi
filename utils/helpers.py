@@ -19,16 +19,21 @@ def add_new_website(
     websitelist_path = "websites.json"
 ):
     exist_idx_list = pd.read_json(websitelist_path, lines=True)["idx"].to_list()
+    dir_list = pd.read_json(websitelist_path, lines=True)["dir"].to_list()
+    name_list = pd.read_json(websitelist_path, lines=True)["name"].to_list()
 
     if not idx:
         idx = max(exist_idx_list) + 1
 
     if idx in exist_idx_list:
-        warnings.warn("The index of new website is not assigned or exists alraedy, the index will be automatically assigned to avoid error.")
+        warnings.warn("=======================================================\nThe index of new website is not assigned or exists alraedy, the index will be automatically assigned to avoid error.\n=======================================================")
         idx = max(exist_idx_list) + 1
 
     if not (idx and dir and name and lang and prefix and pages and block1 and type):
-        raise ValueError("Essential information for crawling website is not complete, please check carefully before changing website.json.")
+        raise ValueError("=======================================================\nEssential information for crawling website is not complete, please check carefully before changing website.json.\n=======================================================")
+    
+    if (dir in dir_list) and (name in name_list):
+        warnings.warn("=======================================================\nThe dir and name of new website exists alraedy.\n=======================================================")
     
     dictt = {
         "idx": idx,

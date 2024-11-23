@@ -13,7 +13,7 @@ from tqdm import tqdm
 headers = {'user-agent': 'Mozilla/5.0'}
 
 
-class Scan():
+class Scan:
     def __init__(
         self,
         prefix: str = None,

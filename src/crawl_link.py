@@ -246,6 +246,30 @@ class OnePage:
         print(link_list[0])
 
 
+class Click:
+    def __init__(
+        self,
+        prefix: str = None,
+        prefix2: str = None,
+        prefix3: str = None,
+        pages: int = None,
+        block1: List[str] = None,
+        block2: List[str] = None,
+        url_path: str = None,
+        sleep_time: int = 3,
+        **kwargs
+    ):
+        self.prefix = prefix
+        self.prefix2 = prefix2
+        self.prefix3 = prefix3
+        self.url_path = url_path
+        self.block1 = block1
+        self.block2 = block2
+        self.sleep_time = sleep_time
+        self.scroll_time = pages
+
+    
+
 if __name__ == "__main__":
     prefix =  "https://blog.edenred.com.tw/all"
     prefix2 = None

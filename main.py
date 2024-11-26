@@ -1,4 +1,4 @@
-from src import Crawl, Scan, Scroll, OnePage
+from src import Crawl, Scan, Scroll, OnePage, Click
 from utils import add_new_website, delete_website_by_idx
 from typing import List, Optional
 import warnings
@@ -30,7 +30,7 @@ class Pipeline:
         self.prefix = None if self.is_nan.iloc[idx]["prefix"] else self.website_df.iloc[idx]["prefix"]
         self.prefix2 = None if self.is_nan.iloc[idx]["prefix2"] else self.website_df.iloc[idx]["prefix2"]
         self.prefix3 = None if self.is_nan.iloc[idx]["prefix3"] else self.website_df.iloc[idx]["prefix3"]
-        self.pages = upgrade_pages if upgrade_pages else self.website_df.iloc[idx]["pages"]
+        self.pages = self.website_df.iloc[idx]["pages"]
         self.dir = self.website_df.iloc[idx]["dir"]
         self.lang = self.website_df.iloc[idx]["lang"]
         self.block1 = None if self.is_nan.iloc[idx]["block1"] else self.website_df.iloc[idx]["block1"]
@@ -43,6 +43,7 @@ class Pipeline:
 
         if upgrade_pages:
             print("---------------------------------------------\nIn upgrade mode now, checking whether the index exists or not.\n---------------------------------------------")
+            self.pages = self.pages if self.pages <= upgrade_pages else upgrade_pages
             indices = self.website_df["idx"].to_list()
             if idx not in indices:
                 raise ValueError("In upgrade mode but assigned index does not exists in website.json file.")
@@ -86,8 +87,19 @@ class Pipeline:
                 self.urls_path
             )
             onepage.crawl_link()
+        elif self.type == "click":
+            click = Click(
+                self.prefix,
+                self.prefix2,
+                self.prefix3,
+                self.pages,
+                self.block1,
+                self.block2,
+                self.urls_path
+            )
+            click.clickandcrawl()
         else:
-            raise ValueError("The type can only be scan, scroll, or onepage but got {}.".format(self.type))
+            raise ValueError("The type can only be scan, scroll, onepage, or click but got {}.".format(self.type))
         
         # Start crawling the websites
         print("Crawling contents in urls from {}!\n---------------------------------------------".format(self.name))
@@ -153,40 +165,42 @@ class Pipeline:
             delete_website_by_idx(idx=idx)
 
 
-
 if __name__ == "__main__":
+    from tqdm import tqdm
     parser = argparse.ArgumentParser()
     # arguments for upgrade mode
     parser.add_argument("--index", default=102, help="index of website in the website list", type=int)
     parser.add_argument("--upgrade-pages", default=50, help="expected pages to scan or scroll in upgrade mode", type=int)
     # arguments for add mode
-    parser.add_argument("--dir", default="英文庫", help="webiste name and its corresponding directory", type=str)
-    parser.add_argument("--name", default="英文庫文章", help="category of articels in the website", type=str)
+    parser.add_argument("--dir", default="CodeLove", help="webiste name and its corresponding directory", type=str)
+    parser.add_argument("--name", default="CodeLove技術文章", help="category of articels in the website", type=str)
     parser.add_argument("--lang", default="中文", help="main language of the website", type=str)
-    parser.add_argument("--prefix", default="https://english.cool/page/", help="prefix 1", type=str)
-    parser.add_argument("--prefix2", default="/", help="prefix 2", type=str)
+    parser.add_argument("--prefix", default="https://codelove.tw/?page=", help="prefix 1", type=str)
+    parser.add_argument("--prefix2", default=None, help="prefix 2", type=str)
     parser.add_argument("--prefix3", default=None, help="prefix 3", type=str)
-    parser.add_argument("--pages", default=8, help="pages of websites", type=int)
-    parser.add_argument("--block1", default=["h6", "blog-entry-title entry-title"], help="main list of tag and class", type=list)
+    parser.add_argument("--pages", default=57, help="pages of websites", type=int)
+    parser.add_argument("--block1", default=["div", "bg-white mt-3 post-card"], help="main list of tag and class", type=list)
     parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
     parser.add_argument("--type", default="scan", help="way of crawling websites", type=str, choices=["scan", "scroll", "onepage"])
     args = parser.parse_args()
 
     pipe = Pipeline()
-    pipe.pipeline(
-        dir = args.dir,
-        name = args.name,
-        lang = args.lang,
-        prefix = args.prefix,
-        prefix2 = args.prefix2,
-        prefix3 = args.prefix3,
-        pages = args.pages,
-        block1 = args.block1,
-        block2 = args.block2,
-        type =args.type
-    )
-    # pipe.start_by_idx(
-    #     idx=args.index,
-    #     start_page=258
+    # pipe.pipeline(
+    #     dir = args.dir,
+    #     name = args.name,
+    #     lang = args.lang,
+    #     prefix = args.prefix,
+    #     prefix2 = args.prefix2,
+    #     prefix3 = args.prefix3,
+    #     pages = args.pages,
+    #     block1 = args.block1,
+    #     block2 = args.block2,
+    #     type =args.type
     # )
+    for i in tqdm(range(104, 133)):
+        pipe.start_by_idx(
+            idx=i,
+            upgrade_pages=50
+            # start_page=258
+        )
     # pipe.start_all(upgrade_page=args.upgrade_pages)

@@ -256,7 +256,7 @@ class Click:
         block1: List[str] = None,
         block2: List[str] = None,
         url_path: str = None,
-        sleep_time: int = 3,
+        sleep_time: int = 5,
         **kwargs
     ):
         self.prefix = prefix
@@ -266,17 +266,61 @@ class Click:
         self.block1 = block1
         self.block2 = block2
         self.sleep_time = sleep_time
-        self.scroll_time = pages
+        self.click_time = pages
 
-    
+    def browse_website(self):
+        options = Options()
+        options.add_argument("--headless")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--window-size=1920x1080")
+        self.driver = Edge(options=options)
+        self.driver.get(self.prefix)
+        time.sleep(self.sleep_time)
+
+    def clickandcrawl(
+        self,
+        click_time: int = None,
+    ):
+        self.browse_website()
+        n = 0
+        click_time = click_time if click_time is not None else self.click_time
+        pbar = tqdm(total = click_time)
+
+        is_url_path = os.path.isfile(self.url_path)
+        if is_url_path:
+            url_list = pd.read_json(self.url_path, lines=True)["link"].to_list()
+        else:
+            url_list = None
+
+        while n < click_time:
+            elements = self.driver.find_elements(By.CLASS_NAME, self.block1[1])
+
+            for item in elements:
+                item = item.find_element(By.TAG_NAME, "a")
+                url = item.get_attribute("href")
+                if self.prefix3:
+                    url = self.prefix3 + url
+                if url_list and url in url_list:
+                    continue 
+                dictt = {"link": url}
+
+                with open(self.url_path, "a+", encoding="utf-8") as file:
+                    file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+
+            button = self.driver.find_element("xpath", self.block2[1])
+            self.driver.execute_script("$(arguments[0]).click()", button)
+            n += 1
+            time.sleep(self.sleep_time)
+            pbar.update(1)
+
 
 if __name__ == "__main__":
-    prefix =  "https://blog.edenred.com.tw/all"
+    prefix =  "https://www.sakura.com.tw/LifeStyle"
     prefix2 = None
     prefix3 = None
     pages = 1
-    block1 = ["article", "latest__article"]
-    block2 = None
+    block1 = ["div", "article-card_header"]
+    block2 = ["xpath", '//*[@id="main"]/section[2]/div[2]/div/nav/ul/li[6]/a']
     url_path = "test.json"
     # scan = Scan(prefix, prefix2, prefix3, pages, block1, block2, url_path)
     # scan.check_link_reslt()
@@ -289,3 +333,6 @@ if __name__ == "__main__":
     # onepage = OnePage(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
     # onepage.check_link_result()
     # onepage.crawl_link()
+
+    click = Click(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
+    click.clickandcrawl()

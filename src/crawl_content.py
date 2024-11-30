@@ -60,8 +60,8 @@ class Crawl():
 
 
 if __name__ == "__main__":
-    urls_path = f"G:\Musubi\crawler\電影神搜\電影神搜電影情報_link.json"
-    save_path = f"G:\Musubi\data\中文\電影神搜\電影神搜電影情報.json"
+    urls_path = f"G:\Musubi\crawler\超人行銷\超人行銷所有文章_link.json"
+    save_path = f"G:\Musubi\data\中文\超人行銷\超人行銷所有文章.json"
 
     crawl = Crawl(urls_path=urls_path)
     crawl.crawl_contents(save_path=save_path)

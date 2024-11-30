@@ -19,7 +19,8 @@ class Pipeline:
         start_page: int = 0,
         start_idx: int = 0,
         idx: int = None,
-        upgrade_pages: int = None
+        upgrade_pages: int = None,
+        sleep_time: int = None
     ):
         if idx is None:
             raise ValueError("The index cannot be unassigned, please fill index argument.")
@@ -104,7 +105,7 @@ class Pipeline:
         # Start crawling the websites
         print("Crawling contents in urls from {}!\n---------------------------------------------".format(self.name))
         crawl = Crawl(self.urls_path)
-        crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx)
+        crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx, sleep_time=sleep_time)
 
     def start_all(
         self,
@@ -139,6 +140,7 @@ class Pipeline:
         type: str = None,
         start_page: int = 0,
         start_idx: int = 0,
+        sleep_time: int = None
     ):
         new_website_idx = add_new_website(
             idx = idx,
@@ -158,11 +160,12 @@ class Pipeline:
             self.start_by_idx(
                 start_page = start_page,
                 start_idx = start_idx,
-                idx = new_website_idx
+                idx = new_website_idx,
+                sleep_time=sleep_time
             )
         except:
             warnings.warn("Failed to parse website, delete the idx from webiste.json now.")
-            delete_website_by_idx(idx=idx)
+            delete_website_by_idx(idx=new_website_idx)
 
 
 if __name__ == "__main__":
@@ -172,35 +175,36 @@ if __name__ == "__main__":
     parser.add_argument("--index", default=102, help="index of website in the website list", type=int)
     parser.add_argument("--upgrade-pages", default=50, help="expected pages to scan or scroll in upgrade mode", type=int)
     # arguments for add mode
-    parser.add_argument("--dir", default="CodeLove", help="webiste name and its corresponding directory", type=str)
-    parser.add_argument("--name", default="CodeLove技術文章", help="category of articels in the website", type=str)
+    parser.add_argument("--dir", default="ACROPOLIS", help="webiste name and its corresponding directory", type=str)
+    parser.add_argument("--name", default="ACROPOLIS哲學文章", help="category of articels in the website", type=str)
     parser.add_argument("--lang", default="中文", help="main language of the website", type=str)
-    parser.add_argument("--prefix", default="https://codelove.tw/?page=", help="prefix 1", type=str)
+    parser.add_argument("--prefix", default="https://www.acropolis.org.tw/articles", help="prefix 1", type=str)
     parser.add_argument("--prefix2", default=None, help="prefix 2", type=str)
-    parser.add_argument("--prefix3", default=None, help="prefix 3", type=str)
-    parser.add_argument("--pages", default=57, help="pages of websites", type=int)
-    parser.add_argument("--block1", default=["div", "bg-white mt-3 post-card"], help="main list of tag and class", type=list)
+    parser.add_argument("--prefix3", default="https://www.acropolis.org.tw", help="prefix 3", type=str)
+    parser.add_argument("--pages", default=1, help="pages of websites", type=int)
+    parser.add_argument("--block1", default=["div", "w-dyn-item"], help="main list of tag and class", type=list)
     parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
-    parser.add_argument("--type", default="scan", help="way of crawling websites", type=str, choices=["scan", "scroll", "onepage"])
+    parser.add_argument("--type", default="onepage", help="way of crawling websites", type=str, choices=["scan", "scroll", "onepage", "click"])
     args = parser.parse_args()
 
     pipe = Pipeline()
-    # pipe.pipeline(
-    #     dir = args.dir,
-    #     name = args.name,
-    #     lang = args.lang,
-    #     prefix = args.prefix,
-    #     prefix2 = args.prefix2,
-    #     prefix3 = args.prefix3,
-    #     pages = args.pages,
-    #     block1 = args.block1,
-    #     block2 = args.block2,
-    #     type =args.type
-    # )
-    for i in tqdm(range(104, 133)):
-        pipe.start_by_idx(
-            idx=i,
-            upgrade_pages=50
+    pipe.pipeline(
+        dir = args.dir,
+        name = args.name,
+        lang = args.lang,
+        prefix = args.prefix,
+        prefix2 = args.prefix2,
+        prefix3 = args.prefix3,
+        pages = args.pages,
+        block1 = args.block1,
+        block2 = args.block2,
+        type =args.type,
+        # sleep_time=1
+    )
+    # for i in tqdm(range(104, 133)):
+    #     pipe.start_by_idx(
+    #         idx=i,
+    #         upgrade_pages=50
             # start_page=258
-        )
+        # )
     # pipe.start_all(upgrade_page=args.upgrade_pages)

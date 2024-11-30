@@ -7,7 +7,6 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from typing import List
 import json
-import warnings
 import time
 from tqdm import tqdm
 
@@ -270,7 +269,7 @@ class Click:
 
     def browse_website(self):
         options = Options()
-        options.add_argument("--headless")
+        # options.add_argument("--headless")
         options.add_argument("--disable-gpu")
         options.add_argument("--window-size=1920x1080")
         self.driver = Edge(options=options)
@@ -315,12 +314,12 @@ class Click:
 
 
 if __name__ == "__main__":
-    prefix =  "https://www.sakura.com.tw/LifeStyle"
+    prefix =  "https://kopu.chat/cloud-computing/#idc"
     prefix2 = None
     prefix3 = None
     pages = 1
-    block1 = ["div", "article-card_header"]
-    block2 = ["xpath", '//*[@id="main"]/section[2]/div[2]/div/nav/ul/li[6]/a']
+    block1 = ["div", "free_content"]
+    block2 = None
     url_path = "test.json"
     # scan = Scan(prefix, prefix2, prefix3, pages, block1, block2, url_path)
     # scan.check_link_reslt()
@@ -330,9 +329,9 @@ if __name__ == "__main__":
     # scroll.check_link_result()
     # scroll.crawl_link()    
 
-    # onepage = OnePage(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
-    # onepage.check_link_result()
+    onepage = OnePage(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
+    onepage.check_link_result()
     # onepage.crawl_link()
 
-    click = Click(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
-    click.clickandcrawl()
+    # click = Click(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
+    # click.clickandcrawl()

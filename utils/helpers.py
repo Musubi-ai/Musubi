@@ -91,4 +91,4 @@ if __name__ == "__main__":
     #     type = "scan"
     # )
 
-    delete_website_by_idx(idx=0, websitelist_path="test.json")
+    delete_website_by_idx(idx=147)

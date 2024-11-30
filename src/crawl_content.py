@@ -3,6 +3,7 @@ from trafilatura import fetch_url, extract
 import json
 from tqdm import tqdm
 import pandas as pd
+import time
 
 
 def get_content(url):
@@ -26,7 +27,8 @@ class Crawl():
 
     def crawl_contents(self, 
         start_idx: int = 0, 
-        save_path: str = None
+        save_path: str = None,
+        sleep_time: int = None
         ):
         """
         Crawl all the contents of websites in urls_path.
@@ -52,6 +54,9 @@ class Crawl():
 
             with open(save_path, "a+", encoding="utf-8") as file:
                 file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+
+            if sleep_time:
+                time.sleep(sleep_time)
 
 
 if __name__ == "__main__":

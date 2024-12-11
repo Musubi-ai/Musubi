@@ -50,13 +50,12 @@ def get_content(url):
 
 def get_image_text_pair(
     url: str = None,
-    tag: str = None,
-    class_: str = None
+    img_txt_block: list = None
 ):
     request = requests.get(url)
     content = request.text
     soup = BeautifulSoup(content, "html.parser")
-    soup = soup.find(tag, class_=class_)
+    soup = soup.find(img_txt_block[0], class_=img_txt_block[1])
     img_list = []
     for img_tag in soup.find_all("img"):
         img_url = img_tag.get("src")
@@ -80,8 +79,7 @@ class Crawl():
 
     def check_content_result(
         self,
-        tag: str = None,
-        class_ : str = None
+        img_txt_block: list = None
     ):
         """
         Check the content of the first website in urls_path.
@@ -91,7 +89,7 @@ class Crawl():
         if self.crawl_type == "text":
             res = get_content(url=url)
         elif self.crawl_type == "img-text":
-            res = get_image_text_pair(tag=tag, class_=class_)
+            res = get_image_text_pair(img_txt_block=img_txt_block)
         print(res)
 
     def crawl_contents(
@@ -99,8 +97,7 @@ class Crawl():
         start_idx: int = 0, 
         save_path: str = None,
         sleep_time: int = None,
-        tag: str = None,
-        class_ : str = None
+        img_txt_block: list = None
         ):
         """
         Crawl all the contents of websites in urls_path.
@@ -128,7 +125,7 @@ class Crawl():
                 with open(save_path, "a+", encoding="utf-8") as file:
                     file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
             elif self.crawl_type == "img-text":
-                result = get_image_text_pair(tag=tag, class_=class_)
+                result = get_image_text_pair(img_txt_block=img_txt_block)
                 for item in result:
                     with open(save_path, "a+", encoding="utf-8") as file:
                         file.write(json.dumps(item, ensure_ascii=False) + "\n")

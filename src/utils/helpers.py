@@ -15,8 +15,7 @@ def add_new_website(
     pages: int = None,
     block1: list = None,
     block2: Optional[List] = None,
-    img_txt_block1: Optional[List] = None,
-    img_txt_block2: Optional[List] = None,
+    img_txt_block: Optional[List] = None,
     type: str = None,
     websitelist_path: str = None
 ):
@@ -37,7 +36,7 @@ def add_new_website(
     if (dir in dir_list) and (name in name_list):
         warnings.warn("The dir and name of new website exists alraedy.")
     
-    if img_txt_block1 is not None:
+    if img_txt_block is not None:
         dictt = {
             "idx": idx,
             "dir": dir,
@@ -49,8 +48,7 @@ def add_new_website(
             "pages": pages,
             "block1": block1,
             "block2": block2,
-            "img_txt_block1": img_txt_block1,
-            "img_txt_block2": img_txt_block2,
+            "img_txt_block": img_txt_block,
             "type": type
         }
     else:

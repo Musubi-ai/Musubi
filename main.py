@@ -8,6 +8,10 @@ import argparse
 
 
 class Pipeline:
+    """
+    Args:
+        websote_path (`str`) config\websites.json or config\imgtxt_webs.json
+    """
     def __init__(
         self, 
         website_path: str = "config\websites.json",
@@ -36,9 +40,13 @@ class Pipeline:
         self.lang = self.website_df.iloc[idx]["lang"]
         self.block1 = None if self.is_nan.iloc[idx]["block1"] else self.website_df.iloc[idx]["block1"]
         self.block2 = None if self.is_nan.iloc[idx]["block2"].all() else self.website_df.iloc[idx]["block2"]
+        self.img_txt_block = None if self.is_nan.iloc[idx]["img_txt_block"] else self.website_df.iloc[idx]["img_txt_block"]
         self.urls_dir = "crawler\{}".format(self.dir)
         self.save_dir = "data\{}\{}".format(self.lang, self.dir)
-        self.urls_path = "crawler\{}\{}_link.json".format(self.dir, self.name)
+        if self.img_txt_block1 is not None and self.img_txt_block2 is not None:
+            self.urls_path = "crawler\{}\{}_imgtxt_link.json".format(self.dir, self.name)
+        else:
+            self.urls_path = "crawler\{}\{}_link.json".format(self.dir, self.name)
         self.save_path = "data\{}\{}\{}.json".format(self.lang, self.dir, self.name)
         self.type = self.website_df.iloc[idx]["type"]
 
@@ -104,8 +112,11 @@ class Pipeline:
         
         # Start crawling the websites
         print("Crawling contents in urls from {}!\n---------------------------------------------".format(self.name))
-        crawl = Crawl(self.urls_path)
-        crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx, sleep_time=sleep_time)
+        if self.img_txt_block is not None:
+            crawl = Crawl(self.urls_path, crawl_type="img-text")
+        else:
+            crawl = Crawl(self.urls_path, crawl_type="text")
+        crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx, sleep_time=sleep_time, img_txt_block=self.img_txt_block)
 
     def start_all(
         self,
@@ -138,6 +149,7 @@ class Pipeline:
         pages: int = None,
         block1: Optional[List] = None,
         block2: Optional[List] = None,
+        img_txt_block: Optional[List] = None,
         type: str = None,
         websitelist_path: str = None,
         start_page: int = 0,
@@ -155,6 +167,7 @@ class Pipeline:
             pages = pages,
             block1 = block1,
             block2 = block2,
+            img_txt_block = img_txt_block,
             type = type,
             websitelist_path = websitelist_path
         )
@@ -167,7 +180,7 @@ class Pipeline:
                 sleep_time=sleep_time
             )
         except:
-            warnings.warn("Failed to parse website, delete the idx from webiste.json now.")
+            warnings.warn("Failed to parse website, delete the idx from webiste config now.")
             delete_website_by_idx(idx=new_website_idx)
 
 
@@ -189,8 +202,7 @@ if __name__ == "__main__":
     parser.add_argument("--pages", default=812, help="pages of websites", type=int)
     parser.add_argument("--block1", default=["p", "title"], help="main list of tag and class", type=list)
     parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
-    parser.add_argument("--img_txt_block1", default=None, help="main list of tag and class for crawling image-text pair", type=list)
-    parser.add_argument("--img_txt_block2", default=None, help="sub list of tag and class for crawling image-text pair", type=list)
+    parser.add_argument("--img_txt_block", default=None, help="main list of tag and class for crawling image-text pair", type=list)
     parser.add_argument("--type", default="scan", help="way of crawling websites", type=str, choices=["scan", "scroll", "onepage", "click"])
     args = parser.parse_args()
 

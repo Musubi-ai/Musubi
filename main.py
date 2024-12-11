@@ -10,7 +10,7 @@ import argparse
 class Pipeline:
     def __init__(
         self, 
-        website_path: str = "websites.json",
+        website_path: str = "config\websites.json",
     ):
         self.website_path = website_path
 
@@ -109,6 +109,7 @@ class Pipeline:
 
     def start_all(
         self,
+        start_idx: int = 0,
         upgrade_page: int = None
     ):
         self.website_df = pd.read_json(self.website_path, lines=True)
@@ -118,11 +119,11 @@ class Pipeline:
             pages = self.website_df["pages"].to_list()
             pages = [page if page <= upgrade_page else upgrade_page for page in pages]
             print("Upgrading text data of each website.\n---------------------------------------------")
-            for i in range(length):
+            for i in range(start_idx, length):
                 self.start_by_idx(idx=i, upgrade_pages=pages[i])
         else:
             print("---------------------------------------------\nIn add mode now.\n---------------------------------------------")
-            for i in range(length):
+            for i in range(start_idx, length):
                 self.start_by_idx(idx=i)
 
     def pipeline(
@@ -138,6 +139,7 @@ class Pipeline:
         block1: Optional[List] = None,
         block2: Optional[List] = None,
         type: str = None,
+        websitelist_path: str = None,
         start_page: int = 0,
         start_idx: int = 0,
         sleep_time: int = None
@@ -154,6 +156,7 @@ class Pipeline:
             block1 = block1,
             block2 = block2,
             type = type,
+            websitelist_path = websitelist_path
         )
 
         try:
@@ -172,39 +175,50 @@ if __name__ == "__main__":
     from tqdm import tqdm
     parser = argparse.ArgumentParser()
     # arguments for upgrade mode
-    parser.add_argument("--index", default=102, help="index of website in the website list", type=int)
+    parser.add_argument("--index", default=27, help="index of website in the website list", type=int)
     parser.add_argument("--upgrade-pages", default=50, help="expected pages to scan or scroll in upgrade mode", type=int)
+    # arguments for config file
+    parser.add_argument("--websitelist_path", default="config\websites.json", help="webiste config file", type=str)
     # arguments for add mode
-    parser.add_argument("--dir", default="窩日本", help="webiste name and its corresponding directory", type=str)
-    parser.add_argument("--name", default="窩日本景點購物", help="category of articels in the website", type=str)
+    parser.add_argument("--dir", default="IThome", help="webiste name and its corresponding directory", type=str)
+    parser.add_argument("--name", default="IThome資安", help="category of articels in the website", type=str)
     parser.add_argument("--lang", default="中文", help="main language of the website", type=str)
-    parser.add_argument("--prefix", default="https://wow-japan.com/category/attractions-shopping/?fwp_paged=", help="prefix 1", type=str)
+    parser.add_argument("--prefix", default="https://www.ithome.com.tw/security?page=", help="prefix 1", type=str)
     parser.add_argument("--prefix2", default=None, help="prefix 2", type=str)
-    parser.add_argument("--prefix3", default=None, help="prefix 3", type=str)
-    parser.add_argument("--pages", default=34, help="pages of websites", type=int)
-    parser.add_argument("--block1", default=["div", "elementor-post__card"], help="main list of tag and class", type=list)
+    parser.add_argument("--prefix3", default="https://www.ithome.com.tw", help="prefix 3", type=str)
+    parser.add_argument("--pages", default=812, help="pages of websites", type=int)
+    parser.add_argument("--block1", default=["p", "title"], help="main list of tag and class", type=list)
     parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
+    parser.add_argument("--img_txt_block1", default=None, help="main list of tag and class for crawling image-text pair", type=list)
+    parser.add_argument("--img_txt_block2", default=None, help="sub list of tag and class for crawling image-text pair", type=list)
     parser.add_argument("--type", default="scan", help="way of crawling websites", type=str, choices=["scan", "scroll", "onepage", "click"])
     args = parser.parse_args()
 
     pipe = Pipeline()
-    pipe.pipeline(
-        dir = args.dir,
-        name = args.name,
-        lang = args.lang,
-        prefix = args.prefix,
-        prefix2 = args.prefix2,
-        prefix3 = args.prefix3,
-        pages = args.pages,
-        block1 = args.block1,
-        block2 = args.block2,
-        type =args.type,
-        # sleep_time=1
-    )
+    # pipe.pipeline(
+    #     dir = args.dir,
+    #     name = args.name,
+    #     lang = args.lang,
+    #     prefix = args.prefix,
+    #     prefix2 = args.prefix2,
+    #     prefix3 = args.prefix3,
+    #     pages = args.pages,
+    #     block1 = args.block1,
+    #     block2 = args.block2,
+    #     type =args.type,
+    #     sleep_time=1
+    # )
+    # pipe.start_by_idx(
+    #         idx=args.index,
+    #         # upgrade_pages=50,
+    #     )
     # for i in tqdm(range(104, 133)):
     #     pipe.start_by_idx(
     #         idx=i,
-    #         upgrade_pages=50
-            # start_page=258
-        # )
-    # pipe.start_all(upgrade_page=args.upgrade_pages)
+    #         upgrade_pages=50,
+    #         start_page=258
+    #     )
+    pipe.start_all(
+        upgrade_page=args.upgrade_pages,
+        start_idx = args.index
+    )

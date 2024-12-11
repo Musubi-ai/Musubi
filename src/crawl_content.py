@@ -1,5 +1,6 @@
 import os
 import requests
+from bs4 import BeautifulSoup
 import pymupdf
 import pymupdf4llm
 import io
@@ -47,23 +48,59 @@ def get_content(url):
     return result
 
 
-class Crawl():
-    def __init__(self, urls_path = None):
-        self.urls_path = urls_path        
+def get_image_text_pair(
+    url: str = None,
+    tag: str = None,
+    class_: str = None
+):
+    request = requests.get(url)
+    content = request.text
+    soup = BeautifulSoup(content, "html.parser")
+    soup = soup.find(tag, class_=class_)
+    img_list = []
+    for img_tag in soup.find_all("img"):
+        img_url = img_tag.get("src")
+        description = img_tag.get("alt")
+        img_list.append({"img_url": img_url, "description": description})
+    return img_list
 
-    def check_content_result(self):
+
+class Crawl():
+    """
+    Args:
+        crawl_type (`str`) should be one of 'text' or 'img-text' 
+    """
+    def __init__(
+        self,
+        urls_path: str = None,
+        crawl_type: str = None
+    ):
+        self.urls_path = urls_path
+        self.crawl_type = crawl_type     
+
+    def check_content_result(
+        self,
+        tag: str = None,
+        class_ : str = None
+    ):
         """
         Check the content of the first website in urls_path.
         """
         df = pd.read_json(self.urls_path, lines=True)
         url = df.iloc[0]["link"]
-        res = get_content(url=url)
+        if self.crawl_type == "text":
+            res = get_content(url=url)
+        elif self.crawl_type == "img-text":
+            res = get_image_text_pair(tag=tag, class_=class_)
         print(res)
 
-    def crawl_contents(self, 
+    def crawl_contents(
+        self, 
         start_idx: int = 0, 
         save_path: str = None,
-        sleep_time: int = None
+        sleep_time: int = None,
+        tag: str = None,
+        class_ : str = None
         ):
         """
         Crawl all the contents of websites in urls_path.
@@ -84,21 +121,27 @@ class Crawl():
             # skip the content if it is in the file already
             if content_list and link in content_list:
                 continue
-            result = get_content(url=link)
-            dictt = {"content": result, "url": link}
 
-            with open(save_path, "a+", encoding="utf-8") as file:
-                file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+            if self.crawl_type == "text":
+                result = get_content(url=link)
+                dictt = {"content": result, "url": link}
+                with open(save_path, "a+", encoding="utf-8") as file:
+                    file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+            elif self.crawl_type == "img-text":
+                result = get_image_text_pair(tag=tag, class_=class_)
+                for item in result:
+                    with open(save_path, "a+", encoding="utf-8") as file:
+                        file.write(json.dumps(item, ensure_ascii=False) + "\n")
 
             if sleep_time:
                 time.sleep(sleep_time)
 
 
 if __name__ == "__main__":
-    urls_path = f"https://ws.ndc.gov.tw/Download.ashx?u=LzAwMS9hZG1pbmlzdHJhdG9yLzEwL3JlbGZpbGUvMC85NDEwL2Y1NjA2NWVhLTg3NTEtNDgwOC04YmYyLTA1YjE0MGVjOTA5My5wZGY%3D&n=6KuW6KGhMTMtNF80LueJueWIpeWgseWwjjAzX%2BaJvuWwi%2BiHuueBo%2BeUoualreacquS%2BhueahOapn%2Bacg%2BKUgOiHuuWMl%2Be%2BjuWci%2BWVhuacg%2BWNiOmkkOacg%2Ba8lOismy5wZGY%3D&icon=..pdf"
-    text = get_content(url=urls_path)
-    print(text)
-    # save_path = f"G:\Musubi\data\中文\超人行銷\超人行銷所有文章.json"
+    # urls_path = f"G:\Musubi\crawler\ADayMagazine\ADayMagazineWHATsNEW_link.json"
+    # text = get_content(url=urls_path)
+    # print(text)
+    # save_path = f"G:\Musubi\data\中文\ADayMagazine\ADayMagazineWHATsNEW.json"
 
     # crawl = Crawl(urls_path=urls_path)
     # crawl.crawl_contents(save_path=save_path)
@@ -106,3 +149,7 @@ if __name__ == "__main__":
     # url = "https://www.thenewslens.com/interactive/138105"
     # res = get_content(url)
     # print(res)
+
+    url = r"https://kmweb.moa.gov.tw/theme_data.php?theme=news&sub_theme=agri_life&id=88406"
+    img_list = get_image_text_pair(url)
+    print(img_list)

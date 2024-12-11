@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-class Analyzer:
+class WebAnalyzer:
     def __init__(
         self,
         websitelist_path = "websites.json"
@@ -28,6 +28,6 @@ class Analyzer:
 
 
 if __name__ == "__main__":
-    analyze = Analyzer()
+    analyze = WebAnalyzer()
     type_dict = analyze.type_analyze()
     print(type_dict)

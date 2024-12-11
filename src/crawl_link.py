@@ -255,7 +255,7 @@ class Click:
         block1: List[str] = None,
         block2: List[str] = None,
         url_path: str = None,
-        sleep_time: int = 5,
+        sleep_time: int = 10,
         **kwargs
     ):
         self.prefix = prefix
@@ -306,20 +306,23 @@ class Click:
                 with open(self.url_path, "a+", encoding="utf-8") as file:
                     file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
 
-            button = self.driver.find_element("xpath", self.block2[1])
-            self.driver.execute_script("$(arguments[0]).click()", button)
+            # button = self.driver.find_element("xpath", self.block2[1])
+            # try:
+            #     self.driver.execute_script("$(arguments[0]).click()", button)
+            # except:
+            #     button.click()
             n += 1
             time.sleep(self.sleep_time)
             pbar.update(1)
 
 
 if __name__ == "__main__":
-    prefix =  "https://kopu.chat/cloud-computing/#idc"
+    prefix =  "https://www.commonhealth.com.tw/channel/2?page=1&tab=all"
     prefix2 = None
     prefix3 = None
     pages = 1
-    block1 = ["div", "free_content"]
-    block2 = None
+    block1 = ["div", "page page--horizontal"]
+    block2 = ["a", "recommend recommend--channels"]
     url_path = "test.json"
     # scan = Scan(prefix, prefix2, prefix3, pages, block1, block2, url_path)
     # scan.check_link_reslt()
@@ -329,9 +332,9 @@ if __name__ == "__main__":
     # scroll.check_link_result()
     # scroll.crawl_link()    
 
-    onepage = OnePage(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
-    onepage.check_link_result()
+    # onepage = OnePage(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
+    # onepage.check_link_result()
     # onepage.crawl_link()
 
-    # click = Click(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
-    # click.clickandcrawl()
+    click = Click(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
+    click.clickandcrawl()

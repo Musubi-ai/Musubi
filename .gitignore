@@ -1,6 +1,6 @@
 crawler/
 data/
-websites.json
+config/websites.json
 src/__pycache__/
 src/utils/__pycache__/
 a.py

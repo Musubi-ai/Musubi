@@ -13,10 +13,12 @@ def add_new_website(
     prefix2: str = None,
     prefix3: str = None,
     pages: int = None,
-    block1: Optional[List] = None,
+    block1: list = None,
     block2: Optional[List] = None,
+    img_txt_block1: Optional[List] = None,
+    img_txt_block2: Optional[List] = None,
     type: str = None,
-    websitelist_path = "websites.json"
+    websitelist_path: str = None
 ):
     exist_idx_list = pd.read_json(websitelist_path, lines=True)["idx"].to_list()
     dir_list = pd.read_json(websitelist_path, lines=True)["dir"].to_list()
@@ -30,24 +32,41 @@ def add_new_website(
         idx = max(exist_idx_list) + 1
 
     if not (idx and dir and name and lang and prefix and pages and block1 and type):
-        raise ValueError("Essential information for crawling website is not complete, please check carefully before changing website.json.")
+        raise ValueError("Essential information for crawling website is not complete, please check carefully before changing config json file.")
     
     if (dir in dir_list) and (name in name_list):
         warnings.warn("The dir and name of new website exists alraedy.")
     
-    dictt = {
-        "idx": idx,
-        "dir": dir,
-        "name": name,
-        "lang": lang,
-        "prefix": prefix,
-        "prefix2": prefix2,
-        "prefix3": prefix3,
-        "pages": pages,
-        "block1": block1,
-        "block2": block2,
-        "type": type
-    }
+    if img_txt_block1 is not None:
+        dictt = {
+            "idx": idx,
+            "dir": dir,
+            "name": name,
+            "lang": lang,
+            "prefix": prefix,
+            "prefix2": prefix2,
+            "prefix3": prefix3,
+            "pages": pages,
+            "block1": block1,
+            "block2": block2,
+            "img_txt_block1": img_txt_block1,
+            "img_txt_block2": img_txt_block2,
+            "type": type
+        }
+    else:
+        dictt = {
+            "idx": idx,
+            "dir": dir,
+            "name": name,
+            "lang": lang,
+            "prefix": prefix,
+            "prefix2": prefix2,
+            "prefix3": prefix3,
+            "pages": pages,
+            "block1": block1,
+            "block2": block2,
+            "type": type
+        }
 
     with open(websitelist_path, "a+", encoding="utf-8") as file:
         file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
@@ -57,7 +76,7 @@ def add_new_website(
 
 def delete_website_by_idx(
     idx: int = None,
-    websitelist_path = "websites.json"
+    websitelist_path = "config\websites.json"
 ):
     """
     Delete website config in website.json by index and sort all configs. 
@@ -78,6 +97,8 @@ def delete_website_by_idx(
 
 
 if __name__ == "__main__":
+    # Eample for adding new website unto website.json 
+    # websitelist_path = "config\websites.json"
     # add_new_website(
     #     # idx = 25,
     #     dir = "報導者",
@@ -88,7 +109,8 @@ if __name__ == "__main__":
     #     prefix3 = "https://www.twreporter.org",
     #     pages = 14,
     #     block1 = ["div", "list-item__Container-sc-1dx5lew-0 kCnicz"],
-    #     type = "scan"
+    #     type = "scan",
+    #     websitelist_path=websitelist_path
     # )
 
     delete_website_by_idx(idx=147)

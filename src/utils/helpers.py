@@ -19,23 +19,29 @@ def add_new_website(
     type: str = None,
     websitelist_path: str = None
 ):
-    exist_idx_list = pd.read_json(websitelist_path, lines=True)["idx"].to_list()
-    dir_list = pd.read_json(websitelist_path, lines=True)["dir"].to_list()
-    name_list = pd.read_json(websitelist_path, lines=True)["name"].to_list()
+    try:
+        exist_idx_list = pd.read_json(websitelist_path, lines=True)["idx"].to_list()
+        dir_list = pd.read_json(websitelist_path, lines=True)["dir"].to_list()
+        name_list = pd.read_json(websitelist_path, lines=True)["name"].to_list()
 
-    if not idx:
-        idx = max(exist_idx_list) + 1
+        if not idx:
+            idx = max(exist_idx_list) + 1
 
-    if idx in exist_idx_list:
-        warnings.warn("The index of new website is not assigned or exists alraedy, the index will be automatically assigned to avoid error.")
-        idx = max(exist_idx_list) + 1
+        if idx in exist_idx_list:
+            warnings.warn("The index of new website is not assigned or exists alraedy, the index will be automatically assigned to avoid error.")
+            idx = max(exist_idx_list) + 1
 
-    if not (idx and dir and name and lang and prefix and pages and block1 and type):
+                
+        if (dir in dir_list) and (name in name_list):
+            warnings.warn("The dir and name of new website exists alraedy.")
+
+    except:
+        warnings.warn("First time crawling website.")
+        idx = 0
+
+    if not (dir and name and lang and prefix and pages and block1 and type) and idx is not None:
         raise ValueError("Essential information for crawling website is not complete, please check carefully before changing config json file.")
-    
-    if (dir in dir_list) and (name in name_list):
-        warnings.warn("The dir and name of new website exists alraedy.")
-    
+
     if img_txt_block is not None:
         dictt = {
             "idx": idx,
@@ -74,7 +80,7 @@ def add_new_website(
 
 def delete_website_by_idx(
     idx: int = None,
-    websitelist_path = "config\websites.json"
+    websitelist_path = None
 ):
     """
     Delete website config in website.json by index and sort all configs. 
@@ -82,6 +88,10 @@ def delete_website_by_idx(
     website_df = pd.read_json(websitelist_path, lines=True)
     dictts = website_df[website_df["idx"] != idx].to_dict("records")
     length = len(dictts)
+
+    if length == 0:
+        with open(websitelist_path, "w", encoding="utf-8") as file:
+            pass
 
     for i in range(length):
         if dictts[i]["idx"] >= idx:
@@ -96,7 +106,7 @@ def delete_website_by_idx(
 
 if __name__ == "__main__":
     # Eample for adding new website unto website.json 
-    # websitelist_path = "config\websites.json"
+    websitelist_path = "config\imgtxt_webs.json"
     # add_new_website(
     #     # idx = 25,
     #     dir = "報導者",
@@ -111,4 +121,4 @@ if __name__ == "__main__":
     #     websitelist_path=websitelist_path
     # )
 
-    delete_website_by_idx(idx=147)
+    delete_website_by_idx(idx=0, websitelist_path=websitelist_path)

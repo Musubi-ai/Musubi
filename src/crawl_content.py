@@ -60,7 +60,7 @@ def get_image_text_pair(
     for img_tag in soup.find_all("img"):
         img_url = img_tag.get("src")
         description = img_tag.get("alt")
-        img_list.append({"img_url": img_url, "description": description})
+        img_list.append({"img_url": img_url, "caption": description, "url": url})
     return img_list
 
 
@@ -89,7 +89,7 @@ class Crawl():
         if self.crawl_type == "text":
             res = get_content(url=url)
         elif self.crawl_type == "img-text":
-            res = get_image_text_pair(img_txt_block=img_txt_block)
+            res = get_image_text_pair(url=url, img_txt_block=img_txt_block)
         print(res)
 
     def crawl_contents(
@@ -125,7 +125,7 @@ class Crawl():
                 with open(save_path, "a+", encoding="utf-8") as file:
                     file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
             elif self.crawl_type == "img-text":
-                result = get_image_text_pair(img_txt_block=img_txt_block)
+                result = get_image_text_pair(url=link, img_txt_block=img_txt_block)
                 for item in result:
                     with open(save_path, "a+", encoding="utf-8") as file:
                         file.write(json.dumps(item, ensure_ascii=False) + "\n")
@@ -147,6 +147,6 @@ if __name__ == "__main__":
     # res = get_content(url)
     # print(res)
 
-    url = r"https://kmweb.moa.gov.tw/theme_data.php?theme=news&sub_theme=agri_life&id=88406"
-    img_list = get_image_text_pair(url)
+    url = r"https://kmweb.moa.gov.tw/theme_data.php?theme=news&sub_theme=agri_life&id=88958"
+    img_list = get_image_text_pair(url, img_txt_block=["div", "articlepara"])
     print(img_list)

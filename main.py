@@ -2,6 +2,7 @@ from src import Crawl, Scan, Scroll, OnePage, Click
 from src.utils import add_new_website, delete_website_by_idx
 from typing import List, Optional
 import warnings
+import logging
 import os
 import pandas as pd
 import argparse
@@ -14,7 +15,7 @@ class Pipeline:
     """
     def __init__(
         self, 
-        website_path: str = "config\websites.json",
+        website_path: str = None,
     ):
         self.website_path = website_path
 
@@ -41,11 +42,12 @@ class Pipeline:
         self.block1 = None if self.is_nan.iloc[idx]["block1"] else self.website_df.iloc[idx]["block1"]
         self.block2 = None if self.is_nan.iloc[idx]["block2"].all() else self.website_df.iloc[idx]["block2"]
         self.img_txt_block = None if self.is_nan.iloc[idx]["img_txt_block"] else self.website_df.iloc[idx]["img_txt_block"]
-        self.urls_dir = "crawler\{}".format(self.dir)
         self.save_dir = "data\{}\{}".format(self.lang, self.dir)
-        if self.img_txt_block1 is not None and self.img_txt_block2 is not None:
-            self.urls_path = "crawler\{}\{}_imgtxt_link.json".format(self.dir, self.name)
+        if self.img_txt_block is not None:
+            self.urls_dir = "imgtxt_crawler\{}".format(self.dir)
+            self.urls_path = "imgtxt_crawler\{}\{}_imgtxt_link.json".format(self.dir, self.name)
         else:
+            self.urls_dir = "crawler\{}".format(self.dir)
             self.urls_path = "crawler\{}\{}_link.json".format(self.dir, self.name)
         self.save_path = "data\{}\{}\{}.json".format(self.lang, self.dir, self.name)
         self.type = self.website_df.iloc[idx]["type"]
@@ -56,7 +58,7 @@ class Pipeline:
             indices = self.website_df["idx"].to_list()
             if idx not in indices:
                 raise ValueError("In upgrade mode but assigned index does not exists in website.json file.")
-
+        
         # First check the existence of the directories. If not, build them.
         if not os.path.isdir(self.urls_dir):
             os.makedirs(self.urls_dir)
@@ -114,8 +116,10 @@ class Pipeline:
         print("Crawling contents in urls from {}!\n---------------------------------------------".format(self.name))
         if self.img_txt_block is not None:
             crawl = Crawl(self.urls_path, crawl_type="img-text")
+            print("Crawling image-text pair.")
         else:
             crawl = Crawl(self.urls_path, crawl_type="text")
+            print("Crawling pure text data.")
         crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx, sleep_time=sleep_time, img_txt_block=self.img_txt_block)
 
     def start_all(
@@ -151,7 +155,6 @@ class Pipeline:
         block2: Optional[List] = None,
         img_txt_block: Optional[List] = None,
         type: str = None,
-        websitelist_path: str = None,
         start_page: int = 0,
         start_idx: int = 0,
         sleep_time: int = None
@@ -169,7 +172,7 @@ class Pipeline:
             block2 = block2,
             img_txt_block = img_txt_block,
             type = type,
-            websitelist_path = websitelist_path
+            websitelist_path = self.website_path
         )
 
         try:
@@ -181,7 +184,7 @@ class Pipeline:
             )
         except:
             warnings.warn("Failed to parse website, delete the idx from webiste config now.")
-            delete_website_by_idx(idx=new_website_idx)
+            delete_website_by_idx(idx=new_website_idx, websitelist_path=self.website_path)
 
 
 if __name__ == "__main__":
@@ -191,35 +194,36 @@ if __name__ == "__main__":
     parser.add_argument("--index", default=27, help="index of website in the website list", type=int)
     parser.add_argument("--upgrade-pages", default=50, help="expected pages to scan or scroll in upgrade mode", type=int)
     # arguments for config file
-    parser.add_argument("--websitelist_path", default="config\websites.json", help="webiste config file", type=str)
+    parser.add_argument("--websitelist_path", default="config\imgtxt_webs.json", help="webiste config file", type=str)
     # arguments for add mode
-    parser.add_argument("--dir", default="IThome", help="webiste name and its corresponding directory", type=str)
-    parser.add_argument("--name", default="IThome資安", help="category of articels in the website", type=str)
-    parser.add_argument("--lang", default="中文", help="main language of the website", type=str)
-    parser.add_argument("--prefix", default="https://www.ithome.com.tw/security?page=", help="prefix 1", type=str)
-    parser.add_argument("--prefix2", default=None, help="prefix 2", type=str)
-    parser.add_argument("--prefix3", default="https://www.ithome.com.tw", help="prefix 3", type=str)
-    parser.add_argument("--pages", default=812, help="pages of websites", type=int)
-    parser.add_argument("--block1", default=["p", "title"], help="main list of tag and class", type=list)
+    parser.add_argument("--dir", default="農業知識入口網", help="webiste name and its corresponding directory", type=str)
+    parser.add_argument("--name", default="農業知識入口網農業與生活", help="category of articels in the website", type=str)
+    parser.add_argument("--lang", default="圖文", help="main language of the website", type=str)
+    parser.add_argument("--prefix", default="https://kmweb.moa.gov.tw/theme_list.php?theme=news&sub_theme=agri_life&page=", help="prefix 1", type=str)
+    parser.add_argument("--prefix2", default="&display_num=10", help="prefix 2", type=str)
+    parser.add_argument("--prefix3", default="https://kmweb.moa.gov.tw/", help="prefix 3", type=str)
+    parser.add_argument("--pages", default=10, help="pages of websites", type=int)
+    parser.add_argument("--block1", default=["div", "txtbox"], help="main list of tag and class", type=list)
     parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
-    parser.add_argument("--img_txt_block", default=None, help="main list of tag and class for crawling image-text pair", type=list)
+    parser.add_argument("--img_txt_block", default=["div", "articlepara"], help="main list of tag and class for crawling image-text pair", type=list)
     parser.add_argument("--type", default="scan", help="way of crawling websites", type=str, choices=["scan", "scroll", "onepage", "click"])
     args = parser.parse_args()
 
-    pipe = Pipeline()
-    # pipe.pipeline(
-    #     dir = args.dir,
-    #     name = args.name,
-    #     lang = args.lang,
-    #     prefix = args.prefix,
-    #     prefix2 = args.prefix2,
-    #     prefix3 = args.prefix3,
-    #     pages = args.pages,
-    #     block1 = args.block1,
-    #     block2 = args.block2,
-    #     type =args.type,
-    #     sleep_time=1
-    # )
+    pipe = Pipeline(website_path=args.websitelist_path)
+    pipe.pipeline(
+        dir = args.dir,
+        name = args.name,
+        lang = args.lang,
+        prefix = args.prefix,
+        prefix2 = args.prefix2,
+        prefix3 = args.prefix3,
+        pages = args.pages,
+        block1 = args.block1,
+        block2 = args.block2,
+        type = args.type,
+        img_txt_block = args.img_txt_block,
+        sleep_time=1
+    )
     # pipe.start_by_idx(
     #         idx=args.index,
     #         # upgrade_pages=50,
@@ -230,7 +234,7 @@ if __name__ == "__main__":
     #         upgrade_pages=50,
     #         start_page=258
     #     )
-    pipe.start_all(
-        upgrade_page=args.upgrade_pages,
-        start_idx = args.index
-    )
+    # pipe.start_all(
+    #     upgrade_page=args.upgrade_pages,
+    #     start_idx = args.index
+    # )

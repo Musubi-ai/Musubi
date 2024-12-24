@@ -22,13 +22,13 @@ def formate_pdf(pdf_content: str):
         line = text_list[i]
         if (len(line) == 0) or (len(line.replace(" ", "")) == 0):
             continue
-        if re.search("([一二三四五六七八九十]、\s\w*)|([123456789].\s\w*)|([零壹貳參肆伍陸柒捌玖拾]、\s\w*)|([一二三四五六七八九十]、\w*)|([123456789].\w*)|([零壹貳參肆伍陸柒捌玖拾]、\w*)", line):
+        if re.search("([一二三四五六七八九十]、\s\w*)|([123456789].\s\w*)|([零壹貳參肆伍陸柒捌玖拾]、\s\w*)|([一二三四五六七八九十]、\w*)|([零壹貳參肆伍陸柒捌玖拾]、\w*)", line):
             line = "\n" + line + "\n" if i != 0 else line + "\n"
         if line[-1] in ["。", "：", ":", "？", "?", ".", "」", ")", "|", "`", "-", "》"]:
             line = line + "\n"
         if line[0] == "#" and line[-1] != "\n":
             line = line + "\n"
-        if len(line) - len(line.lstrip()) == 1:
+        if len(line) - len(line.lstrip()) > 0:
             line = line.lstrip()
         formated_doc += line
 
@@ -147,6 +147,16 @@ if __name__ == "__main__":
     # res = get_content(url)
     # print(res)
 
-    url = r"https://kmweb.moa.gov.tw/theme_data.php?theme=news&sub_theme=agri_life&id=88958"
-    img_list = get_image_text_pair(url, img_txt_block=["div", "articlepara"])
-    print(img_list)
+    # url = r"https://kmweb.moa.gov.tw/theme_data.php?theme=news&sub_theme=agri_life&id=88958"
+    # img_list = get_image_text_pair(url, img_txt_block=["div", "articlepara"])
+    # print(img_list)
+
+    content = """對半導體需求暢旺，進而驅動半導體業者積極投資擴廠，帶動我國半導體設備
+業產值於109年起突破千億元水準，年增47.3%，之後連續3年呈高速雙位數成
+長，惟隨全球步入高通膨及高利率環境後，消費及設備投資動能均放緩，112年
+
+產值轉年減7.3%，結束自101年以來連續11年成長趨勢，今(113)年隨 AI 商機
+浪潮崛起，對高效能運算、人工智慧應用之需求強勁，再度加速市場對半導體
+先進製程之產能需求，推升1-5月產值恢復正成長，年增5.5%。"""
+    res = formate_pdf(content)
+    print(res)

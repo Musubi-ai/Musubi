@@ -1,17 +1,118 @@
+import os
+from selenium.webdriver import Edge
+from selenium.webdriver.edge.options import Options
+from selenium.webdriver.common.by import By
+import pandas as pd
+from bs4 import BeautifulSoup
+from typing import List
+import json
+import random
+from tqdm import tqdm
 import aiohttp
 import asyncio
-import time
 
 
-async def do(num):
-    print(f"Hello, {num}")
-    await asyncio.sleep(1)
-    print(f"world, {num}")
+headers = {'user-agent': 'Mozilla/5.0'}
 
 
+class AsyncScan:
+    def __init__(
+        self,
+        prefix: str = None,
+        prefix2: str = None,
+        prefix3: str = None,
+        pages: int = None,
+        block1: List[str] = None,
+        block2: List[str] = None,
+        url_path: str = None,
+        max_concurrent_tasks: int = 5,
+        **kwargs
+    ):
+        self.prefix = prefix
+        self.prefix2 = prefix2
+        self.prefix3 = prefix3
+        self.pages = pages
+        self.url_path = url_path
+        self.block1 = block1
+        self.block2 = block2
+        self.semaphore = asyncio.Semaphore(max_concurrent_tasks)
+        if pages == 1:
+            self.pages_lst = [self.prefix]
+        else:
+            if prefix2:
+                self.pages_lst = [self.prefix + str(i+1) + self.prefix2 for i in range(self.pages)]
+            else:
+                self.pages_lst = [self.prefix + str(i+1) for i in range(self.pages)]
+
+        self.length = len(self.pages_lst)
+        self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")
+
+    async def fetch(self, session: aiohttp.ClientSession, url):
+        async with session.get(url, headers=headers) as response:
+            return await response.text()
+        
+    async def get_urls(
+        self, 
+        session: aiohttp.ClientSession = None, 
+        page: str = None
+    ):
+        async with self.semaphore:
+            link_list = []
+            try:
+                html = await self.fetch(session, page)
+                soup = BeautifulSoup(html, features="html.parser")
+
+                if self.block2:
+                    blocks = soup.find(self.block1[0], class_=self.block1[1])
+                    blocks = blocks.find_all(self.block2[0], class_=self.block2[1])
+                else:
+                    blocks = soup.find_all(self.block1[0], class_=self.block1[1])
+
+                for block in blocks:
+                    if self.prefix3:
+                        link = self.prefix3 + block.a["href"]
+                    else:
+                        link = block.a["href"]
+                    link_list.append(link)
+
+            except Exception as e:
+                print(f"Error fetching {page}: {e}")
+
+            await asyncio.sleep(random.uniform(0.5, 2.0))
+            
+            return link_list
+    
+    async def crawl_link(self, start_page: int = 0):
+        is_url_path = os.path.isfile(self.url_path)
+        if is_url_path:
+            url_list = pd.read_json(self.url_path, lines=True)["link"].to_list()
+        else:
+            url_list = None
+
+        async with aiohttp.ClientSession() as session:
+            tasks = []
+            for i in range(start_page, self.length):
+                page = self.pages_lst[i]
+                tasks.append(self.get_urls(session, page))
+
+            for task in tqdm(asyncio.as_completed(tasks), total=len(tasks)):
+                link_list = await task
+                for link in link_list:
+                    if url_list and link in url_list:
+                        continue
+                    dictt = {"link": link}
+                    with open(self.url_path, "a+", encoding="utf-8") as file:
+                        file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+
+    
 if __name__ == "__main__":
-    start = time.time()
-    task = [do(i) for i in range(5)]
-    asyncio.run(asyncio.wait(task))
-    end = time.time()
-    print(f'花費時間：{end-start}')
+    prefix = "https://aroundtaiwan.net/category/go/page/"
+    prefix2 = "/"
+    prefix3 = None
+    pages = 6
+    block1 = ["div", "entries"]
+    block2 = ["h2", "entry-title"]
+    url_path = "test.json"
+    
+    scan = AsyncScan(prefix, prefix2, prefix3, pages, block1, block2, url_path)
+    asyncio.run(scan.crawl_link())

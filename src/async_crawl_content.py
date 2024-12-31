@@ -40,19 +40,17 @@ def formate_pdf(pdf_content: str):
     return formated_doc
 
 
-async def get_content(
-    url: str = None, 
-    session: aiohttp.ClientSession = None
-):
+async def get_content(url: str = None, session: aiohttp.ClientSession = None):
     if url.endswith(".pdf"):
         async with session.get(url, headers=headers) as request:
-            filestream = await io.BytesIO(request.content)
-        with pymupdf.open(stream=filestream, filetype="pdf") as doc:
+            filestream = io.BytesIO(await request.read())
+        with pymupdf.open(stream=filestream.getvalue(), filetype="pdf") as doc:
             result = pymupdf4llm.to_markdown(doc)
         result = formate_pdf(result)
     else:
-        downloaded = await fetch_url(url)
-        result = extract(downloaded, favor_precision=True, output_format="markdown")
+        loop = asyncio.get_event_loop()
+        downloaded = await loop.run_in_executor(None, fetch_url, url)
+        result = await loop.run_in_executor(None, extract, downloaded, True, "markdown")
     return result
 
 async def fetch(session: aiohttp.ClientSession, url):
@@ -111,27 +109,15 @@ class Crawl():
         save_path: str = None,
         sleep_time: int = None,
         img_txt_block: list = None
-        ):
-        """
-        Crawl all the contents of websites in urls_path.
-        """
+    ):
         async with self.semaphore:
             save_file = os.path.isfile(save_path)
-
-            # check the file exist or not
-            if save_file:
-                content_list = pd.read_json(save_path, lines=True)["url"].to_list()
-            else:
-                content_list = None
-
+            content_list = pd.read_json(save_path, lines=True)["url"].to_list() if save_file else None
             url_df = pd.read_json(self.urls_path, lines=True)
-            length = len(url_df)
-
             tasks = []
 
-            for i in tqdm(range(start_idx, length)):
+            for i in range(start_idx, len(url_df)):
                 link = url_df.iloc[i]["link"]
-                # skip the content if it is in the file already
                 if content_list and link in content_list:
                     continue
 
@@ -139,21 +125,20 @@ class Crawl():
                     tasks.append(get_content(url=link))
                 elif self.crawl_type == "img-text":
                     tasks.append(get_image_text_pair(url=link, img_txt_block=img_txt_block))
-            
-            for task in tqdm(asyncio.as_completed(tasks), total=len(tasks)):
-                res = await task
-                if self.crawl_type == "text":
-                    result = extract(res, favor_precision=True, output_format="markdown")
-                    dictt = {"content": result, "url": link}
-                    with open(save_path, "a+", encoding="utf-8") as file:
-                        file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
-                elif self.crawl_type == "img-text":
-                    for item in result:
-                        with open(save_path, "a+", encoding="utf-8") as file:
-                            file.write(json.dumps(item, ensure_ascii=False) + "\n")
 
-                if sleep_time:
-                    time.sleep(sleep_time)
+            for task in asyncio.as_completed(tasks):
+                try:
+                    res = await task
+                    with open(save_path, "a+", encoding="utf-8") as file:
+                        if self.crawl_type == "text":
+                            file.write(json.dumps({"content": res, "url": link}, ensure_ascii=False) + "\n")
+                        elif self.crawl_type == "img-text":
+                            for item in res:
+                                file.write(json.dumps(item, ensure_ascii=False) + "\n")
+                    if sleep_time:
+                        await asyncio.sleep(sleep_time)
+                except Exception as e:
+                    print(f"Error during task execution: {e}")
 
 
 if __name__ == "__main__":

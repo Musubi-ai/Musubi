@@ -106,11 +106,11 @@ class Crawl():
 
         # check the file exist or not
         if save_file:
-            content_list = pd.read_json(save_path, lines=True)["url"].to_list()
+            content_list = pd.read_json(save_path, lines=True, engine="pyarrow")["url"].to_list()
         else:
             content_list = None
 
-        url_df = pd.read_json(self.urls_path, lines=True)
+        url_df = pd.read_json(self.urls_path, lines=True, engine="pyarrow")
         length = len(url_df)
 
         for i in tqdm(range(start_idx, length)):

@@ -25,7 +25,9 @@ class Pipeline:
         start_idx: int = 0,
         idx: int = None,
         upgrade_pages: int = None,
-        sleep_time: int = None
+        sleep_time: int = None,
+        save_dir: str = None,
+        urls_dir: str = None
     ):
         if idx is None:
             raise ValueError("The index cannot be unassigned, please fill index argument.")
@@ -38,21 +40,37 @@ class Pipeline:
         self.prefix3 = None if self.is_nan.iloc[idx]["prefix3"] else self.website_df.iloc[idx]["prefix3"]
         self.pages = self.website_df.iloc[idx]["pages"]
         self.dir = self.website_df.iloc[idx]["dir"]
-        self.lang = self.website_df.iloc[idx]["lang"]
+        self.class_ = self.website_df.iloc[idx]["class"]
         self.block1 = None if self.is_nan.iloc[idx]["block1"] else self.website_df.iloc[idx]["block1"]
         self.block2 = None if self.is_nan.iloc[idx]["block2"].all() else self.website_df.iloc[idx]["block2"]
         if "img_txt_block" in self.website_df.columns:
             self.img_txt_block = self.website_df.iloc[idx]["img_txt_block"]
         else:
             self.img_txt_block = None
-        self.save_dir = "data\{}\{}".format(self.lang, self.dir)
-        if self.img_txt_block is not None:
-            self.urls_dir = "imgtxt_crawler\{}".format(self.dir)
-            self.urls_path = "imgtxt_crawler\{}\{}_imgtxt_link.json".format(self.dir, self.name)
+
+        if save_dir is not None:
+            self.save_dir = save_dir + "\data\{}\{}".format(self.class_, self.dir)
+            self.save_path = save_dir + "\data\{}\{}\{}.json".format(self.class_, self.dir, self.name)
         else:
-            self.urls_dir = "crawler\{}".format(self.dir)
-            self.urls_path = "crawler\{}\{}_link.json".format(self.dir, self.name)
-        self.save_path = "data\{}\{}\{}.json".format(self.lang, self.dir, self.name)
+            self.save_dir = "data\{}\{}".format(self.class_, self.dir)
+            self.save_path = "data\{}\{}\{}.json".format(self.class_, self.dir, self.name)
+
+        if self.img_txt_block is not None:
+            if save_dir is not None:
+                self.urls_dir = save_dir + "\imgtxt_crawler\{}".format(self.dir)
+                self.urls_path = save_dir + "\imgtxt_crawler\{}\{}_imgtxt_link.json".format(self.dir, self.name)
+            else:
+                self.urls_dir = "imgtxt_crawler\{}".format(self.dir)
+                self.urls_path = "imgtxt_crawler\{}\{}_imgtxt_link.json".format(self.dir, self.name)
+        else:
+            if save_dir is not None:
+                self.urls_dir = save_dir + "\crawler\{}".format(self.dir)
+                self.urls_path = save_dir + "\crawler\{}\{}_link.json".format(self.dir, self.name)
+            else:
+                self.urls_dir = "crawler\{}".format(self.dir)
+                self.urls_path = "crawler\{}\{}_link.json".format(self.dir, self.name)
+        
+
         self.type = self.website_df.iloc[idx]["type"]
 
         if upgrade_pages:
@@ -130,7 +148,7 @@ class Pipeline:
         start_idx: int = 0,
         upgrade_page: int = None
     ):
-        self.website_df = pd.read_json(self.website_path, lines=True)
+        self.website_df = pd.read_json(self.website_path, lines=True, engine="pyarrow")
         length = len(self.website_df)
         if upgrade_page:
             print("---------------------------------------------\nIn upgrade mode now, setting the upgraded page for each website based on upgrade_page argument.\n---------------------------------------------")
@@ -149,7 +167,7 @@ class Pipeline:
         idx: int = None,
         dir: str = None,
         name: str = None,
-        lang: str = None,
+        class_: str = None,
         prefix: str = None,
         prefix2: str = None,
         prefix3: str = None,
@@ -166,7 +184,7 @@ class Pipeline:
             idx = idx,
             dir = dir,
             name = name,
-            lang = lang,
+            class_ = class_,
             prefix = prefix,
             prefix2 = prefix2,
             prefix3 = prefix3,
@@ -194,18 +212,18 @@ if __name__ == "__main__":
     from tqdm import tqdm
     parser = argparse.ArgumentParser()
     # arguments for upgrade mode
-    parser.add_argument("--index", default=0, help="index of website in the website list", type=int)
+    parser.add_argument("--index", default=95, help="index of website in the website list", type=int)
     parser.add_argument("--upgrade-pages", default=50, help="expected pages to scan or scroll in upgrade mode", type=int)
     # arguments for config file
     parser.add_argument("--websitelist_path", default="config\websites.json", help="webiste config file", type=str)
     # arguments for add mode
     parser.add_argument("--dir", default="u5mr", help="webiste name and its corresponding directory", type=str)
-    parser.add_argument("--name", default="u5mr藝人", help="category of articels in the website", type=str)
-    parser.add_argument("--lang", default="中文", help="main language of the website", type=str)
-    parser.add_argument("--prefix", default="https://www.u5mr.com/category/music/artists/page/", help="prefix 1", type=str)
+    parser.add_argument("--name", default="u5mr生活", help="category of articels in the website", type=str)
+    parser.add_argument("--class_", default="中文", help="main class of the website", type=str)
+    parser.add_argument("--prefix", default="https://www.u5mr.com/category/lifestyle/page/", help="prefix 1", type=str)
     parser.add_argument("--prefix2", default=None, help="prefix 2", type=str)
     parser.add_argument("--prefix3", default=None, help="prefix 3", type=str)
-    parser.add_argument("--pages", default=8, help="pages of websites", type=int)
+    parser.add_argument("--pages", default=10, help="pages of websites", type=int)
     parser.add_argument("--block1", default=["div", "post-img"], help="main list of tag and class", type=list)
     parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
     parser.add_argument("--img_txt_block", default=None, help="main list of tag and class for crawling image-text pair", type=list)
@@ -216,7 +234,7 @@ if __name__ == "__main__":
     pipe.pipeline(
         dir = args.dir,
         name = args.name,
-        lang = args.lang,
+        class_ = args.class_,
         prefix = args.prefix,
         prefix2 = args.prefix2,
         prefix3 = args.prefix3,
@@ -225,7 +243,7 @@ if __name__ == "__main__":
         block2 = args.block2,
         type = args.type,
         img_txt_block = args.img_txt_block,
-        # sleep_time=1
+        sleep_time=1
     )
     # pipe.start_by_idx(
     #         idx=args.index,

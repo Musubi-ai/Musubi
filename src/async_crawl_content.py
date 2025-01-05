@@ -82,7 +82,7 @@ class Crawl():
         self,
         urls_path: str = None,
         crawl_type: str = None,
-        max_concurrent_tasks: int = 5,
+        max_concurrent_tasks: int = 10,
     ):
         self.urls_path = urls_path
         self.crawl_type = crawl_type     
@@ -142,10 +142,10 @@ class Crawl():
 
 
 if __name__ == "__main__":
-    urls_path = r"C:\Python\Crawl4LLM\test.json"
+    urls_path = r"test.json"
     # text = get_content(url=urls_path)
 
-    save_path = r"C:\Python\Crawl4LLM\test_res.json"
+    save_path = r"G:\Musubi\test_res.json"
 
     crawl = Crawl(urls_path=urls_path, crawl_type="text")
     asyncio.run(crawl.crawl_contents(save_path=save_path))

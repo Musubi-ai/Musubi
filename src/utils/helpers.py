@@ -8,7 +8,7 @@ def add_new_website(
     idx: int = None,
     dir: str = None,
     name: str = None,
-    lang: str = None,
+    class_: str = None,
     prefix: str = None,
     prefix2: str = None,
     prefix3: str = None,
@@ -39,7 +39,7 @@ def add_new_website(
         warnings.warn("First time crawling website.")
         idx = 0
 
-    if not (dir and name and lang and prefix and pages and block1 and type) and idx is not None:
+    if not (dir and name and class_ and prefix and pages and block1 and type) and idx is not None:
         raise ValueError("Essential information for crawling website is not complete, please check carefully before changing config json file.")
 
     if img_txt_block is not None:
@@ -47,7 +47,7 @@ def add_new_website(
             "idx": idx,
             "dir": dir,
             "name": name,
-            "lang": lang,
+            "class": class_,
             "prefix": prefix,
             "prefix2": prefix2,
             "prefix3": prefix3,
@@ -62,7 +62,7 @@ def add_new_website(
             "idx": idx,
             "dir": dir,
             "name": name,
-            "lang": lang,
+            "class": class_,
             "prefix": prefix,
             "prefix2": prefix2,
             "prefix3": prefix3,
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     #     # idx = 25,
     #     dir = "報導者",
     #     name = "教育校園",
-    #     lang = "中文",
+    #     class_ = "中文",
     #     prefix = "https://www.twreporter.org/categories/education?page=",
     #     prefix2 = None,
     #     prefix3 = "https://www.twreporter.org",

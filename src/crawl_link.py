@@ -1,5 +1,6 @@
 import os
 import requests
+from abc import ABC, abstractmethod
 from selenium.webdriver import Edge
 from selenium.webdriver.edge.options import Options
 from selenium.webdriver.common.by import By
@@ -13,7 +14,7 @@ from tqdm import tqdm
 headers = {'user-agent': 'Mozilla/5.0'}
 
 
-class Scan:
+class BaseCrawl(ABC):
     def __init__(
         self,
         prefix: str = None,
@@ -23,7 +24,7 @@ class Scan:
         block1: List[str] = None,
         block2: List[str] = None,
         url_path: str = None,
-        **kwargs
+        sleep_time: int = None,
     ):
         self.prefix = prefix
         self.prefix2 = prefix2
@@ -32,6 +33,31 @@ class Scan:
         self.url_path = url_path
         self.block1 = block1
         self.block2 = block2
+        self.sleep_time = sleep_time
+
+    @abstractmethod
+    def crawl_link(self):
+        ...
+
+    @abstractmethod
+    def check_link_result(self):
+        ...
+
+
+class Scan(BaseCrawl):
+    def __init__(
+        self, 
+        prefix: str = None,
+        prefix2: str = None,
+        prefix3: str = None,
+        pages: int = None,
+        block1: List[str] = None,
+        block2: List[str] = None,
+        url_path: str = None,
+        sleep_time: int = None,
+        **kwargs
+    ):
+        super().__init__(prefix, prefix2, prefix3, pages, block1, block2, url_path, sleep_time)
         if pages == 1:
             self.pages_lst = [self.prefix]
         else:
@@ -47,7 +73,6 @@ class Scan:
         link_list = []
         r = requests.get(page, headers=headers)
         soup = BeautifulSoup(r.text, features="html.parser")
-
         if self.block2:
             blocks = soup.find(self.block1[0], class_=self.block1[1])
             blocks = blocks.find_all(self.block2[0], class_=self.block2[1])
@@ -71,7 +96,7 @@ class Scan:
     def crawl_link(self, start_page: int=0):
         is_url_path = os.path.isfile(self.url_path)
         if is_url_path:
-            url_list = pd.read_json(self.url_path, lines=True)["link"].to_list()
+            url_list = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["link"].to_list()
         else:
             url_list = None
 
@@ -85,15 +110,15 @@ class Scan:
                 with open(self.url_path, "a+", encoding="utf-8") as file:
                     file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
 
-    def check_link_reslt(self):
+    def check_link_result(self):
         page = self.pages_lst[0]
         link_list = self.get_urls(page=page)
         print(link_list[0])
 
 
-class Scroll:
+class Scroll(BaseCrawl):
     def __init__(
-        self,
+        self, 
         prefix: str = None,
         prefix2: str = None,
         prefix3: str = None,
@@ -101,16 +126,10 @@ class Scroll:
         block1: List[str] = None,
         block2: List[str] = None,
         url_path: str = None,
-        sleep_time: int = 3,
+        sleep_time: int = None,
         **kwargs
     ):
-        self.prefix = prefix
-        self.prefix2 = prefix2
-        self.prefix3 = prefix3
-        self.url_path = url_path
-        self.block1 = block1
-        self.block2 = block2
-        self.sleep_time = sleep_time
+        super().__init__(prefix, prefix2, prefix3, pages, block1, block2, url_path, sleep_time)
         self.scroll_time = pages
 
     def browse_website(self):
@@ -145,7 +164,7 @@ class Scroll:
     def crawl_link(self):
         is_url_path = os.path.isfile(self.url_path)
         if is_url_path:
-            url_list = pd.read_json(self.url_path, lines=True)["link"].to_list()
+            url_list = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["link"].to_list()
         else:
             url_list = None
         self.browse_website()
@@ -182,21 +201,20 @@ class Scroll:
         print(check_list)
 
 
-class OnePage:
+class OnePage(BaseCrawl):
     def __init__(
-        self,
+        self, 
         prefix: str = None,
+        prefix2: str = None,
         prefix3: str = None,
+        pages: int = None,
         block1: List[str] = None,
         block2: List[str] = None,
         url_path: str = None,
+        sleep_time: int = None,
         **kwargs
     ):
-        self.prefix = prefix
-        self.prefix3 = prefix3
-        self.url_path = url_path
-        self.block1 = block1
-        self.block2 = block2
+        super().__init__(prefix, prefix2, prefix3, pages, block1, block2, url_path, sleep_time)
         self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")
 
     def get_urls(self):
@@ -228,7 +246,7 @@ class OnePage:
     def crawl_link(self):
         is_url_path = os.path.isfile(self.url_path)
         if is_url_path:
-            url_list = pd.read_json(self.url_path, lines=True)["link"].to_list()
+            url_list = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["link"].to_list()
         else:
             url_list = None
 
@@ -242,12 +260,11 @@ class OnePage:
 
     def check_link_result(self):
         link_list = self.get_urls()
-        print(link_list[0])
 
 
-class Click:
+class Click(BaseCrawl):
     def __init__(
-        self,
+        self, 
         prefix: str = None,
         prefix2: str = None,
         prefix3: str = None,
@@ -255,16 +272,10 @@ class Click:
         block1: List[str] = None,
         block2: List[str] = None,
         url_path: str = None,
-        sleep_time: int = 10,
+        sleep_time: int = None,
         **kwargs
     ):
-        self.prefix = prefix
-        self.prefix2 = prefix2
-        self.prefix3 = prefix3
-        self.url_path = url_path
-        self.block1 = block1
-        self.block2 = block2
-        self.sleep_time = sleep_time
+        super().__init__(prefix, prefix2, prefix3, pages, block1, block2, url_path, sleep_time)
         self.click_time = pages
 
     def browse_website(self):
@@ -274,9 +285,10 @@ class Click:
         options.add_argument("--window-size=1920x1080")
         self.driver = Edge(options=options)
         self.driver.get(self.prefix)
-        time.sleep(self.sleep_time)
+        if self.sleep_time:
+            time.sleep(self.sleep_time)
 
-    def clickandcrawl(
+    def crawl_link(
         self,
         click_time: int = None,
     ):
@@ -287,7 +299,7 @@ class Click:
 
         is_url_path = os.path.isfile(self.url_path)
         if is_url_path:
-            url_list = pd.read_json(self.url_path, lines=True)["link"].to_list()
+            url_list = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["link"].to_list()
         else:
             url_list = None
 
@@ -306,27 +318,31 @@ class Click:
                 with open(self.url_path, "a+", encoding="utf-8") as file:
                     file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
 
-            # button = self.driver.find_element("xpath", self.block2[1])
-            # try:
-            #     self.driver.execute_script("$(arguments[0]).click()", button)
-            # except:
-            #     button.click()
+            button = self.driver.find_element("xpath", self.block2[1])
+            try:
+                self.driver.execute_script("$(arguments[0]).click()", button)
+            except:
+                button.click()
             n += 1
-            time.sleep(self.sleep_time)
+            if self.sleep_time:
+                time.sleep(self.sleep_time)
             pbar.update(1)
+
+    def check_link_result(self):
+        ...
 
 
 if __name__ == "__main__":
-    prefix =  "https://www.commonhealth.com.tw/channel/2?page=1&tab=all"
+    prefix =  "https://www.u5mr.com/category/lifestyle/page/"
     prefix2 = None
     prefix3 = None
-    pages = 1
-    block1 = ["div", "page page--horizontal"]
-    block2 = ["a", "recommend recommend--channels"]
+    pages = 7
+    block1 = ["div", "post-img"]
+    block2 = None
     url_path = "test.json"
-    # scan = Scan(prefix, prefix2, prefix3, pages, block1, block2, url_path)
+    scan = Scan(prefix, prefix2, prefix3, pages, block1, block2, url_path)
     # scan.check_link_reslt()
-    # scan.crawl_link()
+    scan.crawl_link()
 
     # scroll = Scroll(prefix, prefix2, prefix3, pages, block1, block2, url_path)
     # scroll.check_link_result()
@@ -336,5 +352,5 @@ if __name__ == "__main__":
     # onepage.check_link_result()
     # onepage.crawl_link()
 
-    click = Click(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
-    click.clickandcrawl()
+    # click = Click(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
+    # click.clickandcrawl()

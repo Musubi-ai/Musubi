@@ -84,7 +84,7 @@ class Crawl():
         """
         Check the content of the first website in urls_path.
         """
-        df = pd.read_json(self.urls_path, lines=True)
+        df = pd.read_json(self.urls_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         url = df.iloc[0]["link"]
         if self.crawl_type == "text":
             res = get_content(url=url)
@@ -106,11 +106,11 @@ class Crawl():
 
         # check the file exist or not
         if save_file:
-            content_list = pd.read_json(save_path, lines=True, engine="pyarrow")["url"].to_list()
+            content_list = pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["url"].to_list()
         else:
             content_list = None
 
-        url_df = pd.read_json(self.urls_path, lines=True, engine="pyarrow")
+        url_df = pd.read_json(self.urls_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         length = len(url_df)
 
         for i in tqdm(range(start_idx, length)):

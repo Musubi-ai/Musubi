@@ -30,7 +30,6 @@ def add_new_website(
         if idx in exist_idx_list:
             warnings.warn("The index of new website is not assigned or exists alraedy, the index will be automatically assigned to avoid error.")
             idx = max(exist_idx_list) + 1
-
                 
         if (dir in dir_list) and (name in name_list):
             warnings.warn("The dir and name of new website exists alraedy.")

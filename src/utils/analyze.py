@@ -4,7 +4,7 @@ import pandas as pd
 class WebAnalyzer:
     def __init__(
         self,
-        websitelist_path = "websites.json"
+        websitelist_path = "config\websites.json"
     ):
         self.websitelist_path = websitelist_path
         self.df = pd.read_json(self.websitelist_path, lines=True)

@@ -199,9 +199,9 @@ class Pipeline:
         prefix2: Optional[int] = None,
         prefix3: Optional[int] = None,
         pages: int = None,
-        block1: Optional[List] = None,
-        block2: Optional[List] = None,
-        img_txt_block: Optional[List] = None,
+        block1: List[str, str] = None,
+        block2: Optional[List[str, str]] = None,
+        img_txt_block: Optional[List[str, str]] = None,
         type: str = None,
         start_page: Optional[int] = 0,
         start_idx: Optional[int] = 0,
@@ -213,7 +213,7 @@ class Pipeline:
         Args:
             idx (`int`, *optional*):
                 Specify the index of new website in config json file. If none, the index of new 
-                website will be the next number of max index before.
+                website will be the next number of max existing index.
             dir (`str`):
                 Folder name of new website.
             name (`str`):
@@ -222,8 +222,28 @@ class Pipeline:
                 The type name of data in the website.
             prefix (`str`):
                 Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str(pages) + "prefix2".
-                 
-
+            prefix2 (`str`, *optional*):
+                Suffix of the url if exist.
+            prefix3 (`str`, *optional*):
+                Root of the url if urls in a tags are presented in relative fashion.
+            pages (`int`):
+                Number of crawling pages.
+            block1 (`list`):
+                List of html tag and its class. The first element in the list should be the name of tag, e.g., "div" or "article", and the 
+                second element in the list should be the class of the tag.
+            block2 (`list`, *optional*):
+                Second block if crawling nested structure.
+            img_txt_block (`list`, *optional*):
+                Block for crawling img-text pair on the website.
+            type (`str`):
+                Type of crawling method to crawl urls on the website. The type should be one of the `scan`, `scroll`, `onepage`, or `click`,
+                otherwise it will raise an error.
+            start_page (`int`, *optional*):
+                From which page to start crawling urls.
+            start_idx (`int`, ):
+                From which idx in link.json to start crawling articles.
+            sleep_time (`int`, *optional*):
+                Sleep time to prevent ban from website.
         """
         new_website_idx = add_new_website(
             idx = idx,

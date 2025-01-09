@@ -244,6 +244,9 @@ class Pipeline:
                 From which idx in link.json to start crawling articles.
             sleep_time (`int`, *optional*):
                 Sleep time to prevent ban from website.
+
+        Example:
+            
         """
         new_website_idx = add_new_website(
             idx = idx,

@@ -5,3 +5,5 @@ src/__pycache__/
 src/utils/__pycache__/
 a.py
 imgtxt_crawler/
+__pycache__
+config/imgtxt_webs.json

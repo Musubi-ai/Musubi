@@ -248,16 +248,16 @@ class Pipeline:
 
         >>> pipeline = Pipeline("website.json")
         >>> config_dict = {"dir": "test", 
-               "name": "test", 
-               "class_": "中文", 
-               "prefix": "https://www.wazaiii.com/category?tag=17&ntype=&pages=", 
-               "prefix2": None, 
-               "prefix3": None, 
-               "pages": 5, 
-               "block1": ["div", "entry-image"], 
-               "block2": None, 
-               "type": "scan", 
-               "async_": True}
+            "name": "test", 
+            "class_": "中文", 
+            "prefix": "https://www.wazaiii.com/category?tag=17&ntype=&pages=", 
+            "prefix2": None, 
+            "prefix3": None, 
+            "pages": 5, 
+            "block1": ["div", "entry-image"], 
+            "block2": None, 
+            "type": "scan", 
+            "async_": True}
 
         >>> # Start crawling
         >>> pipeline.pipeline(**config_dict)

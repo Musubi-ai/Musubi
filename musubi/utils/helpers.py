@@ -69,8 +69,8 @@ def add_new_website(
             "pages": pages,
             "block1": block1,
             "block2": block2,
-            "async_": async_,
-            "type": type
+            "type": type,
+            "async_": async_
         }
 
     with open(websitelist_path, "a+", encoding="utf-8") as file:

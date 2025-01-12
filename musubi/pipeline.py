@@ -282,16 +282,16 @@ class Pipeline:
             websitelist_path = self.website_path
         )
 
-        # try:
-        self.start_by_idx(
-            start_page = start_page,
-            start_idx = start_idx,
-            idx = new_website_idx,
-            sleep_time = sleep_time
-        )
-        # except:
-        #     warnings.warn("Failed to parse website, delete the idx from webiste config now.")
-        #     delete_website_by_idx(idx=new_website_idx, websitelist_path=self.website_path)
+        try:
+            self.start_by_idx(
+                start_page = start_page,
+                start_idx = start_idx,
+                idx = new_website_idx,
+                sleep_time = sleep_time
+            )
+        except:
+            warnings.warn("Failed to parse website, delete the idx from webiste config now.")
+            delete_website_by_idx(idx=new_website_idx, websitelist_path=self.website_path)
 
 
 if __name__ == "__main__":

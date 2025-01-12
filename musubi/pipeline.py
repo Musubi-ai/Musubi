@@ -247,20 +247,17 @@ class Pipeline:
         >>> from musubi import Pipeline
 
         >>> pipeline = Pipeline("website.json")
-        >>> config_dict = {
-            "idx": 1, 
-            "dir": "法律百科", 
-            "name": "法律百科文章", 
-            "class_": "中文", 
-            "prefix": "https://www.legis-pedia.com/article?page=", 
-            "prefix2": None, 
-            "prefix3": None, 
-            "pages": 106, 
-            "block1": ["div", "list-acticle-head tw-mb-2"], 
-            "block2": None, 
-            "type": "scan",
-            "async_": False
-            }
+        >>> config_dict = {"dir": "test", 
+               "name": "test", 
+               "class_": "中文", 
+               "prefix": "https://www.wazaiii.com/category?tag=17&ntype=&pages=", 
+               "prefix2": None, 
+               "prefix3": None, 
+               "pages": 5, 
+               "block1": ["div", "entry-image"], 
+               "block2": None, 
+               "type": "scan", 
+               "async_": True}
 
         >>> # Start crawling
         >>> pipeline.pipeline(**config_dict)

@@ -71,10 +71,10 @@ class Crawl():
     """
     def __init__(
         self,
-        urls_path: str = None,
+        url_path: str = None,
         crawl_type: str = None
     ):
-        self.urls_path = urls_path
+        self.url_path = url_path
         self.crawl_type = crawl_type     
 
     def check_content_result(
@@ -82,9 +82,9 @@ class Crawl():
         img_txt_block: list = None
     ):
         """
-        Check the content of the first website in urls_path.
+        Check the content of the first website in url_path.
         """
-        df = pd.read_json(self.urls_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
+        df = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         url = df.iloc[0]["link"]
         if self.crawl_type == "text":
             res = get_content(url=url)
@@ -100,7 +100,7 @@ class Crawl():
         img_txt_block: list = None
         ):
         """
-        Crawl all the contents of websites in urls_path.
+        Crawl all the contents of websites in url_path.
         """
         save_file = os.path.isfile(save_path)
 
@@ -110,7 +110,7 @@ class Crawl():
         else:
             content_list = None
 
-        url_df = pd.read_json(self.urls_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
+        url_df = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         length = len(url_df)
 
         for i in tqdm(range(start_idx, length)):
@@ -135,12 +135,12 @@ class Crawl():
 
 
 if __name__ == "__main__":
-    # urls_path = f"G:\Musubi\crawler\ADayMagazine\ADayMagazineWHATsNEW_link.json"
-    # text = get_content(url=urls_path)
+    # url_path = f"G:\Musubi\crawler\ADayMagazine\ADayMagazineWHATsNEW_link.json"
+    # text = get_content(url=url_path)
     # print(text)
     # save_path = f"G:\Musubi\data\中文\ADayMagazine\ADayMagazineWHATsNEW.json"
 
-    # crawl = Crawl(urls_path=urls_path)
+    # crawl = Crawl(url_path=url_path)
     # crawl.crawl_contents(save_path=save_path)
     # crawl.check_content_result()
     # url = "https://www.thenewslens.com/interactive/138105"

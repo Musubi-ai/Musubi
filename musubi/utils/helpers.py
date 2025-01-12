@@ -17,6 +17,7 @@ def add_new_website(
     block2: Optional[List] = None,
     img_txt_block: Optional[List] = None,
     type: str = None,
+    async_: bool = False,
     websitelist_path: str = None
 ):
     try:
@@ -68,6 +69,7 @@ def add_new_website(
             "pages": pages,
             "block1": block1,
             "block2": block2,
+            "async_": async_,
             "type": type
         }
 
@@ -105,19 +107,19 @@ def delete_website_by_idx(
 
 if __name__ == "__main__":
     # Eample for adding new website unto website.json 
-    websitelist_path = "config\imgtxt_webs.json"
-    # add_new_website(
-    #     # idx = 25,
-    #     dir = "報導者",
-    #     name = "教育校園",
-    #     class_ = "中文",
-    #     prefix = "https://www.twreporter.org/categories/education?page=",
-    #     prefix2 = None,
-    #     prefix3 = "https://www.twreporter.org",
-    #     pages = 14,
-    #     block1 = ["div", "list-item__Container-sc-1dx5lew-0 kCnicz"],
-    #     type = "scan",
-    #     websitelist_path=websitelist_path
-    # )
+    websitelist_path = "test.json"
+    add_new_website(
+        # idx = 25,
+        dir = "報導者",
+        name = "教育校園",
+        class_ = "中文",
+        prefix = "https://www.twreporter.org/categories/education?page=",
+        prefix2 = None,
+        prefix3 = "https://www.twreporter.org",
+        pages = 14,
+        block1 = ["div", "list-item__Container-sc-1dx5lew-0 kCnicz"],
+        type = "scan",
+        websitelist_path=websitelist_path
+    )
 
-    delete_website_by_idx(idx=0, websitelist_path=websitelist_path)
+    # delete_website_by_idx(idx=0, websitelist_path=websitelist_path)

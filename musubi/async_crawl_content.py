@@ -73,18 +73,18 @@ async def get_image_text_pair(
         return img_list
 
 
-class Crawl():
+class AsyncCrawl():
     """
     Args:
         crawl_type (`str`) should be one of 'text' or 'img-text' 
     """
     def __init__(
         self,
-        urls_path: str = None,
+        url_path: str = None,
         crawl_type: str = None,
         max_concurrent_tasks: int = 10,
     ):
-        self.urls_path = urls_path
+        self.url_path = url_path
         self.crawl_type = crawl_type     
         self.semaphore = asyncio.Semaphore(max_concurrent_tasks)
 
@@ -95,7 +95,7 @@ class Crawl():
         """
         Check the content of the first website in urls_path.
         """
-        df = pd.read_json(self.urls_path, lines=True)
+        df = pd.read_json(self.url_path, lines=True)
         url = df.iloc[0]["link"]
         if self.crawl_type == "text":
             res = await get_content(url=url)
@@ -113,7 +113,7 @@ class Crawl():
         async with self.semaphore:
             save_file = os.path.isfile(save_path)
             content_list = pd.read_json(save_path, lines=True)["url"].to_list() if save_file else None
-            url_df = pd.read_json(self.urls_path, lines=True)
+            url_df = pd.read_json(self.url_path, lines=True)
             tasks = []
 
             for i in range(start_idx, len(url_df)):
@@ -142,12 +142,12 @@ class Crawl():
 
 
 if __name__ == "__main__":
-    urls_path = r"test.json"
+    url_path = r"test.json"
     # text = get_content(url=urls_path)
 
     save_path = r"G:\Musubi\test_res.json"
 
-    crawl = Crawl(urls_path=urls_path, crawl_type="text")
+    crawl = AsyncCrawl(url_path=url_path, crawl_type="text")
     asyncio.run(crawl.crawl_contents(save_path=save_path))
     # crawl.check_content_result()
     # url = "https://www.thenewslens.com/interactive/138105"

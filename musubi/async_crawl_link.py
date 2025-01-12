@@ -104,7 +104,8 @@ class AsyncScan:
                     with open(self.url_path, "a+", encoding="utf-8") as file:
                         file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
 
-    
+
+
 if __name__ == "__main__":
     prefix = "https://aroundtaiwan.net/category/go/page/"
     prefix2 = "/"

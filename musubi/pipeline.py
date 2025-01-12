@@ -1,6 +1,10 @@
 from .crawl_link import Scan, Scroll, OnePage, Click
 from .crawl_content import Crawl
+from .async_crawl_link import AsyncScan
+from .async_crawl_content import AsyncCrawl
 from .utils import add_new_website, delete_website_by_idx
+import asyncio
+from collections import defaultdict
 from typing import List, Optional
 import warnings
 import os
@@ -50,18 +54,25 @@ class Pipeline:
         """
         if idx is None:
             raise ValueError("The index cannot be unassigned, please fill index argument.")
+        self.args_dict = defaultdict(lambda: None)
         self.website_df = pd.read_json(self.website_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         self.website_df_length = len(self.website_df)
         self.is_nan = self.website_df.apply(pd.isna)
         self.name = self.website_df.iloc[idx]["name"]
-        self.prefix = None if self.is_nan.iloc[idx]["prefix"] else self.website_df.iloc[idx]["prefix"]
-        self.prefix2 = None if self.is_nan.iloc[idx]["prefix2"] else self.website_df.iloc[idx]["prefix2"]
-        self.prefix3 = None if self.is_nan.iloc[idx]["prefix3"] else self.website_df.iloc[idx]["prefix3"]
-        self.pages = self.website_df.iloc[idx]["pages"]
+        if not self.is_nan.iloc[idx]["prefix"]:
+            self.args_dict["prefix"] = self.website_df.iloc[idx]["prefix"]
+        if not self.is_nan.iloc[idx]["prefix2"]:
+            self.args_dict["prefix2"] = self.website_df.iloc[idx]["prefix2"]
+        if not self.is_nan.iloc[idx]["prefix3"]:
+            self.args_dict["prefix3"] = self.website_df.iloc[idx]["prefix3"]
+        self.args_dict["pages"] = self.website_df.iloc[idx]["pages"]
+        if not self.is_nan.iloc[idx]["block1"]:
+            self.args_dict["block1"] = self.website_df.iloc[idx]["block1"]
+        if not self.is_nan.iloc[idx]["block2"].all():
+            self.args_dict["block2"] = self.website_df.iloc[idx]["block2"]
+
         self.dir = self.website_df.iloc[idx]["dir"]
         self.class_ = self.website_df.iloc[idx]["class_"]
-        self.block1 = None if self.is_nan.iloc[idx]["block1"] else self.website_df.iloc[idx]["block1"]
-        self.block2 = None if self.is_nan.iloc[idx]["block2"].all() else self.website_df.iloc[idx]["block2"]
         if "img_txt_block" in self.website_df.columns:
             self.img_txt_block = self.website_df.iloc[idx]["img_txt_block"]
         else:
@@ -77,27 +88,29 @@ class Pipeline:
         if self.img_txt_block is not None:
             if save_dir is not None:
                 self.urls_dir = save_dir + "\imgtxt_crawler\{}".format(self.dir)
-                self.url_path = save_dir + "\imgtxt_crawler\{}\{}_imgtxt_link.json".format(self.dir, self.name)
+                url_path = save_dir + "\imgtxt_crawler\{}\{}_imgtxt_link.json".format(self.dir, self.name)
             else:
                 self.urls_dir = "imgtxt_crawler\{}".format(self.dir)
-                self.url_path = "imgtxt_crawler\{}\{}_imgtxt_link.json".format(self.dir, self.name)
+                url_path = "imgtxt_crawler\{}\{}_imgtxt_link.json".format(self.dir, self.name)
         else:
             if save_dir is not None:
                 self.urls_dir = save_dir + "\crawler\{}".format(self.dir)
-                self.url_path = save_dir + "\crawler\{}\{}_link.json".format(self.dir, self.name)
+                url_path = save_dir + "\crawler\{}\{}_link.json".format(self.dir, self.name)
             else:
                 self.urls_dir = "crawler\{}".format(self.dir)
-                self.url_path = "crawler\{}\{}_link.json".format(self.dir, self.name)
+                url_path = "crawler\{}\{}_link.json".format(self.dir, self.name)
+        self.args_dict["url_path"] = url_path
         self.type = self.website_df.iloc[idx]["type"]
+        self.async_ = self.website_df.iloc[idx]["async_"]
 
         if upgrade_pages:
             print("---------------------------------------------\nIn upgrade mode now, checking whether the index exists or not.\n---------------------------------------------")
-            self.pages = self.pages if self.pages <= upgrade_pages else upgrade_pages
+            self.args_dict["pages"] = self.args_dict["pages"] if self.args_dict["pages"] <= upgrade_pages else upgrade_pages
             indices = self.website_df["idx"].to_list()
             if idx not in indices:
-                raise ValueError("In upgrade mode but assigned index does not exists in website.json file.")
+                raise ValueError("In upgrade mode but assigned index does not exist in website.json file.")
         
-        # First check the existence of the directories. If not, build them.
+        # Check the existence of the directories. If not, build them.
         if not os.path.isdir(self.urls_dir):
             os.makedirs(self.urls_dir)
         if not os.path.isdir(self.save_dir):
@@ -108,57 +121,37 @@ class Pipeline:
         if self.type not in ["scan", "scroll", "onepage", "click"]:
             raise ValueError("The type can only be scan, scroll, onepage, or click but got {}.".format(self.type))
         elif self.type == "scan":
-            scan = Scan(
-                prefix=self.prefix,
-                prefix2=self.prefix2,
-                prefix3=self.prefix3,
-                pages=self.pages,
-                block1=self.block1,
-                block2=self.block2,
-                url_path=self.url_path
-            )
-            scan.crawl_link(start_page=start_page)
+            if self.async_:
+                scan = AsyncScan(**self.args_dict)
+                asyncio.run(scan.crawl_link())
+            else:
+                scan = Scan(**self.args_dict)
+                scan.crawl_link(start_page=start_page)
         elif self.type == "scroll":
-            scroll = Scroll(
-                prefix=self.prefix,
-                prefix2=self.prefix2,
-                prefix3=self.prefix3,
-                pages=self.pages,
-                block1=self.block1,
-                block2=self.block2,
-                url_path=self.url_path
-            )
+            scroll = Scroll(**self.args_dict)
             scroll.crawl_link()
         elif self.type == "onepage":
-            onepage = OnePage(
-                prefix=self.prefix,
-                prefix3=self.prefix3,
-                block1=self.block1,
-                block2=self.block2,
-                url_path=self.url_path
-            )
+            onepage = OnePage(**self.args_dict)
             onepage.crawl_link()
         elif self.type == "click":
-            click = Click(
-                prefix=self.prefix,
-                prefix2=self.prefix2,
-                prefix3=self.prefix3,
-                pages=self.pages,
-                block1=self.block1,
-                block2=self.block2,
-                url_path=self.url_path
-            )
+            click = Click(**self.args_dict)
             click.crawl_link()
         
         # Start crawling the websites
         print("Crawling contents in urls from {}!\n---------------------------------------------".format(self.name))
         if self.img_txt_block is not None:
-            crawl = Crawl(self.url_path, crawl_type="img-text")
+            crawl = Crawl(self.args_dict["url_path"], crawl_type="img-text")
             print("Crawling image-text pair.")
+            crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx, sleep_time=sleep_time, img_txt_block=self.img_txt_block)
         else:
-            crawl = Crawl(self.url_path, crawl_type="text")
+            if self.async_:
+                crawl = AsyncCrawl(self.args_dict["url_path"], crawl_type="text")
+                asyncio.run(crawl.crawl_contents(save_path=self.save_path))
+            else:
+                crawl = Crawl(self.args_dict["url_path"], crawl_type="text")
+                crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx, sleep_time=sleep_time, img_txt_block=self.img_txt_block)
             print("Crawling pure text data.")
-        crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx, sleep_time=sleep_time, img_txt_block=self.img_txt_block)
+        
 
     def start_all(
         self,
@@ -203,6 +196,7 @@ class Pipeline:
         block2: Optional[List[str]] = None,
         img_txt_block: Optional[List[str]] = None,
         type: str = None,
+        async_: bool = False,
         start_page: Optional[int] = 0,
         start_idx: Optional[int] = 0,
         sleep_time: Optional[int] = None
@@ -238,6 +232,8 @@ class Pipeline:
             type (`str`):
                 Type of crawling method to crawl urls on the website. The type should be one of the `scan`, `scroll`, `onepage`, or `click`,
                 otherwise it will raise an error.
+            async_ (`bool`, , *optional*, default=False):
+                If True, crawling website in the asynchronous fashion.
             start_page (`int`, *optional*):
                 From which page to start crawling urls.
             start_idx (`int`, ):
@@ -262,7 +258,8 @@ class Pipeline:
             "pages": 106, 
             "block1": ["div", "list-acticle-head tw-mb-2"], 
             "block2": None, 
-            "type": "scan"
+            "type": "scan",
+            "async_": False
             }
 
         >>> # Start crawling
@@ -281,19 +278,20 @@ class Pipeline:
             block2 = block2,
             img_txt_block = img_txt_block,
             type = type,
+            async_ = async_,
             websitelist_path = self.website_path
         )
 
-        try:
-            self.start_by_idx(
-                start_page = start_page,
-                start_idx = start_idx,
-                idx = new_website_idx,
-                sleep_time=sleep_time
-            )
-        except:
-            warnings.warn("Failed to parse website, delete the idx from webiste config now.")
-            delete_website_by_idx(idx=new_website_idx, websitelist_path=self.website_path)
+        # try:
+        self.start_by_idx(
+            start_page = start_page,
+            start_idx = start_idx,
+            idx = new_website_idx,
+            sleep_time = sleep_time
+        )
+        # except:
+        #     warnings.warn("Failed to parse website, delete the idx from webiste config now.")
+        #     delete_website_by_idx(idx=new_website_idx, websitelist_path=self.website_path)
 
 
 if __name__ == "__main__":
@@ -305,8 +303,8 @@ if __name__ == "__main__":
     # arguments for config file
     parser.add_argument("--websitelist_path", default="config\websites.json", help="webiste config file", type=str)
     # arguments for add mode
-    parser.add_argument("--dir", default="桃園市知音外籍聯姻婚介協會", help="webiste name and its corresponding directory", type=str)
-    parser.add_argument("--name", default="桃園市知音外籍聯姻婚介協會最新消息", help="category of articels in the website", type=str)
+    parser.add_argument("--dir", default="test", help="webiste name and its corresponding directory", type=str)
+    parser.add_argument("--name", default="test", help="category of articels in the website", type=str)
     parser.add_argument("--class_", default="中文", help="main class of the website", type=str)
     parser.add_argument("--prefix", default="https://www.zhiyin.com.tw/index.php?do=news&p=", help="prefix 1", type=str)
     parser.add_argument("--prefix2", default=None, help="prefix 2", type=str)

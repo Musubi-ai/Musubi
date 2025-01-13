@@ -19,8 +19,8 @@ class AsyncScan:
     def __init__(
         self,
         prefix: str = None,
-        prefix2: str = None,
-        prefix3: str = None,
+        suffix: str = None,
+        root_path: str = None,
         pages: int = None,
         block1: List[str] = None,
         block2: List[str] = None,
@@ -29,8 +29,8 @@ class AsyncScan:
         **kwargs
     ):
         self.prefix = prefix
-        self.prefix2 = prefix2
-        self.prefix3 = prefix3
+        self.suffix = suffix
+        self.root_path = root_path
         self.pages = pages
         self.url_path = url_path
         self.block1 = block1
@@ -39,8 +39,8 @@ class AsyncScan:
         if pages == 1:
             self.pages_lst = [self.prefix]
         else:
-            if prefix2:
-                self.pages_lst = [self.prefix + str(i+1) + self.prefix2 for i in range(self.pages)]
+            if suffix:
+                self.pages_lst = [self.prefix + str(i+1) + self.suffix for i in range(self.pages)]
             else:
                 self.pages_lst = [self.prefix + str(i+1) for i in range(self.pages)]
 
@@ -69,8 +69,8 @@ class AsyncScan:
                     blocks = soup.find_all(self.block1[0], class_=self.block1[1])
 
                 for block in blocks:
-                    if self.prefix3:
-                        link = self.prefix3 + block.a["href"]
+                    if self.root_path:
+                        link = self.root_path + block.a["href"]
                     else:
                         link = block.a["href"]
                     link_list.append(link)
@@ -108,12 +108,12 @@ class AsyncScan:
 
 if __name__ == "__main__":
     prefix = "https://aroundtaiwan.net/category/go/page/"
-    prefix2 = "/"
-    prefix3 = None
+    suffix = "/"
+    root_path = None
     pages = 6
     block1 = ["div", "entries"]
     block2 = ["h2", "entry-title"]
     url_path = "test.json"
     
-    scan = AsyncScan(prefix, prefix2, prefix3, pages, block1, block2, url_path)
+    scan = AsyncScan(prefix, suffix, root_path, pages, block1, block2, url_path)
     asyncio.run(scan.crawl_link())

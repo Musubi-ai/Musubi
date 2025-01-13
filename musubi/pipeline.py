@@ -4,6 +4,7 @@ from .async_crawl_link import AsyncScan
 from .async_crawl_content import AsyncCrawl
 from .utils import add_new_website, delete_website_by_idx
 import asyncio
+from pathlib import Path
 from collections import defaultdict
 from typing import List, Optional
 import warnings
@@ -61,10 +62,10 @@ class Pipeline:
         self.name = self.website_df.iloc[idx]["name"]
         if not self.is_nan.iloc[idx]["prefix"]:
             self.args_dict["prefix"] = self.website_df.iloc[idx]["prefix"]
-        if not self.is_nan.iloc[idx]["prefix2"]:
-            self.args_dict["prefix2"] = self.website_df.iloc[idx]["prefix2"]
-        if not self.is_nan.iloc[idx]["prefix3"]:
-            self.args_dict["prefix3"] = self.website_df.iloc[idx]["prefix3"]
+        if not self.is_nan.iloc[idx]["suffix"]:
+            self.args_dict["suffix"] = self.website_df.iloc[idx]["suffix"]
+        if not self.is_nan.iloc[idx]["root_path"]:
+            self.args_dict["root_path"] = self.website_df.iloc[idx]["root_path"]
         self.args_dict["pages"] = self.website_df.iloc[idx]["pages"]
         if not self.is_nan.iloc[idx]["block1"]:
             self.args_dict["block1"] = self.website_df.iloc[idx]["block1"]
@@ -79,26 +80,26 @@ class Pipeline:
             self.img_txt_block = None
 
         if save_dir is not None:
-            self.save_dir = save_dir + "\data\{}\{}".format(self.class_, self.dir)
-            self.save_path = save_dir + "\data\{}\{}\{}.json".format(self.class_, self.dir, self.name)
+            self.save_dir = Path(save_dir) / "data" / self.class_ / self.dir
+            self.save_path = Path(self.save_dir) / "{}.json".format(self.name)
         else:
-            self.save_dir = "data\{}\{}".format(self.class_, self.dir)
-            self.save_path = "data\{}\{}\{}.json".format(self.class_, self.dir, self.name)
+            self.save_dir = Path("data") / self.class_ / self.dir
+            self.save_path = Path(self.save_dir) / "{}.json".format(self.name)
 
         if self.img_txt_block is not None:
             if save_dir is not None:
-                self.urls_dir = save_dir + "\imgtxt_crawler\{}".format(self.dir)
-                url_path = save_dir + "\imgtxt_crawler\{}\{}_imgtxt_link.json".format(self.dir, self.name)
+                self.urls_dir = Path(save_dir) / "imgtxt_crawler" / self.dir
+                url_path = Path(self.urls_dir) / "{}_imgtxt_link.json".format(self.name)
             else:
-                self.urls_dir = "imgtxt_crawler\{}".format(self.dir)
-                url_path = "imgtxt_crawler\{}\{}_imgtxt_link.json".format(self.dir, self.name)
+                self.urls_dir = Path("imgtxt_crawler") / self.dir
+                url_path = Path(self.urls_dir) / "{}_imgtxt_link.json".format(self.name)
         else:
             if save_dir is not None:
-                self.urls_dir = save_dir + "\crawler\{}".format(self.dir)
-                url_path = save_dir + "\crawler\{}\{}_link.json".format(self.dir, self.name)
+                self.urls_dir = Path(save_dir) / "crawler" / self.dir
+                url_path = Path(self.urls_dir) / "{}_link.json".format(self.name)
             else:
-                self.urls_dir = "crawler\{}".format(self.dir)
-                url_path = "crawler\{}\{}_link.json".format(self.dir, self.name)
+                self.urls_dir = Path("crawler") / self.dir
+                url_path = Path(self.urls_dir) / "{}_link.json".format(self.name)
         self.args_dict["url_path"] = url_path
         self.type = self.website_df.iloc[idx]["type"]
         self.async_ = self.website_df.iloc[idx]["async_"]
@@ -189,8 +190,8 @@ class Pipeline:
         name: str = None,
         class_: str = None,
         prefix: str = None,
-        prefix2: Optional[int] = None,
-        prefix3: Optional[int] = None,
+        suffix: Optional[int] = None,
+        root_path: Optional[int] = None,
         pages: int = None,
         block1: List[str] = None,
         block2: Optional[List[str]] = None,
@@ -215,10 +216,10 @@ class Pipeline:
             class_ (`str`):
                 The type name of data in the website.
             prefix (`str`):
-                Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str(pages) + "prefix2".
-            prefix2 (`str`, *optional*):
+                Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str(pages) + "suffix".
+            suffix (`str`, *optional*):
                 Suffix of the url if exist.
-            prefix3 (`str`, *optional*):
+            root_path (`str`, *optional*):
                 Root of the url if urls in a tags are presented in relative fashion.
             pages (`int`):
                 Number of crawling pages.
@@ -251,8 +252,8 @@ class Pipeline:
             "name": "test", 
             "class_": "中文", 
             "prefix": "https://www.wazaiii.com/category?tag=17&ntype=&pages=", 
-            "prefix2": None, 
-            "prefix3": None, 
+            "suffix": None, 
+            "root_path": None, 
             "pages": 5, 
             "block1": ["div", "entry-image"], 
             "block2": None, 
@@ -268,8 +269,8 @@ class Pipeline:
             name = name,
             class_ = class_,
             prefix = prefix,
-            prefix2 = prefix2,
-            prefix3 = prefix3,
+            suffix = suffix,
+            root_path = root_path,
             pages = pages,
             block1 = block1,
             block2 = block2,
@@ -304,8 +305,8 @@ if __name__ == "__main__":
     parser.add_argument("--name", default="test", help="category of articels in the website", type=str)
     parser.add_argument("--class_", default="中文", help="main class of the website", type=str)
     parser.add_argument("--prefix", default="https://www.zhiyin.com.tw/index.php?do=news&p=", help="prefix 1", type=str)
-    parser.add_argument("--prefix2", default=None, help="prefix 2", type=str)
-    parser.add_argument("--prefix3", default="https://www.zhiyin.com.tw/", help="prefix 3", type=str)
+    parser.add_argument("--suffix", default=None, help="prefix 2", type=str)
+    parser.add_argument("--root_path", default="https://www.zhiyin.com.tw/", help="prefix 3", type=str)
     parser.add_argument("--pages", default=5, help="pages of websites", type=int)
     parser.add_argument("--block1", default=["h2", "blog-title"], help="main list of tag and class", type=list)
     parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
@@ -319,8 +320,8 @@ if __name__ == "__main__":
         name = args.name,
         class_ = args.class_,
         prefix = args.prefix,
-        prefix2 = args.prefix2,
-        prefix3 = args.prefix3,
+        suffix = args.suffix,
+        root_path = args.root_path,
         pages = args.pages,
         block1 = args.block1,
         block2 = args.block2,

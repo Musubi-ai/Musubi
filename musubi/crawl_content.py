@@ -135,14 +135,15 @@ class Crawl():
 
 
 if __name__ == "__main__":
-    # url_path = f"G:\Musubi\crawler\ADayMagazine\ADayMagazineWHATsNEW_link.json"
+    url_path = f"G:\Musubi\crawler\芋傳媒\芋傳媒政治_link.json"
     # text = get_content(url=url_path)
     # print(text)
-    # save_path = f"G:\Musubi\data\中文\ADayMagazine\ADayMagazineWHATsNEW.json"
+    save_path = f"G:\Musubi\data\中文\芋傳媒\芋傳媒政治.json"
 
-    # crawl = Crawl(url_path=url_path)
-    # crawl.crawl_contents(save_path=save_path)
+    crawl = Crawl(url_path=url_path, crawl_type="text")
+    crawl.crawl_contents(save_path=save_path)
     # crawl.check_content_result()
+
     # url = "https://www.thenewslens.com/interactive/138105"
     # res = get_content(url)
     # print(res)
@@ -151,12 +152,12 @@ if __name__ == "__main__":
     # img_list = get_image_text_pair(url, img_txt_block=["div", "articlepara"])
     # print(img_list)
 
-    content = """對半導體需求暢旺，進而驅動半導體業者積極投資擴廠，帶動我國半導體設備
-業產值於109年起突破千億元水準，年增47.3%，之後連續3年呈高速雙位數成
-長，惟隨全球步入高通膨及高利率環境後，消費及設備投資動能均放緩，112年
+#     content = """對半導體需求暢旺，進而驅動半導體業者積極投資擴廠，帶動我國半導體設備
+# 業產值於109年起突破千億元水準，年增47.3%，之後連續3年呈高速雙位數成
+# 長，惟隨全球步入高通膨及高利率環境後，消費及設備投資動能均放緩，112年
 
-產值轉年減7.3%，結束自101年以來連續11年成長趨勢，今(113)年隨 AI 商機
-浪潮崛起，對高效能運算、人工智慧應用之需求強勁，再度加速市場對半導體
-先進製程之產能需求，推升1-5月產值恢復正成長，年增5.5%。"""
-    res = formate_pdf(content)
-    print(res)
+# 產值轉年減7.3%，結束自101年以來連續11年成長趨勢，今(113)年隨 AI 商機
+# 浪潮崛起，對高效能運算、人工智慧應用之需求強勁，再度加速市場對半導體
+# 先進製程之產能需求，推升1-5月產值恢復正成長，年增5.5%。"""
+#     res = formate_pdf(content)
+#     print(res)

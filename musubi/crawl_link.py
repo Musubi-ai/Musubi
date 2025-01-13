@@ -18,8 +18,8 @@ class BaseCrawl(ABC):
     def __init__(
         self,
         prefix: str = None,
-        prefix2: str = None,
-        prefix3: str = None,
+        suffix: str = None,
+        root_path: str = None,
         pages: int = None,
         block1: List[str] = None,
         block2: List[str] = None,
@@ -27,8 +27,8 @@ class BaseCrawl(ABC):
         sleep_time: int = None,
     ):
         self.prefix = prefix
-        self.prefix2 = prefix2
-        self.prefix3 = prefix3
+        self.suffix = suffix
+        self.root_path = root_path
         self.pages = pages
         self.url_path = url_path
         self.block1 = block1
@@ -48,8 +48,8 @@ class Scan(BaseCrawl):
     def __init__(
         self, 
         prefix: str = None,
-        prefix2: str = None,
-        prefix3: str = None,
+        suffix: str = None,
+        root_path: str = None,
         pages: int = None,
         block1: List[str] = None,
         block2: List[str] = None,
@@ -57,12 +57,12 @@ class Scan(BaseCrawl):
         sleep_time: int = None,
         **kwargs
     ):
-        super().__init__(prefix, prefix2, prefix3, pages, block1, block2, url_path, sleep_time)
+        super().__init__(prefix, suffix, root_path, pages, block1, block2, url_path, sleep_time)
         if pages == 1:
             self.pages_lst = [self.prefix]
         else:
-            if prefix2:
-                self.pages_lst = [self.prefix + str(i+1) + self.prefix2 for i in range(self.pages)]
+            if suffix:
+                self.pages_lst = [self.prefix + str(i+1) + self.suffix for i in range(self.pages)]
             else:
                 self.pages_lst = [self.prefix + str(i+1) for i in range(self.pages)]
 
@@ -80,11 +80,11 @@ class Scan(BaseCrawl):
             blocks = soup.find_all(self.block1[0], class_=self.block1[1])
 
         for block in blocks:
-            if self.prefix3:
+            if self.root_path:
                 if self.plural_a_tag:
-                    link = self.prefix3 + block["href"]
+                    link = self.root_path + block["href"]
                 else:
-                    link = self.prefix3 + block.a["href"]
+                    link = self.root_path + block.a["href"]
             else:
                 if self.plural_a_tag:
                     link = block["href"]
@@ -120,8 +120,8 @@ class Scroll(BaseCrawl):
     def __init__(
         self, 
         prefix: str = None,
-        prefix2: str = None,
-        prefix3: str = None,
+        suffix: str = None,
+        root_path: str = None,
         pages: int = None,
         block1: List[str] = None,
         block2: List[str] = None,
@@ -129,7 +129,7 @@ class Scroll(BaseCrawl):
         sleep_time: int = None,
         **kwargs
     ):
-        super().__init__(prefix, prefix2, prefix3, pages, block1, block2, url_path, sleep_time)
+        super().__init__(prefix, suffix, root_path, pages, block1, block2, url_path, sleep_time)
         self.scroll_time = pages
 
     def browse_website(self):
@@ -174,8 +174,8 @@ class Scroll(BaseCrawl):
 
         for item in elements:
             url = item.get_attribute("href")
-            if self.prefix3:
-                url = self.prefix3 + url
+            if self.root_path:
+                url = self.root_path + url
             if url_list and url in url_list:
                 continue 
             dictt = {"link": url}
@@ -193,8 +193,8 @@ class Scroll(BaseCrawl):
 
         for item in elements:
             url = item.get_attribute("href")
-            if self.prefix3:
-                url = self.prefix3 + url
+            if self.root_path:
+                url = self.root_path + url
             dictt = {"link": url}
             check_list.append(dictt)
         
@@ -205,8 +205,8 @@ class OnePage(BaseCrawl):
     def __init__(
         self, 
         prefix: str = None,
-        prefix2: str = None,
-        prefix3: str = None,
+        suffix: str = None,
+        root_path: str = None,
         pages: int = None,
         block1: List[str] = None,
         block2: List[str] = None,
@@ -214,7 +214,7 @@ class OnePage(BaseCrawl):
         sleep_time: int = None,
         **kwargs
     ):
-        super().__init__(prefix, prefix2, prefix3, pages, block1, block2, url_path, sleep_time)
+        super().__init__(prefix, suffix, root_path, pages, block1, block2, url_path, sleep_time)
         self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")
 
     def get_urls(self):
@@ -229,11 +229,11 @@ class OnePage(BaseCrawl):
             blocks = soup.find_all(self.block1[0], class_=self.block1[1])
 
         for block in blocks:
-            if self.prefix3:
+            if self.root_path:
                 if self.plural_a_tag:
-                    link = self.prefix3 + block["href"]
+                    link = self.root_path + block["href"]
                 else:
-                    link = self.prefix3 + block.a["href"]
+                    link = self.root_path + block.a["href"]
             else:
                 if self.plural_a_tag:
                     link = block["href"]
@@ -266,8 +266,8 @@ class Click(BaseCrawl):
     def __init__(
         self, 
         prefix: str = None,
-        prefix2: str = None,
-        prefix3: str = None,
+        suffix: str = None,
+        root_path: str = None,
         pages: int = None,
         block1: List[str] = None,
         block2: List[str] = None,
@@ -275,7 +275,7 @@ class Click(BaseCrawl):
         sleep_time: int = None,
         **kwargs
     ):
-        super().__init__(prefix, prefix2, prefix3, pages, block1, block2, url_path, sleep_time)
+        super().__init__(prefix, suffix, root_path, pages, block1, block2, url_path, sleep_time)
         self.click_time = pages
 
     def browse_website(self):
@@ -309,8 +309,8 @@ class Click(BaseCrawl):
             for item in elements:
                 item = item.find_element(By.TAG_NAME, "a")
                 url = item.get_attribute("href")
-                if self.prefix3:
-                    url = self.prefix3 + url
+                if self.root_path:
+                    url = self.root_path + url
                 if url_list and url in url_list:
                     continue 
                 dictt = {"link": url}
@@ -334,23 +334,23 @@ class Click(BaseCrawl):
 
 if __name__ == "__main__":
     prefix =  "https://www.u5mr.com/category/lifestyle/page/"
-    prefix2 = None
-    prefix3 = None
+    suffix = None
+    root_path = None
     pages = 7
     block1 = ["div", "post-img"]
     block2 = None
     url_path = "test.json"
-    scan = Scan(prefix, prefix2, prefix3, pages, block1, block2, url_path)
+    scan = Scan(prefix, suffix, root_path, pages, block1, block2, url_path)
     # scan.check_link_reslt()
     scan.crawl_link()
 
-    # scroll = Scroll(prefix, prefix2, prefix3, pages, block1, block2, url_path)
+    # scroll = Scroll(prefix, suffix, root_path, pages, block1, block2, url_path)
     # scroll.check_link_result()
     # scroll.crawl_link()    
 
-    # onepage = OnePage(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
+    # onepage = OnePage(prefix=prefix, suffix=suffix, root_path=root_path, pages=pages, block1=block1, block2=block2, url_path=url_path)
     # onepage.check_link_result()
     # onepage.crawl_link()
 
-    # click = Click(prefix=prefix, prefix2=prefix2, prefix3=prefix3, pages=pages, block1=block1, block2=block2, url_path=url_path)
+    # click = Click(prefix=prefix, suffix=suffix, root_path=root_path, pages=pages, block1=block1, block2=block2, url_path=url_path)
     # click.clickandcrawl()

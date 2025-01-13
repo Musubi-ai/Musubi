@@ -113,7 +113,7 @@ class Crawl():
         url_df = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         length = len(url_df)
 
-        for i in tqdm(range(start_idx, length)):
+        for i in tqdm(range(start_idx, length), desc="Crawl contents"):
             link = url_df.iloc[i]["link"]
             # skip the content if it is in the file already
             if content_list and link in content_list:
@@ -135,10 +135,10 @@ class Crawl():
 
 
 if __name__ == "__main__":
-    url_path = f"G:\Musubi\crawler\芋傳媒\芋傳媒政治_link.json"
+    url_path = f"G:\Musubi\crawler\芋傳媒\芋傳媒運動_link.json"
     # text = get_content(url=url_path)
     # print(text)
-    save_path = f"G:\Musubi\data\中文\芋傳媒\芋傳媒政治.json"
+    save_path = f"G:\Musubi\data\中文\芋傳媒\芋傳媒運動.json"
 
     crawl = Crawl(url_path=url_path, crawl_type="text")
     crawl.crawl_contents(save_path=save_path)

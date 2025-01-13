@@ -100,7 +100,7 @@ class Scan(BaseCrawl):
         else:
             url_list = None
 
-        for i in tqdm(range(start_page, self.length)):
+        for i in tqdm(range(start_page, self.length), desc="Crawl urls"):
             page = self.pages_lst[i]
             link_list = self.get_urls(page=page)
             for link in link_list:
@@ -147,7 +147,7 @@ class Scroll(BaseCrawl):
     ):
         n = 0
         scroll_time = scroll_time if scroll_time is not None else self.scroll_time
-        pbar = tqdm(total = scroll_time)
+        pbar = tqdm(total = scroll_time, desc="Scroll")
         last_height = self.driver.execute_script("return document.body.scrollHeight")
 
         while n < scroll_time:
@@ -295,7 +295,7 @@ class Click(BaseCrawl):
         self.browse_website()
         n = 0
         click_time = click_time if click_time is not None else self.click_time
-        pbar = tqdm(total = click_time)
+        pbar = tqdm(total = click_time, desc="Click")
 
         is_url_path = os.path.isfile(self.url_path)
         if is_url_path:

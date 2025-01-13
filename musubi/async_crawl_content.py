@@ -95,7 +95,7 @@ class AsyncCrawl():
         """
         Check the content of the first website in urls_path.
         """
-        df = pd.read_json(self.url_path, lines=True)
+        df = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         url = df.iloc[0]["link"]
         if self.crawl_type == "text":
             res = await get_content(url=url)
@@ -112,8 +112,8 @@ class AsyncCrawl():
     ):
         async with self.semaphore:
             save_file = os.path.isfile(save_path)
-            content_list = pd.read_json(save_path, lines=True)["url"].to_list() if save_file else None
-            url_df = pd.read_json(self.url_path, lines=True)
+            content_list = pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["url"].to_list() if save_file else None
+            url_df = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
             tasks = []
 
             for i in range(start_idx, len(url_df)):
@@ -126,7 +126,7 @@ class AsyncCrawl():
                 elif self.crawl_type == "img-text":
                     tasks.append(get_image_text_pair(url=link, img_txt_block=img_txt_block))
 
-            for task in asyncio.as_completed(tasks):
+            for task in tqdm(asyncio.as_completed(tasks), total=len(tasks), desc="Crawl contents"):
                 try:
                     res = await task
                     with open(save_path, "a+", encoding="utf-8") as file:

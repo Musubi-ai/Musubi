@@ -1,7 +1,4 @@
 import os
-from selenium.webdriver import Edge
-from selenium.webdriver.edge.options import Options
-from selenium.webdriver.common.by import By
 import pandas as pd
 from bs4 import BeautifulSoup
 from typing import List
@@ -85,7 +82,7 @@ class AsyncScan:
     async def crawl_link(self, start_page: int = 0):
         is_url_path = os.path.isfile(self.url_path)
         if is_url_path:
-            url_list = pd.read_json(self.url_path, lines=True)["link"].to_list()
+            url_list = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["link"].to_list()
         else:
             url_list = None
 
@@ -95,7 +92,7 @@ class AsyncScan:
                 page = self.pages_lst[i]
                 tasks.append(self.get_urls(session, page))
 
-            for task in tqdm(asyncio.as_completed(tasks), total=len(tasks)):
+            for task in tqdm(asyncio.as_completed(tasks), total=len(tasks), desc="Crawl urls"):
                 link_list = await task
                 for link in link_list:
                     if url_list and link in url_list:

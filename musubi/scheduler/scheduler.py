@@ -9,7 +9,12 @@ from datetime import datetime
 
 
 def get_cron_params():
-        """Retrieve cron arguments from user's input"""
+        """
+        Retrieve cron arguments from user's input.
+        Reference for cron expression:
+        https://blog.csdn.net/devil6636252/article/details/109113104
+        https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html
+        """
         print("\nEnter cron arguments（Press Enter to enter default value '*'）：")
         params = {}
         cron_fields = ['year', 'month', 'day', 'week', 'day_of_week', 'hour', 'minute', 'second']
@@ -173,8 +178,4 @@ class CrawlScheduler:
         except (KeyboardInterrupt, SystemExit):
             scheduler.shutdown()
             print("Shut down scheduler.")
-
-
-
-
 

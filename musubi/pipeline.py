@@ -22,7 +22,7 @@ class Pipeline:
     """
     def __init__(
         self, 
-        website_path: str = None,
+        website_path: str = "config\websites.json",
     ):
         self.website_path = website_path
 

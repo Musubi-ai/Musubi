@@ -170,7 +170,7 @@ class UpgradeScheduler(BaseScheduler):
     ):
         if self.notify:
             self.notify.send_gmail(
-                subject="Musubi: Start scheduled crawling",
+                subject="Musubi: Start scheduled upgrading",
                 body="Start scheduled task {} at {}".format(task_name, datetime.now())
             )
 
@@ -183,7 +183,7 @@ class UpgradeScheduler(BaseScheduler):
 
         if self.notify:
             self.notify.send_gmail(
-                subject="Musubi: Finished scheduled crawling",
+                subject="Musubi: Finished scheduled upgrading",
                 body="Finished scheduled task {} at {}".format(task_name, datetime.now())
             )
 

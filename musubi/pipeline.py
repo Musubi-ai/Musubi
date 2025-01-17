@@ -22,7 +22,7 @@ class Pipeline:
     """
     def __init__(
         self, 
-        website_path: str = None,
+        website_path: str = "config\websites.json",
     ):
         self.website_path = website_path
 
@@ -33,7 +33,7 @@ class Pipeline:
         idx: Optional[int] = None,
         upgrade_pages: Optional[int] = None,
         sleep_time: Optional[int] = None,
-        save_dir: str = None,
+        save_dir: Optional[str] = None,
     ):
         """
         Crawl articles of website specified by idx in websites.json or imgtxt_webs.json.
@@ -50,7 +50,7 @@ class Pipeline:
                 If None, function will switch into add mode and crawl all pages of websites.
             sleep_time (`int`, *optional*):
                 Sleep time to prevent ban from website.
-            save_dir (`str`):
+            save_dir (`str`, *optional*):
                 Folder to save link.json and articles.
         """
         if idx is None:
@@ -157,7 +157,8 @@ class Pipeline:
     def start_all(
         self,
         start_idx: Optional[int] = 0,
-        upgrade_page: Optional[int] = None
+        upgrade_pages: Optional[int] = None,
+        save_dir: Optional[str] = None
     ):
         """
         Crawl all websites in website config json file.
@@ -171,17 +172,17 @@ class Pipeline:
         """
         self.website_df = pd.read_json(self.website_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         length = len(self.website_df)
-        if upgrade_page:
+        if upgrade_pages:
             print("---------------------------------------------\nIn upgrade mode now, setting the upgraded page for each website based on upgrade_page argument.\n---------------------------------------------")
             pages = self.website_df["pages"].to_list()
-            pages = [page if page <= upgrade_page else upgrade_page for page in pages]
+            pages = [page if page <= upgrade_pages else upgrade_pages for page in pages]
             print("Upgrading text data of each website.\n---------------------------------------------")
             for i in range(start_idx, length):
-                self.start_by_idx(idx=i, upgrade_pages=pages[i])
+                self.start_by_idx(idx=i, upgrade_pages=pages[i], save_dir=save_dir)
         else:
             print("---------------------------------------------\nIn add mode now.\n---------------------------------------------")
             for i in range(start_idx, length):
-                self.start_by_idx(idx=i)
+                self.start_by_idx(idx=i, save_dir=save_dir)
 
     def pipeline(
         self,
@@ -200,7 +201,8 @@ class Pipeline:
         async_: bool = False,
         start_page: Optional[int] = 0,
         start_idx: Optional[int] = 0,
-        sleep_time: Optional[int] = None
+        sleep_time: Optional[int] = None,
+        save_dir: Optional[str] = None
     ):
         """
         Add new website into config json file and crawl website.
@@ -241,6 +243,8 @@ class Pipeline:
                 From which idx in link.json to start crawling articles.
             sleep_time (`int`, *optional*):
                 Sleep time to prevent ban from website.
+            save_dir (`str`, *optional*):
+                Folder to save link.json and articles.
 
         Example:
 
@@ -285,7 +289,8 @@ class Pipeline:
                 start_page = start_page,
                 start_idx = start_idx,
                 idx = new_website_idx,
-                sleep_time = sleep_time
+                sleep_time = sleep_time,
+                save_dir = save_dir
             )
         except:
             warnings.warn("Failed to parse website, delete the idx from webiste config now.")
@@ -340,6 +345,6 @@ if __name__ == "__main__":
     #         start_page=258
     #     )
     # pipe.start_all(
-    #     upgrade_page=args.upgrade_pages,
+    #     upgrade_pages=args.upgrade_pages,
     #     start_idx = args.index
     # )

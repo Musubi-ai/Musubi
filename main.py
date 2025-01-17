@@ -10,9 +10,9 @@ parser.add_argument("--upgrade-pages", default=50, help="expected pages to scan 
 parser.add_argument("--websitelist_path", default="config\websites.json", help="webiste config file", type=str)
 # arguments for add mode
 parser.add_argument("--dir", default="芋傳媒", help="webiste name and its corresponding directory", type=str)
-parser.add_argument("--name", default="芋傳媒國際", help="category of articels in the website", type=str)
+parser.add_argument("--name", default="芋傳媒財經", help="category of articels in the website", type=str)
 parser.add_argument("--class_", default="中文", help="main class of the website", type=str)
-parser.add_argument("--prefix", default="https://living.taronews.tw/category/world/page/", help="prefix 1", type=str)
+parser.add_argument("--prefix", default="https://living.taronews.tw/category/finance/page/", help="prefix 1", type=str)
 parser.add_argument("--suffix", default="/", help="prefix 2", type=str)
 parser.add_argument("--root_path", default=None, help="prefix 3", type=str)
 parser.add_argument("--pages", default=1000, help="pages of websites", type=int)

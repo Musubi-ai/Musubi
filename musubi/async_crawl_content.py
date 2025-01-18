@@ -1,5 +1,4 @@
 import os
-import requests
 from bs4 import BeautifulSoup
 import pymupdf
 import pymupdf4llm
@@ -9,7 +8,6 @@ from trafilatura import fetch_url, extract
 import json
 from tqdm import tqdm
 import pandas as pd
-import time
 import aiohttp
 import asyncio
 
@@ -142,10 +140,10 @@ class AsyncCrawl():
 
 
 if __name__ == "__main__":
-    url_path = r"test.json"
+    url_path = f"G:\Musubi\crawler\芋傳媒\芋傳媒生活_link.json"
     # text = get_content(url=urls_path)
 
-    save_path = r"G:\Musubi\test_res.json"
+    save_path = f"G:\Musubi\data\中文\芋傳媒\芋傳媒生活.json"
 
     crawl = AsyncCrawl(url_path=url_path, crawl_type="text")
     asyncio.run(crawl.crawl_contents(save_path=save_path))

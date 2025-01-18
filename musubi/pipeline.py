@@ -145,14 +145,13 @@ class Pipeline:
             print("Crawling image-text pair.")
             crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx, sleep_time=sleep_time, img_txt_block=self.img_txt_block)
         else:
+            print("Crawling pure text data.")
             if self.async_:
                 crawl = AsyncCrawl(self.args_dict["url_path"], crawl_type="text")
                 asyncio.run(crawl.crawl_contents(save_path=self.save_path))
             else:
                 crawl = Crawl(self.args_dict["url_path"], crawl_type="text")
                 crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx, sleep_time=sleep_time, img_txt_block=self.img_txt_block)
-            print("Crawling pure text data.")
-        
 
     def start_all(
         self,

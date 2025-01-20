@@ -22,7 +22,7 @@ class AsyncScan:
         block1: List[str] = None,
         block2: List[str] = None,
         url_path: str = None,
-        max_concurrent_tasks: int = 5,
+        max_concurrent_tasks: int = 10,
         **kwargs
     ):
         self.prefix = prefix
@@ -67,9 +67,15 @@ class AsyncScan:
 
                 for block in blocks:
                     if self.root_path:
-                        link = self.root_path + block.a["href"]
+                        if self.plural_a_tag:
+                            link = self.root_path + block["href"]
+                        else:
+                            link = self.root_path + block.a["href"]
                     else:
-                        link = block.a["href"]
+                        if self.plural_a_tag:
+                            link = block["href"]
+                        else:
+                            link = block.a["href"]
                     link_list.append(link)
 
             except Exception as e:

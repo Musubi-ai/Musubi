@@ -2,7 +2,7 @@ from .crawl_link import Scan, Scroll, OnePage, Click
 from .crawl_content import Crawl
 from .async_crawl_link import AsyncScan
 from .async_crawl_content import AsyncCrawl
-from .utils import add_new_website, delete_website_by_idx
+from .utils import add_new_website, delete_website_by_idx, deduplicate_by_value
 import asyncio
 from pathlib import Path
 from collections import defaultdict
@@ -137,6 +137,8 @@ class Pipeline:
         elif self.type == "click":
             click = Click(**self.args_dict)
             click.crawl_link()
+
+        deduplicate_by_value(self.args_dict["url_path"], key="link")
         
         # Start crawling the websites
         print("Crawling contents in urls from {}!\n---------------------------------------------".format(self.name))

@@ -116,7 +116,7 @@ class AsyncCrawl():
 
             for i in range(start_idx, len(url_df)):
                 link = url_df.iloc[i]["link"]
-                if content_list and link in content_list:
+                if content_list and (link in content_list):
                     continue
 
                 if self.crawl_type == "text":
@@ -140,18 +140,26 @@ class AsyncCrawl():
 
 
 if __name__ == "__main__":
-    url_path = f"G:\Musubi\crawler\芋傳媒\芋傳媒生活_link.json"
-    # text = get_content(url=urls_path)
+    # url_path = f"G:\Musubi\crawler\芋傳媒\芋傳媒教育_link.json"
+    # # text = get_content(url=urls_path)
 
-    save_path = f"G:\Musubi\data\中文\芋傳媒\芋傳媒生活.json"
+    # save_path = f"G:\Musubi\data\中文\芋傳媒\芋傳媒教育.json"
 
-    crawl = AsyncCrawl(url_path=url_path, crawl_type="text")
-    asyncio.run(crawl.crawl_contents(save_path=save_path))
-    # crawl.check_content_result()
-    # url = "https://www.thenewslens.com/interactive/138105"
-    # res = get_content(url)
-    # print(res)
+    # crawl = AsyncCrawl(url_path=url_path, crawl_type="text")
+    # asyncio.run(crawl.crawl_contents(save_path=save_path))
+    
+    url_list = [
+        f"G:\Musubi\crawler\芋傳媒\芋傳媒性別_link.json",
+        f"G:\Musubi\crawler\芋傳媒\芋傳媒環境_link.json",
+        f"G:\Musubi\crawler\芋傳媒\芋傳媒閱讀_link.json"
+    ]
 
-    # url = r"https://kmweb.moa.gov.tw/theme_data.php?theme=news&sub_theme=agri_life&id=88958"
-    # img_list = get_image_text_pair(url, img_txt_block=["div", "articlepara"])
-    # print(img_list)
+    save_list = [
+        f"G:\Musubi\data\中文\芋傳媒\芋傳媒性別.json",
+        f"G:\Musubi\data\中文\芋傳媒\芋傳媒環境.json",
+        f"G:\Musubi\data\中文\芋傳媒\芋傳媒閱讀.json"
+    ]
+
+    for i in range(len(url_list)):
+        crawl = AsyncCrawl(url_path=url_list[i], crawl_type="text")
+        asyncio.run(crawl.crawl_contents(save_path=save_list[i]))

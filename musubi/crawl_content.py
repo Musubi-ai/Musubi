@@ -116,7 +116,7 @@ class Crawl():
         for i in tqdm(range(start_idx, length), desc="Crawl contents"):
             link = url_df.iloc[i]["link"]
             # skip the content if it is in the file already
-            if content_list and link in content_list:
+            if content_list and (link in content_list):
                 continue
 
             if self.crawl_type == "text":
@@ -135,10 +135,10 @@ class Crawl():
 
 
 if __name__ == "__main__":
-    url_path = f"G:\Musubi\crawler\芋傳媒\芋傳媒生活_link.json"
+    url_path = f"G:\Musubi\crawler\芋傳媒\芋傳媒網路謠言_link.json"
     # text = get_content(url=url_path)
     # print(text)
-    save_path = f"G:\Musubi\data\中文\芋傳媒\芋傳媒生活.json"
+    save_path = f"G:\Musubi\data\中文\芋傳媒\芋傳媒網路謠言.json"
 
     crawl = Crawl(url_path=url_path, crawl_type="text")
     crawl.crawl_contents(save_path=save_path)

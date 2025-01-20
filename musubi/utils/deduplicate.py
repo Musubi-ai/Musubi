@@ -23,6 +23,5 @@ def deduplicate_by_value(
             file.write('\n')
 
 
-
 if __name__ == "__main__":
-    deduplicate_by_value("環島1號店.json", "url")
+    deduplicate_by_value(r"G:\Musubi\crawler\test_link.json", "link")

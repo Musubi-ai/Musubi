@@ -68,11 +68,6 @@ class Scan(BaseCrawl):
 
         self.length = len(self.pages_lst)
         self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")
-        options = Options()
-        options.add_argument("--headless")
-        options.add_argument("--disable-gpu")
-        options.add_argument("--window-size=1920x1080")
-        self.driver = Edge(options=options)
 
     def get_urls(self, page):
         link_list = []

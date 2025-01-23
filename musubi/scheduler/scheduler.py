@@ -92,7 +92,7 @@ class IdxScheduler(BaseScheduler):
                         cron_params = get_cron_params()
                         task_params = get_idx_task_params()
                         # Generate unique task id by uuid4
-                        job_id = uuid.uuid4()
+                        job_id = str(uuid.uuid4())
                         
                         # Add task
                         scheduler.add_job(
@@ -203,7 +203,7 @@ class UpgradeScheduler(BaseScheduler):
                         cron_params = get_cron_params()
                         task_params = get_upgrade_task_params()
                         # Generate unique task id by uuid4
-                        job_id = uuid.uuid4()
+                        job_id = str(uuid.uuid4())
                         
                         # Add task
                         scheduler.add_job(

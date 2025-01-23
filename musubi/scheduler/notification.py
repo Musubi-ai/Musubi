@@ -8,15 +8,18 @@ class Notify:
     def __init__(
         self,
         app_password: str = None,
-        sender_email: Optional[str] = None,
-        recipient_email: str = None,
+        sender_email: str = None,
+        recipient_email: Optional[str] = None,
     ):
         """
         Set up app_password in https://myaccount.google.com/apppasswords.
         """
         self.app_password = app_password
         self.sender_email = sender_email
-        self.recipient_email = recipient_email
+        if recipient_email is not None:
+            self.recipient_email = recipient_email
+        else:
+            self.recipient_email = self.sender_email
 
     def send_gmail(
         self,

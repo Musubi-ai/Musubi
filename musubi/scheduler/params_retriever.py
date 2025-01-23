@@ -7,7 +7,7 @@ def get_cron_params():
         """
         print("\nEnter cron arguments（Or just press Enter to input default value '*'）:")
         params = {}
-        cron_fields = ['year', 'month', 'day', 'week', 'day_of_week', 'hour', 'minute', 'second']
+        cron_fields = ['year', 'month', 'week', 'day', 'day_of_week', 'hour', 'minute', 'second']
         
         for field in cron_fields:
             value = input(f"{field}: ").strip()

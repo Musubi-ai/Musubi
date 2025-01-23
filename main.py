@@ -13,12 +13,12 @@ parser.add_argument("--upgrade_pages", default=50, help="expected pages to scan 
 parser.add_argument("--websitelist_path", default="config\websites.json", help="webiste config file", type=str)
 # arguments for add mode
 parser.add_argument("--dir", default="518熊班", help="webiste name and its corresponding directory", type=str)
-parser.add_argument("--name", default="服務業人物", help="category of articels in the website", type=str)
+parser.add_argument("--name", default="下班生活", help="category of articels in the website", type=str)
 parser.add_argument("--class_", default="中文", help="main class of the website", type=str)
-parser.add_argument("--prefix", default="https://www.518.com.tw/articles/category/interview/", help="prefix 1", type=str)
+parser.add_argument("--prefix", default="https://www.518.com.tw/articles/category/life/", help="prefix 1", type=str)
 parser.add_argument("--suffix", default=None, help="prefix 2", type=str)
 parser.add_argument("--root_path", default=None, help="prefix 3", type=str)
-parser.add_argument("--pages", default=2, help="pages of websites", type=int)
+parser.add_argument("--pages", default=10, help="pages of websites", type=int)
 parser.add_argument("--block1", default=["div", "post-wrapper"], help="main list of tag and class", type=list)
 parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
 parser.add_argument("--img_txt_block", default=None, help="main list of tag and class for crawling image-text pair", type=list)
@@ -54,7 +54,7 @@ pipe.pipeline(
 #     upgrade_pages=args.upgrade_pages
 # )
 
-# delete_website_by_idx(idx = 73, websitelist_path=args.websitelist_path)
+# delete_website_by_idx(idx = 227, websitelist_path=args.websitelist_path)
 
 
 # files = glob.glob("G:\Musubi\data\中文\芋傳媒\*.json")

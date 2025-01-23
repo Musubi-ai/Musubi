@@ -21,8 +21,8 @@ class BaseScheduler(ABC):
         if send_notification:
             if app_password is not None:
                 self.app_password = app_password
-            elif os.environ.get("musubi_app_password"):
-                self.app_password = os.environ.get("musubi_app_password")
+            elif os.environ.get("MUSUBI_APP_PASSWORD"):
+                self.app_password = os.environ.get("MUSUBI_APP_PASSWORD")
             else:
                 raise ValueError("To let scheduler send notification, please set app_password.")
             self.notify = Notify(

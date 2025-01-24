@@ -1,6 +1,7 @@
 import requests
 import os
 from dotenv import load_dotenv
+from ..utils.analyze import WebsiteNavigationAnalyzer
 
 
 def google_search(
@@ -31,10 +32,15 @@ def google_search(
             )
 
     url = "https://www.googleapis.com/customsearch/v1?cx={}".format(google_engine_id) + "&key={}".format(google_search_api) + "&q={}".format(query) + "&gl=tw"
-    # url = 'https://www.googleapis.com/customsearch/v1?cx=e0195ea52b7514582&key=AIzaSyAAadaNAvqnEcfToOEyvVIFdpIaGtH0fxo&q=關鍵評論網&gl=tw'
     response = requests.get(url)
     if response.status_code != 200:
         raise Exception("API request error")
     search_result = response.json()
     links = [search_result["items"][i]["link"] for i in range(len(search_result["items"]))]
     return links[:num_results]
+
+
+def analyze_website(url):
+    analyzer = WebsiteNavigationAnalyzer(url)
+    navigation_type = analyzer.analyze_navigation_type()
+    return navigation_type

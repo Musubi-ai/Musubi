@@ -2,6 +2,8 @@ from musubi.pipeline import Pipeline
 import argparse
 from musubi.utils.helpers import delete_website_by_idx
 from musubi.utils.deduplicate import deduplicate_by_value
+from musubi.utils.helpers import recover_correct_url
+from tqdm import tqdm
 import glob
 
 
@@ -12,14 +14,14 @@ parser.add_argument("--upgrade_pages", default=50, help="expected pages to scan 
 # arguments for config file
 parser.add_argument("--websitelist_path", default="config\websites.json", help="webiste config file", type=str)
 # arguments for add mode
-parser.add_argument("--dir", default="作家生活誌", help="webiste name and its corresponding directory", type=str)
-parser.add_argument("--name", default="作家生活誌作家動態全部文章", help="category of articels in the website", type=str)
+parser.add_argument("--dir", default="香港醫院藥劑師學會", help="webiste name and its corresponding directory", type=str)
+parser.add_argument("--name", default="香港醫院藥劑師學會全部文章", help="category of articels in the website", type=str)
 parser.add_argument("--class_", default="中文", help="main class of the website", type=str)
-parser.add_argument("--prefix", default="https://showwe.tw/news/index.aspx?p=", help="prefix of url", type=str)
-parser.add_argument("--suffix", default=None, help="suffix of url", type=str)
-parser.add_argument("--root_path", default="https://showwe.tw", help="root path of root website", type=str)
-parser.add_argument("--pages", default=290, help="pages of websites", type=int)
-parser.add_argument("--block1", default=["div", "col-md-8"], help="main list of tag and class", type=list)
+parser.add_argument("--prefix", default="https://www.derc.org.hk/en/%E6%96%87%E7%AB%A0%E8%96%88%E9%9B%86?page=", help="prefix of url", type=str)
+parser.add_argument("--suffix", default="&nid=0", help="suffix of url", type=str)
+parser.add_argument("--root_path", default="https://www.derc.org.hk/en/", help="root path of root website", type=str)
+parser.add_argument("--pages", default=15, help="pages of websites", type=int)
+parser.add_argument("--block1", default=["div", "col-xs-12 col-sm-12 col-md-6 col-lg-6"], help="main list of tag and class", type=list)
 parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
 parser.add_argument("--img_txt_block", default=None, help="main list of tag and class for crawling image-text pair", type=list)
 parser.add_argument("--type", default="scan", help="way of crawling websites", type=str, choices=["scan", "scroll", "onepage", "click"])
@@ -45,9 +47,8 @@ pipe.pipeline(
     sleep_time=None
     )
 
-# pipe.start_by_idx(
-#     idx=210
-# )
+# for i in tqdm(range(231, 247)):
+#     pipe.start_by_idx(idx=i)
 
 # pipe.start_all(
 #     start_idx=221,
@@ -61,3 +62,5 @@ pipe.pipeline(
 
 # for file in files:
 #     deduplicate_by_value(file, key="url")
+
+# recover_correct_url(idx=246)

@@ -137,23 +137,3 @@ def recover_correct_url(
     content_df.to_json(content_path, orient='records', lines=True, force_ascii=False)
 
 
-if __name__ == "__main__":
-    # Eample for adding new website unto website.json 
-    # websitelist_path = "test.json"
-    # add_new_website(
-    #     # idx = 25,
-    #     dir = "報導者",
-    #     name = "教育校園",
-    #     class_ = "中文",
-    #     prefix = "https://www.twreporter.org/categories/education?page=",
-    #     suffix = None,
-    #     root_path = "https://www.twreporter.org",
-    #     pages = 14,
-    #     block1 = ["div", "list-item__Container-sc-1dx5lew-0 kCnicz"],
-    #     type = "scan",
-    #     websitelist_path=websitelist_path
-    # )
-
-    # delete_website_by_idx(idx=0, websitelist_path=websitelist_path)
-
-    recover_correct_url(idx=246)

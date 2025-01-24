@@ -8,3 +8,4 @@ imgtxt_crawler/
 __pycache__
 config/imgtxt_webs.json
 test.py
+.env

@@ -126,21 +126,19 @@ class AsyncCrawl():
                 elif self.crawl_type == "img-text":
                     tasks.append(get_image_text_pair(url=link, img_txt_block=img_txt_block))
 
-            print("finished\n==========================================")
-
             for task in tqdm(asyncio.as_completed(tasks), total=len(tasks), desc="Crawl contents"):
-                # try:
-                res, url = await task
-                with open(save_path, "a+", encoding="utf-8") as file:
-                    if self.crawl_type == "text":
-                        file.write(json.dumps({"content": res, "url": url}, ensure_ascii=False) + "\n")
-                    elif self.crawl_type == "img-text":
-                        for item in res:
-                            file.write(json.dumps(item, ensure_ascii=False) + "\n")
-                if sleep_time:
-                    await asyncio.sleep(sleep_time)
-                # except Exception as e:
-                #     print(f"Error during task execution: {e}")
+                try:
+                    res, url = await task
+                    with open(save_path, "a+", encoding="utf-8") as file:
+                        if self.crawl_type == "text":
+                            file.write(json.dumps({"content": res, "url": url}, ensure_ascii=False) + "\n")
+                        elif self.crawl_type == "img-text":
+                            for item in res:
+                                file.write(json.dumps(item, ensure_ascii=False) + "\n")
+                    if sleep_time:
+                        await asyncio.sleep(sleep_time)
+                except Exception as e:
+                    print(f"Error during task execution: {e}")
 
 
 if __name__ == "__main__":
@@ -151,19 +149,3 @@ if __name__ == "__main__":
 
     crawl = AsyncCrawl(url_path=url_path, crawl_type="text")
     asyncio.run(crawl.crawl_contents(save_path=save_path))
-    
-    # url_list = [
-    #     f"G:\Musubi\crawler\芋傳媒\芋傳媒性別_link.json",
-    #     f"G:\Musubi\crawler\芋傳媒\芋傳媒環境_link.json",
-    #     f"G:\Musubi\crawler\芋傳媒\芋傳媒閱讀_link.json"
-    # ]
-
-    # save_list = [
-    #     f"G:\Musubi\data\中文\芋傳媒\芋傳媒性別.json",
-    #     f"G:\Musubi\data\中文\芋傳媒\芋傳媒環境.json",
-    #     f"G:\Musubi\data\中文\芋傳媒\芋傳媒閱讀.json"
-    # ]
-
-    # for i in range(len(url_list)):
-    #     crawl = AsyncCrawl(url_path=url_list[i], crawl_type="text")
-    #     asyncio.run(crawl.crawl_contents(save_path=save_list[i]))

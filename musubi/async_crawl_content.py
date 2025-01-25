@@ -10,6 +10,7 @@ from tqdm import tqdm
 import pandas as pd
 import aiohttp
 import asyncio
+from functools import partial
 
 
 headers = {'user-agent': 'Mozilla/5.0'}
@@ -48,7 +49,8 @@ async def get_content(url: str = None, session: aiohttp.ClientSession = None):
     else:
         loop = asyncio.get_event_loop()
         downloaded = await loop.run_in_executor(None, fetch_url, url)
-        result = await loop.run_in_executor(None, extract, downloaded, True, "markdown")
+        extract_with_args = partial(extract, filecontent=downloaded, favor_precision=True, output_format="markdown")
+        result = await loop.run_in_executor(None, extract_with_args)
     return result, url
 
 async def fetch(session: aiohttp.ClientSession, url):
@@ -124,26 +126,28 @@ class AsyncCrawl():
                 elif self.crawl_type == "img-text":
                     tasks.append(get_image_text_pair(url=link, img_txt_block=img_txt_block))
 
+            print("finished\n==========================================")
+
             for task in tqdm(asyncio.as_completed(tasks), total=len(tasks), desc="Crawl contents"):
-                try:
-                    res, url = await task
-                    with open(save_path, "a+", encoding="utf-8") as file:
-                        if self.crawl_type == "text":
-                            file.write(json.dumps({"content": res, "url": url}, ensure_ascii=False) + "\n")
-                        elif self.crawl_type == "img-text":
-                            for item in res:
-                                file.write(json.dumps(item, ensure_ascii=False) + "\n")
-                    if sleep_time:
-                        await asyncio.sleep(sleep_time)
-                except Exception as e:
-                    print(f"Error during task execution: {e}")
+                # try:
+                res, url = await task
+                with open(save_path, "a+", encoding="utf-8") as file:
+                    if self.crawl_type == "text":
+                        file.write(json.dumps({"content": res, "url": url}, ensure_ascii=False) + "\n")
+                    elif self.crawl_type == "img-text":
+                        for item in res:
+                            file.write(json.dumps(item, ensure_ascii=False) + "\n")
+                if sleep_time:
+                    await asyncio.sleep(sleep_time)
+                # except Exception as e:
+                #     print(f"Error during task execution: {e}")
 
 
 if __name__ == "__main__":
-    url_path = f"G:\Musubi\crawler\巨匠東大日語\巨匠東大日語全部文章_link.json"
+    url_path = r"G:\Musubi\test.json"
     # # text = get_content(url=urls_path)
 
-    save_path = f"G:\Musubi\data\中文\巨匠東大日語\巨匠東大日語全部文章.json"
+    save_path = r"G:\Musubi\test_content.json"
 
     crawl = AsyncCrawl(url_path=url_path, crawl_type="text")
     asyncio.run(crawl.crawl_contents(save_path=save_path))

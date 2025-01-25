@@ -135,10 +135,10 @@ class Crawl():
 
 
 if __name__ == "__main__":
-    url_path = f"G:\Musubi\crawler\芋傳媒\芋傳媒網路謠言_link.json"
+    url_path = r"G:\Musubi\test.json"
     # text = get_content(url=url_path)
     # print(text)
-    save_path = f"G:\Musubi\data\中文\芋傳媒\芋傳媒網路謠言.json"
+    save_path = r"G:\Musubi\test_content.json"
 
     crawl = Crawl(url_path=url_path, crawl_type="text")
     crawl.crawl_contents(save_path=save_path)

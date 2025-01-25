@@ -1,8 +1,11 @@
+aiohttp==3.11.11
+APScheduler==3.11.0
 beautifulsoup4==4.11.1
 pandas==2.2.3
-python_dateutil==2.8.2
+pymupdf==1.25.2
+pymupdf4llm==0.0.17
+python-dotenv==1.0.1
 Requests==2.32.3
-selenium==4.26.1
+selenium==4.28.1
 tqdm==4.66.2
-trafilatura==1.12.2
-webdriver_manager==3.8.5
+trafilatura==2.0.0

@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 def add_new_website(
+    website_config_path: Optional[str] = None,
     idx: int = None,
     dir: str = None,
     name: str = None,
@@ -20,12 +21,13 @@ def add_new_website(
     img_txt_block: Optional[List] = None,
     type: str = None,
     async_: bool = False,
-    websitelist_path: str = None
 ):
+    if not website_config_path:
+        website_config_path = Path("config") / "websites.json"
     try:
-        exist_idx_list = pd.read_json(websitelist_path, lines=True)["idx"].to_list()
-        dir_list = pd.read_json(websitelist_path, lines=True)["dir"].to_list()
-        name_list = pd.read_json(websitelist_path, lines=True)["name"].to_list()
+        exist_idx_list = pd.read_json(website_config_path, lines=True)["idx"].to_list()
+        dir_list = pd.read_json(website_config_path, lines=True)["dir"].to_list()
+        name_list = pd.read_json(website_config_path, lines=True)["name"].to_list()
 
         if not idx:
             idx = max(exist_idx_list) + 1
@@ -38,7 +40,9 @@ def add_new_website(
             warnings.warn("The dir and name of new website exists alraedy.")
 
     except:
-        warnings.warn("First time crawling website.")
+        warnings.warn("The argument 'website_config_path' is None or json file is empty. Direct to default path and create new config file.")
+        default_folder = Path("config")
+        default_folder.mkdir(parents=True, exist_ok=True)
         idx = 0
 
     if not (dir and name and class_ and prefix and pages and block1 and type) and idx is not None:
@@ -75,7 +79,7 @@ def add_new_website(
             "async_": async_
         }
 
-    with open(websitelist_path, "a+", encoding="utf-8") as file:
+    with open(website_config_path, "a+", encoding="utf-8") as file:
         file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
 
     return idx
@@ -83,36 +87,36 @@ def add_new_website(
 
 def delete_website_by_idx(
     idx: int = None,
-    websitelist_path = None
+    website_config_path = None
 ):
     """
     Delete website config in website.json by index and sort all configs. 
     """
-    website_df = pd.read_json(websitelist_path, lines=True)
+    website_df = pd.read_json(website_config_path, lines=True)
     dictts = website_df[website_df["idx"] != idx].to_dict("records")
     length = len(dictts)
 
     if length == 0:
-        with open(websitelist_path, "w", encoding="utf-8") as file:
+        with open(website_config_path, "w", encoding="utf-8") as file:
             pass
 
     for i in range(length):
         if dictts[i]["idx"] >= idx:
             dictts[i]["idx"] -= 1
         if i == 0:
-            with open(websitelist_path, "w", encoding="utf-8") as file:
+            with open(website_config_path, "w", encoding="utf-8") as file:
                 file.write(json.dumps(dictts[i], ensure_ascii=False) + "\n")
         else:
-            with open(websitelist_path, "a+", encoding="utf-8") as file:
+            with open(website_config_path, "a+", encoding="utf-8") as file:
                 file.write(json.dumps(dictts[i], ensure_ascii=False) + "\n")
 
 
 def recover_correct_url(
-    website_path: str = "config\websites.json",
+    website_config_path: str = None,
     idx: int = None,
     save_dir: Optional[str] = None
 ):
-    config = pd.read_json(website_path, lines=True, engine="pyarrow", dtype_backend="pyarrow").iloc[idx].to_dict()
+    config = pd.read_json(website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow").iloc[idx].to_dict()
     if save_dir is not None:
         urls_dir = Path(save_dir) / "crawler" / config["dir"]
         url_path = Path(urls_dir) / "{}_link.json".format(config["name"])

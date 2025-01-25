@@ -7,5 +7,6 @@ a.py
 imgtxt_crawler/
 __pycache__
 config/imgtxt_webs.json
+config/proxies.json
 test.py
 .env

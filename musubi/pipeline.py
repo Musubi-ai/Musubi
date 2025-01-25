@@ -8,7 +8,6 @@ from pathlib import Path
 from collections import defaultdict
 from typing import List, Optional
 import warnings
-import os
 import pandas as pd
 
 
@@ -17,13 +16,18 @@ class Pipeline:
     Main class for Musubi service.
 
     Args:
-        website_path (`str`) config\websites.json or config\imgtxt_webs.json.
+        website_config_path (`str`) websites.json or imgtxt_webs.json.
     """
     def __init__(
         self, 
-        website_path: str = "config\websites.json",
+        website_config_path: str = None,
     ):
-        self.website_path = website_path
+        if not website_config_path:
+            config_dir = Path("config")
+            config_dir.mkdir(parents=True, exist_ok=True)
+            self.website_config_path = Path("config") / "websites.json"
+        else:
+            self.website_config_path = website_config_path
 
     def start_by_idx(
         self,
@@ -55,7 +59,7 @@ class Pipeline:
         if idx is None:
             raise ValueError("The index cannot be unassigned, please fill index argument.")
         self.args_dict = defaultdict(lambda: None)
-        self.website_df = pd.read_json(self.website_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
+        self.website_df = pd.read_json(self.website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         self.website_df_length = len(self.website_df)
         self.is_nan = self.website_df.apply(pd.isna)
         self.name = self.website_df.iloc[idx]["name"]
@@ -110,11 +114,10 @@ class Pipeline:
             if idx not in indices:
                 raise ValueError("In upgrade mode but assigned index does not exist in website.json file.")
         
-        # Check the existence of the directories. If not, build them.
-        if not os.path.isdir(self.urls_dir):
-            os.makedirs(self.urls_dir)
-        if not os.path.isdir(self.save_dir):
-            os.makedirs(self.save_dir)
+        urls_folder_path = Path(self.urls_dir)
+        urls_folder_path.mkdir(parents=True, exist_ok=True)
+        contents_folder_path = Path(self.save_dir)
+        contents_folder_path.mkdir(parents=True, exist_ok=True)
 
         # start scanning the links
         print("---------------------------------------------\nGetting urls from {}!\n---------------------------------------------".format(self.name))
@@ -251,7 +254,7 @@ class Pipeline:
         ```python
         >>> from musubi import Pipeline
 
-        >>> pipeline = Pipeline("website.json")
+        >>> pipeline = Pipeline()
         >>> config_dict = {"dir": "test", 
             "name": "test", 
             "class_": "中文", 
@@ -281,17 +284,17 @@ class Pipeline:
             img_txt_block = img_txt_block,
             type = type,
             async_ = async_,
-            websitelist_path = self.website_path
+            website_config_path = self.website_config_path
         )
 
-        try:
-            self.start_by_idx(
-                start_page = start_page,
-                start_idx = start_idx,
-                idx = new_website_idx,
-                sleep_time = sleep_time,
-                save_dir = save_dir
-            )
-        except:
-            warnings.warn("Failed to parse website, delete the idx from webiste config now.")
-            delete_website_by_idx(idx=new_website_idx, websitelist_path=self.website_path)
+        # try:
+        self.start_by_idx(
+            start_page = start_page,
+            start_idx = start_idx,
+            idx = new_website_idx,
+            sleep_time = sleep_time,
+            save_dir = save_dir
+        )
+        # except:
+        #     warnings.warn("Failed to parse website, delete the idx from webiste config now.")
+        #     delete_website_by_idx(idx=new_website_idx, website_config_path=self.website_config_path)

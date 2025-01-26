@@ -45,7 +45,7 @@ class AsyncScan:
         self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")
 
     async def fetch(self, session: aiohttp.ClientSession, url):
-        async with session.get(url, headers=headers, proxy=self.proxy, proxy_auth=self.proxy_auth) as response:
+        async with session.get(url, headers=headers) as response:
             return await response.text()
         
     async def get_urls(

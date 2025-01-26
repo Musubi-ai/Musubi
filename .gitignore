@@ -10,3 +10,4 @@ config/imgtxt_webs.json
 config/proxies.json
 test.py
 .env
+.pytest_cache

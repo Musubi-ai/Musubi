@@ -1,7 +1,8 @@
 import requests
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 from ..utils.analyze import WebsiteNavigationAnalyzer
+from ..utils.env import create_env_file
 
 
 def google_search(
@@ -10,6 +11,7 @@ def google_search(
     query: str = None,
     num_results: int = 1
 ):
+    env_path = create_env_file()
     load_dotenv()
     """
     Get google custom search api from https://developers.google.com/custom-search/v1/overview?source=post_page-----36e5298086e4--------------------------------&hl=zh-tw.
@@ -37,6 +39,12 @@ def google_search(
         raise Exception("API request error")
     search_result = response.json()
     links = [search_result["items"][i]["link"] for i in range(len(search_result["items"]))]
+
+    if google_search_api != os.getenv("GOOGLE_SEARCH_API"):
+        set_key(env_path, key_to_set="GOOGLE_SEARCH_API", value_to_set=google_search_api)
+    if google_engine_id != os.getenv("GOOGLE_ENGINE_ID"):
+        set_key(env_path, key_to_set="GOOGLE_ENGINE_ID", value_to_set=google_engine_id)
+
     return links[:num_results]
 
 

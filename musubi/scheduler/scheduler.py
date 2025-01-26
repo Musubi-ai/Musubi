@@ -2,13 +2,14 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from ..pipeline import Pipeline
 from .notification import Notify
 from .params_retriever import get_cron_params, get_idx_task_params, get_upgrade_task_params
+from ..utils.env import create_env_file
 from typing import Optional
 import os
 import uuid
 import time
 from datetime import datetime
 from abc import ABC, abstractmethod
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 
 load_dotenv()
 
@@ -23,6 +24,9 @@ class BaseScheduler(ABC):
     ):
         if send_notification:
             if app_password is not None:
+                if os.getenv("GOOGLE_APP_PASSWORD") != app_password:
+                    env_path = create_env_file()
+                    set_key(env_path, key_to_set="GOOGLE_APP_PASSWORD", value_to_set=app_password)
                 self.app_password = app_password
             elif os.getenv("GOOGLE_APP_PASSWORD"):
                 self.app_password = os.getenv("GOOGLE_APP_PASSWORD")
@@ -54,7 +58,7 @@ class IdxScheduler(BaseScheduler):
 
     def start_by_idx_task(
         self,
-        website_path="config/websites.json",
+        website_config_path=None,
         idx: int = None,
         upgrade_pages: Optional[int] = None,
         save_dir: Optional[str] = None,
@@ -66,7 +70,7 @@ class IdxScheduler(BaseScheduler):
                 body="Start scheduled task {} at {}".format(task_name, datetime.now())
             )
 
-        pipe = Pipeline(website_path=website_path)
+        pipe = Pipeline(website_config_path=website_config_path)
         pipe.start_by_idx(
             idx=idx,
             upgrade_pages=upgrade_pages,
@@ -165,7 +169,7 @@ class UpgradeScheduler(BaseScheduler):
 
     def start_all_task(
         self,
-        website_path="config/websites.json",
+        website_config_path=None,
         start_idx: Optional[int] = 0,
         upgrade_pages: Optional[int] = None,
         save_dir: Optional[str] = None,
@@ -177,7 +181,7 @@ class UpgradeScheduler(BaseScheduler):
                 body="Start scheduled task {} at {}".format(task_name, datetime.now())
             )
 
-        pipe = Pipeline(website_path=website_path)
+        pipe = Pipeline(website_config_path=website_config_path)
         pipe.start_all(
             start_idx=start_idx,
             upgrade_pages=upgrade_pages,

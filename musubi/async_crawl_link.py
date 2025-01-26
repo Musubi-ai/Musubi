@@ -45,7 +45,7 @@ class AsyncScan:
         self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")
 
     async def fetch(self, session: aiohttp.ClientSession, url):
-        async with session.get(url, headers=headers) as response:
+        async with session.get(url, headers=headers, proxy=self.proxy, proxy_auth=self.proxy_auth) as response:
             return await response.text()
         
     async def get_urls(
@@ -106,7 +106,6 @@ class AsyncScan:
                     dictt = {"link": link}
                     with open(self.url_path, "a+", encoding="utf-8") as file:
                         file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
-
 
 
 if __name__ == "__main__":

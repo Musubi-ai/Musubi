@@ -11,3 +11,4 @@ config/proxies.json
 test.py
 .env
 .pytest_cache
+config/tasks.json

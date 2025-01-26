@@ -28,7 +28,7 @@ def get_cron_params():
 def get_idx_task_params():
     print("\nEnter task arguments（the arguments are same as those of start_by_idx function）:")
     params = {}
-    cron_fields = ["idx", "upgrade_pages", "save_dir", "task_name"]
+    cron_fields = ["idx", "upgrade_pages", "save_dir"]
 
     for field in cron_fields:
         value = input(f"{field}: ").strip()
@@ -52,7 +52,7 @@ def get_idx_task_params():
 def get_upgrade_task_params():
     print("\nEnter task arguments（the arguments are same as those of start_all function）:")
     params = {}
-    cron_fields = ["start_idx", "upgrade_pages", "save_dir", "task_name"]
+    cron_fields = ["start_idx", "upgrade_pages", "save_dir"]
 
     for field in cron_fields:
         value = input(f"{field}: ").strip()

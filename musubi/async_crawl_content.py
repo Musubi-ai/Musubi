@@ -13,7 +13,7 @@ import asyncio
 from functools import partial
 
 
-headers = {'user-agent': 'Mozilla/5.0'}
+headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
 
 
 def formate_pdf(pdf_content: str):
@@ -139,6 +139,10 @@ class AsyncCrawl():
                         await asyncio.sleep(sleep_time)
                 except Exception as e:
                     print(f"Error during task execution: {e}")
+
+        crawl_df = pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
+        if len(crawl_df) == 0:
+            raise Exception("No article is crawled.")
 
 
 if __name__ == "__main__":

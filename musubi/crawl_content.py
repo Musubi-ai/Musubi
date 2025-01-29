@@ -133,6 +133,10 @@ class Crawl():
             if sleep_time:
                 time.sleep(sleep_time)
 
+        crawl_df = pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
+        if len(crawl_df) == 0:
+            raise Exception("No article is crawled.")
+
 
 if __name__ == "__main__":
     url_path = r"G:\Musubi\test.json"

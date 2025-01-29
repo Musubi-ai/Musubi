@@ -1,51 +1,38 @@
-import requests
-import os
-from dotenv import load_dotenv, set_key
+from selenium.webdriver import Edge
+from selenium.webdriver.edge.options import Options
+from selenium.webdriver.common.by import By
+import time
+from typing import Optional
 from ..utils.analyze import WebsiteNavigationAnalyzer
-from ..utils.env import create_env_file
 
 
 def google_search(
-    google_engine_id: str = None,
-    google_search_api: str = None,
     query: str = None,
-    num_results: int = 1
+    num_results: int = 1,
+    headless: Optional[bool] = True
 ):
-    env_path = create_env_file()
-    load_dotenv()
-    """
-    Get google custom search api from https://developers.google.com/custom-search/v1/overview?source=post_page-----36e5298086e4--------------------------------&hl=zh-tw.
-    Also, visit https://cse.google.com/cse/all to build search engine and retrieve engine id.
-    """
-    if google_search_api is None:
-        google_search_api = os.getenv("GOOGLE_SEARCH_API")
-        if google_search_api is None:
-            raise Exception(
-                """google_search_api is None and cannot find it in .env file. 
-                Input google_search_api or visit https://developers.google.com/custom-search/v1/overview?source=post_page-----36e5298086e4--------------------------------&hl=zh-tw to apply it."""
-            )
+    query = query.replace(" ", "+")
+    query_url = "https://www.google.com/search?q={}&udm=14".format(query)
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'
+    options = Options()
+    if headless:
+        options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920x1080")
+    options.add_argument('--user-agent=%s' % user_agent)
+    driver = Edge(options=options)
+    driver.get(query_url)
+    time.sleep(3)
+    search_results = driver.find_elements(By.CSS_SELECTOR, 'a')
+    urls = []
+    for result in search_results:
+        href = result.get_attribute('href')
+        if href and "google.com" not in href:
+            urls.append(href)
 
-    if google_engine_id is None:
-        google_engine_id = os.getenv("GOOGLE_ENGINE_ID")
-        if google_engine_id is None:
-            raise Exception(
-                """google_engine_id is None and cannot find it in .env file. 
-                Input google_engine_id or visit https://cse.google.com/cse/all to build search engine and retrieve engine id."""
-            )
-
-    url = "https://www.googleapis.com/customsearch/v1?cx={}".format(google_engine_id) + "&key={}".format(google_search_api) + "&q={}".format(query) + "&gl=tw"
-    response = requests.get(url)
-    if response.status_code != 200:
-        raise Exception("API request error")
-    search_result = response.json()
-    links = [search_result["items"][i]["link"] for i in range(len(search_result["items"]))]
-
-    if google_search_api != os.getenv("GOOGLE_SEARCH_API"):
-        set_key(env_path, key_to_set="GOOGLE_SEARCH_API", value_to_set=google_search_api)
-    if google_engine_id != os.getenv("GOOGLE_ENGINE_ID"):
-        set_key(env_path, key_to_set="GOOGLE_ENGINE_ID", value_to_set=google_engine_id)
-
-    return links[:num_results]
+    driver.quit()
+    return urls[:num_results]
+   
 
 
 def analyze_website(url):

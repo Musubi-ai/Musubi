@@ -85,6 +85,8 @@ class Scan(BaseCrawl):
                         self.root_path = self.root_path[:-1]
                 elif (self.root_path[-1] != "/") and (block["href"][0] != "/"):
                     self.root_path = self.root_path + "/"
+                elif ("http" in self.root_path) and ("http" in block["href"]):
+                    self.root_path = ""
                 if self.plural_a_tag:
                     link = self.root_path + block["href"]
                 else:
@@ -183,6 +185,8 @@ class Scroll(BaseCrawl):
                         self.root_path = self.root_path[:-1]
                 elif (self.root_path[-1] != "/") and (url[0] != "/"):
                     self.root_path = self.root_path + "/"
+                elif ("http" in self.root_path) and ("http" in url):
+                    self.root_path = ""
                 url = self.root_path + url
             if url_list and url in url_list:
                 continue 
@@ -242,6 +246,8 @@ class OnePage(BaseCrawl):
                         self.root_path = self.root_path[:-1]
                 elif (self.root_path[-1] != "/") and (block["href"][0] != "/"):
                     self.root_path = self.root_path + "/"
+                elif ("http" in self.root_path) and ("http" in block["href"]):
+                    self.root_path = ""
                 if self.plural_a_tag:
                     link = self.root_path + block["href"]
                 else:
@@ -326,6 +332,8 @@ class Click(BaseCrawl):
                         self.root_path = self.root_path[:-1]
                     elif (self.root_path[-1] != "/") and (url[0] != "/"):
                         self.root_path = self.root_path + "/"
+                    elif ("http" in self.root_path) and ("http" in url):
+                        self.root_path = ""
                     url = self.root_path + url
                 if url_list and url in url_list:
                     continue 

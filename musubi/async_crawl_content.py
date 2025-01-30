@@ -141,8 +141,8 @@ class AsyncCrawl():
                     print(f"Error during task execution: {e}")
 
         crawl_df = pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
-        if len(crawl_df) == 0:
-            raise Exception("No article is crawled.")
+        if (len(crawl_df) == 0) or ("http" not in crawl_df.iloc[0]["url"]):
+            raise Exception("Wrong contents in saved content file.")
 
 
 if __name__ == "__main__":

@@ -32,7 +32,6 @@ def google_search(
 
     driver.quit()
     return urls[:num_results]
-   
 
 
 def analyze_website(url):

@@ -25,9 +25,9 @@ def add_new_website(
     if not website_config_path:
         website_config_path = Path("config") / "websites.json"
     try:
-        exist_idx_list = pd.read_json(website_config_path, lines=True)["idx"].to_list()
-        dir_list = pd.read_json(website_config_path, lines=True)["dir"].to_list()
-        name_list = pd.read_json(website_config_path, lines=True)["name"].to_list()
+        exist_idx_list = pd.read_json(website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["idx"].to_list()
+        dir_list = pd.read_json(website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["dir"].to_list()
+        name_list = pd.read_json(website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["name"].to_list()
 
         if not idx:
             idx = max(exist_idx_list) + 1
@@ -92,7 +92,9 @@ def delete_website_by_idx(
     """
     Delete website config in website.json by index and sort all configs. 
     """
-    website_df = pd.read_json(website_config_path, lines=True)
+    if not website_config_path:
+        website_config_path = Path("config") / "websites.json"
+    website_df = pd.read_json(website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
     dictts = website_df[website_df["idx"] != idx].to_dict("records")
     length = len(dictts)
 

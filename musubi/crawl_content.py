@@ -134,7 +134,7 @@ class Crawl():
                 time.sleep(sleep_time)
 
         crawl_df = pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
-        if (len(crawl_df) == 0) or ("http" not in crawl_df.iloc[0]["url"]):
+        if (len(crawl_df) == 0):
             raise Exception("Wrong contents in saved content file.")
 
 

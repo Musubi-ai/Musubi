@@ -67,6 +67,10 @@ class AsyncScan:
 
                 for block in blocks:
                     if self.root_path:
+                        if self.root_path[-1] == block["href"][0] == "/":
+                            self.root_path = self.root_path[:-1]
+                        elif (self.root_path[-1] != "/") and (block["href"][0] != "/"):
+                            self.root_path = self.root_path + "/"
                         if self.plural_a_tag:
                             link = self.root_path + block["href"]
                         else:

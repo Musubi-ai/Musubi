@@ -81,6 +81,10 @@ class Scan(BaseCrawl):
 
         for block in blocks:
             if self.root_path:
+                if self.root_path[-1] == block["href"][0] == "/":
+                        self.root_path = self.root_path[:-1]
+                elif (self.root_path[-1] != "/") and (block["href"][0] != "/"):
+                    self.root_path = self.root_path + "/"
                 if self.plural_a_tag:
                     link = self.root_path + block["href"]
                 else:
@@ -175,6 +179,10 @@ class Scroll(BaseCrawl):
         for item in elements:
             url = item.get_attribute("href")
             if self.root_path:
+                if self.root_path[-1] == url[0] == "/":
+                        self.root_path = self.root_path[:-1]
+                elif (self.root_path[-1] != "/") and (url[0] != "/"):
+                    self.root_path = self.root_path + "/"
                 url = self.root_path + url
             if url_list and url in url_list:
                 continue 
@@ -230,6 +238,10 @@ class OnePage(BaseCrawl):
 
         for block in blocks:
             if self.root_path:
+                if self.root_path[-1] == block["href"][0] == "/":
+                        self.root_path = self.root_path[:-1]
+                elif (self.root_path[-1] != "/") and (block["href"][0] != "/"):
+                    self.root_path = self.root_path + "/"
                 if self.plural_a_tag:
                     link = self.root_path + block["href"]
                 else:
@@ -310,6 +322,10 @@ class Click(BaseCrawl):
                 item = item.find_element(By.TAG_NAME, "a")
                 url = item.get_attribute("href")
                 if self.root_path:
+                    if self.root_path[-1] == url[0] == "/":
+                        self.root_path = self.root_path[:-1]
+                    elif (self.root_path[-1] != "/") and (url[0] != "/"):
+                        self.root_path = self.root_path + "/"
                     url = self.root_path + url
                 if url_list and url in url_list:
                     continue 

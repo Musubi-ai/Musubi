@@ -82,7 +82,7 @@ class Scan(BaseCrawl):
         for block in blocks:
             if self.root_path:
                 if self.root_path[-1] == block["href"][0] == "/":
-                        self.root_path = self.root_path[:-1]
+                    self.root_path = self.root_path[:-1]
                 elif (self.root_path[-1] != "/") and (block["href"][0] != "/"):
                     self.root_path = self.root_path + "/"
                 elif ("http" in self.root_path) and ("http" in block["href"]):

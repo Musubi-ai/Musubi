@@ -115,3 +115,78 @@ def get_container(url):
             return candidates[-1]
         else:
             return candidates[0]
+        
+
+def get_prefix_and_suffix(
+    url: str = None,
+    root_path: str = None
+):
+    pagination_candidates = ["pg", "pagination", "page", "pag"]
+    response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        print(f"Failed to fetch the page: {response.status_code}")
+        return []
+    
+    soup = BeautifulSoup(response.text, 'html.parser')
+    nav_soup = soup.find_all("nav")
+    urls = []
+    try:
+        for nav_node in nav_soup:
+            nav_class = nav_node.get("class")
+            nav_class = " ".join(nav_class)
+
+            a_tags = nav_node.find_all("a")
+            for a_tag in a_tags:
+                href = a_tag.get("href")
+                if any(item in href for item in pagination_candidates):
+                    urls.append(href)
+    except:
+        print("Cannot find nav tag.")
+
+    if len(urls) == 0:
+        a_soup = soup.find_all("a", href=True)
+        for a_tag in a_soup:
+            href = a_tag.get("href")
+            if any(item in href for item in pagination_candidates):
+                    urls.append(href)
+
+    if len(urls) > 2:
+        for i in range(len(urls)-1):
+            url1 = urls[i]
+            url2 = urls[i+1]
+            length = len(url1)
+            suffix_loc = length - 1
+            prefix_loc = 1
+            done_searching_suffix = False
+            done_searching_prefix = False
+            for j in range(length):
+                if not done_searching_suffix:
+                    suffix1 = url1[suffix_loc-j:length]
+                    suffix2 = url2[suffix_loc-j:length]
+                    if suffix1 != suffix2:
+                        suffix = url1[suffix_loc-j+1:length]
+                        done_searching_suffix = True
+                if not done_searching_prefix:
+                    prefix1 = url1[:prefix_loc+j]
+                    prefix2 = url2[:prefix_loc+j]
+                    if prefix1 != prefix2:
+                        prefix = url1[:prefix_loc+j-1]
+                        done_searching_prefix = True
+                if done_searching_prefix and done_searching_suffix:
+                    break
+            if prefix and suffix:
+                if "http" not in prefix:
+                    if ("http" in root_path) and (root_path[-1]=="/") and (prefix[0]=="/"):
+                        prefix = root_path[:-1] + prefix
+                    elif ("http" in root_path) and (root_path[-1]!="/") and (prefix[0]!="/"):
+                        prefix = root_path + "/" + prefix
+                    elif "http" in root_path:
+                        prefix = root_path + prefix
+                    else:
+                        raise Exception("Cannot find suitable prefix")
+                break
+
+        max_page = max([int(url.replace(prefix, "").replace(suffix, "")) for url in urls])
+        return (prefix, suffix, max_page)
+    else:
+        return []

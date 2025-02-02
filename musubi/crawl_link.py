@@ -81,16 +81,30 @@ class Scan(BaseCrawl):
 
         for block in blocks:
             if self.root_path:
-                if self.root_path[-1] == block["href"][0] == "/":
-                    self.root_path = self.root_path[:-1]
-                elif (self.root_path[-1] != "/") and (block["href"][0] != "/"):
-                    self.root_path = self.root_path + "/"
-                elif ("http" in self.root_path) and ("http" in block["href"]):
-                    self.root_path = ""
                 if self.plural_a_tag:
-                    link = self.root_path + block["href"]
+                    if "http" not in block["href"]:
+                        if "http" in self.root_path:
+                            if self.root_path[-1] == block["href"][0] == "/":
+                                self.root_path = self.root_path[:-1]
+                            elif (self.root_path[-1] != "/") and (block["href"][0] != "/"):
+                                self.root_path = self.root_path + "/"
+                        else:
+                            raise ValueError("Wrong value of root_path.")
+                        link = self.root_path + block["href"]
+                    else:
+                        link = block["href"]
                 else:
-                    link = self.root_path + block.a["href"]
+                    if "http" not in block.a["href"]:
+                        if "http" in self.root_path:
+                            if self.root_path[-1] == block.a["href"][0] == "/":
+                                self.root_path = self.root_path[:-1]
+                            elif (self.root_path[-1] != "/") and (block.a["href"][0] != "/"):
+                                self.root_path = self.root_path + "/"
+                        else:
+                            raise ValueError("Wrong value of root_path.")
+                        link = self.root_path + block.a["href"]
+                    else:
+                        link = block.a["href"]
             else:
                 if self.plural_a_tag:
                     link = block["href"]
@@ -182,7 +196,7 @@ class Scroll(BaseCrawl):
             url = item.get_attribute("href")
             if self.root_path:
                 if self.root_path[-1] == url[0] == "/":
-                        self.root_path = self.root_path[:-1]
+                    self.root_path = self.root_path[:-1]
                 elif (self.root_path[-1] != "/") and (url[0] != "/"):
                     self.root_path = self.root_path + "/"
                 elif ("http" in self.root_path) and ("http" in url):
@@ -242,16 +256,30 @@ class OnePage(BaseCrawl):
 
         for block in blocks:
             if self.root_path:
-                if self.root_path[-1] == block["href"][0] == "/":
-                        self.root_path = self.root_path[:-1]
-                elif (self.root_path[-1] != "/") and (block["href"][0] != "/"):
-                    self.root_path = self.root_path + "/"
-                elif ("http" in self.root_path) and ("http" in block["href"]):
-                    self.root_path = ""
                 if self.plural_a_tag:
-                    link = self.root_path + block["href"]
+                    if "http" not in block["href"]:
+                        if "http" in self.root_path:
+                            if self.root_path[-1] == block["href"][0] == "/":
+                                self.root_path = self.root_path[:-1]
+                            elif (self.root_path[-1] != "/") and (block["href"][0] != "/"):
+                                self.root_path = self.root_path + "/"
+                        else:
+                            raise ValueError("Wrong value of root_path.")
+                        link = self.root_path + block["href"]
+                    else:
+                        link = block["href"]
                 else:
-                    link = self.root_path + block.a["href"]
+                    if "http" not in block.a["href"]:
+                        if "http" in self.root_path:
+                            if self.root_path[-1] == block.a["href"][0] == "/":
+                                self.root_path = self.root_path[:-1]
+                            elif (self.root_path[-1] != "/") and (block.a["href"][0] != "/"):
+                                self.root_path = self.root_path + "/"
+                        else:
+                            raise ValueError("Wrong value of root_path.")
+                        link = self.root_path + block.a["href"]
+                    else:
+                        link = block.a["href"]
             else:
                 if self.plural_a_tag:
                     link = block["href"]

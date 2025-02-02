@@ -173,7 +173,7 @@ class Pipeline:
                 How many pages to crawl in upgrade mode. If not None, fuction will switch to upgrade mode and crawl specified number of pages.
                 If None, function will switch into add mode and crawl all pages of websites.
         """
-        self.website_df = pd.read_json(self.website_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
+        self.website_df = pd.read_json(self.website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         length = len(self.website_df)
         if upgrade_pages:
             print("---------------------------------------------\nIn upgrade mode now, setting the upgraded page for each website based on upgrade_page argument.\n---------------------------------------------")

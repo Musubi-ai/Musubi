@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--index", default=130, help="index of website in the website list", type=int)
 parser.add_argument("--upgrade_pages", default=50, help="expected pages to scan or scroll in upgrade mode", type=int)
 # arguments for config file
-parser.add_argument("--websitelist_path", default="config\websites.json", help="webiste config file", type=str)
+parser.add_argument("--website_config_path", default="config\websites.json", help="webiste config file", type=str)
 # arguments for add mode
 parser.add_argument("--dir", default="test", help="webiste name and its corresponding directory", type=str)
 parser.add_argument("--name", default="test-all", help="category of articels in the website", type=str)
@@ -29,33 +29,33 @@ parser.add_argument("--async_", default=True, help="asynchronous crawling or not
 args = parser.parse_args()
 
 
-pipe = Pipeline(website_path=args.websitelist_path)
+pipe = Pipeline(website_config_path=args.website_config_path)
 
-pipe.pipeline(
-    dir = args.dir,
-    name = args.name,
-    class_ = args.class_,
-    prefix = args.prefix,
-    suffix = args.suffix,
-    root_path = args.root_path,
-    pages = args.pages,
-    block1 = args.block1,
-    block2 = args.block2,
-    type = args.type,
-    img_txt_block = args.img_txt_block,
-    async_ = args.async_,
-    sleep_time=None
-    )
+# pipe.pipeline(
+#     dir = args.dir,
+#     name = args.name,
+#     class_ = args.class_,
+#     prefix = args.prefix,
+#     suffix = args.suffix,
+#     root_path = args.root_path,
+#     pages = args.pages,
+#     block1 = args.block1,
+#     block2 = args.block2,
+#     type = args.type,
+#     img_txt_block = args.img_txt_block,
+#     async_ = args.async_,
+#     sleep_time=None
+#     )
 
 # pipe.start_by_idx(idx=2, upgrade_pages=1)
 
 # for i in tqdm(range(231, 247)):
 #     pipe.start_by_idx(idx=i)
 
-# pipe.start_all(
-#     start_idx=221,
-#     upgrade_pages=args.upgrade_pages
-# )
+pipe.start_all(
+    start_idx=0,
+    upgrade_pages=args.upgrade_pages
+)
 
 # delete_website_by_idx(idx = 227, websitelist_path=args.websitelist_path)
 

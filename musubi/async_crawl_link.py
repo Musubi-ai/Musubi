@@ -9,7 +9,7 @@ import aiohttp
 import asyncio
 
 
-headers = {'user-agent': 'Mozilla/5.0'}
+headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
 
 
 class AsyncScan:
@@ -67,16 +67,30 @@ class AsyncScan:
 
                 for block in blocks:
                     if self.root_path:
-                        if ("http" in self.root_path) and (self.root_path[-1] == block["href"][0] == "/") and ("http" not in block["href"]):
-                            self.root_path = self.root_path[:-1]
-                        elif ("http" in self.root_path) and (self.root_path[-1] != "/") and (block["href"][0] != "/") and ("http" not in block["href"]):
-                            self.root_path = self.root_path + "/"
-                        elif ("http" in self.root_path) and ("http" in block["href"]):
-                            self.root_path = ""
                         if self.plural_a_tag:
-                            link = self.root_path + block["href"]
+                            if "http" not in block["href"]:
+                                if "http" in self.root_path:
+                                    if self.root_path[-1] == block["href"][0] == "/":
+                                        self.root_path = self.root_path[:-1]
+                                    elif (self.root_path[-1] != "/") and (block["href"][0] != "/"):
+                                        self.root_path = self.root_path + "/"
+                                else:
+                                    raise ValueError("Wrong value of root_path.")
+                                link = self.root_path + block["href"]
+                            else:
+                                link = block["href"]
                         else:
-                            link = self.root_path + block.a["href"]
+                            if "http" not in block.a["href"]:
+                                if "http" in self.root_path:
+                                    if self.root_path[-1] == block.a["href"][0] == "/":
+                                        self.root_path = self.root_path[:-1]
+                                    elif (self.root_path[-1] != "/") and (block.a["href"][0] != "/"):
+                                        self.root_path = self.root_path + "/"
+                                else:
+                                    raise ValueError("Wrong value of root_path.")
+                                link = self.root_path + block.a["href"]
+                            else:
+                                link = block.a["href"]
                     else:
                         if self.plural_a_tag:
                             link = block["href"]

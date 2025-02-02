@@ -67,9 +67,9 @@ class AsyncScan:
 
                 for block in blocks:
                     if self.root_path:
-                        if self.root_path[-1] == block["href"][0] == "/":
+                        if ("http" in self.root_path) and (self.root_path[-1] == block["href"][0] == "/") and ("http" not in block["href"]):
                             self.root_path = self.root_path[:-1]
-                        elif (self.root_path[-1] != "/") and (block["href"][0] != "/"):
+                        elif ("http" in self.root_path) and (self.root_path[-1] != "/") and (block["href"][0] != "/") and ("http" not in block["href"]):
                             self.root_path = self.root_path + "/"
                         elif ("http" in self.root_path) and ("http" in block["href"]):
                             self.root_path = ""

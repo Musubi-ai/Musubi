@@ -12,12 +12,14 @@ urls = [
 ]
 
 def test_get_container():
-    ans = []
+    block1_ans = []
+    block2_ans = []
     for url in urls:
-        container = get_container(url)
-        ans.append(container)
+        block1, block2 = get_container(url)
+        block1_ans.append(block1)
+        block2_ans.append(block2)
 
-    assert ans == [
+    assert block1_ans == [
         ["h3", "jeg_post_title"],
         ["div", "inner"],
         ["h2", "entry-title"],
@@ -25,4 +27,14 @@ def test_get_container():
         ["a", "topic-item__StyledLink-sc-1tffa4f-0 gvBqQB"],
         ["h3", "item-title h5 mb-2"],
         ["h5", "post-title is-large"]
+    ]
+
+    assert block2_ans == [
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
     ]

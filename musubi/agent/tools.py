@@ -105,6 +105,12 @@ def get_container(url):
                         possible_containers.append([tag.name, class_attr])
                 except:
                     pass
+
+    if len(possible_containers) == 0:
+        menu_soup = soup.find("menu")
+        a_tags = menu_soup.find_all("a")
+        if len(a_tags) > 1:
+            return ["menu", None], ["a", None]
     
     candidates = []
     if len(possible_containers) > 0:
@@ -112,9 +118,9 @@ def get_container(url):
         max_num = max(counter, key=lambda x: x[1])[1]
         candidates = [list(item) for item, count in counter if count == max_num]
         if len(candidates) > 1:
-            return candidates[-1]
+            return candidates[-1], None
         else:
-            return candidates[0]
+            return candidates[0], None
         
 
 def get_prefix_and_suffix(

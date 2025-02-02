@@ -47,13 +47,13 @@ pipe = Pipeline(website_config_path=args.website_config_path)
 #     sleep_time=None
 #     )
 
-# pipe.start_by_idx(idx=2, upgrade_pages=1)
+# pipe.start_by_idx(idx=63, upgrade_pages=50)
 
-# for i in tqdm(range(231, 247)):
-#     pipe.start_by_idx(idx=i)
+# for i in tqdm(range(95, 102)):
+#     pipe.start_by_idx(idx=i, upgrade_pages=50)
 
 pipe.start_all(
-    start_idx=0,
+    start_idx=226,
     upgrade_pages=args.upgrade_pages
 )
 

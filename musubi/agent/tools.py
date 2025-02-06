@@ -61,17 +61,36 @@ def get_container(url):
     soup = soup.find("body")
     possible_containers = []
 
-    for tag in soup.find_all():
-        if tag.find('a', href=True):
-            class_attr = " ".join(tag.get("class", []))
-            if (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr):
-                continue
-            text = tag.get_text(separator="#", strip=True)
-            try:
-                if (40 > len(text) > 20) and ("#" not in text) and tag.a:
-                    possible_containers.append([tag.name, class_attr])
-            except:
-                pass
+    main_soup = soup.find("main")
+    if main_soup:
+        for tag in main_soup.find_all():
+            if tag.find('a', href=True):
+                class_attr = " ".join(tag.get("class", []))
+                if (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr):
+                    continue
+                text = tag.get_text(separator="#", strip=True)
+                try:
+                    if (40 > len(text) > 15) and ("#" not in text) and tag.a:
+                        possible_containers.append([tag.name, class_attr])
+                    if len(possible_containers) == 0:
+                        if (40 > len(text) > 15) and (len(text.split("#")) < 3) and tag.a:
+                            possible_containers.append([tag.name, class_attr])
+                            print(text)
+                except:
+                    pass
+
+    if len(possible_containers) == 0:
+        for tag in soup.find_all():
+            if tag.find('a', href=True):
+                class_attr = " ".join(tag.get("class", []))
+                if (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr):
+                    continue
+                text = tag.get_text(separator="#", strip=True)
+                try:
+                    if (40 > len(text) > 15) and ("#" not in text) and tag.a:
+                        possible_containers.append([tag.name, class_attr])
+                except:
+                    pass
 
     if len(possible_containers) == 0:
         for tag in soup.find_all():

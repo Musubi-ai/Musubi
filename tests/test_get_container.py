@@ -8,7 +8,8 @@ urls = [
     "https://www.onejapan.com.tw/blog",
     "https://www.twreporter.org/topics?page=1",
     "https://www.thenewslens.com/category/politics",
-    "https://heho.com.tw/archives/category/health-care/research-report"
+    "https://heho.com.tw/archives/category/health-care/research-report",
+    "https://www.taiwan66.com.tw/channel/list/type/all-latest/0/tag/0/ln/zh/page/18#post-entry"
 ]
 
 def test_get_container():
@@ -26,7 +27,8 @@ def test_get_container():
         ["div", "card mb-3 custom-hover"],
         ["a", "topic-item__StyledLink-sc-1tffa4f-0 gvBqQB"],
         ["h3", "item-title h5 mb-2"],
-        ["h5", "post-title is-large"]
+        ["h5", "post-title is-large"],
+        ['div', 'basic-post__item']
     ]
 
     assert block2_ans == [
@@ -37,4 +39,5 @@ def test_get_container():
         None,
         None,
         None,
+        None
     ]

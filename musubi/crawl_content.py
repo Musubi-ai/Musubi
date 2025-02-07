@@ -7,9 +7,22 @@ import io
 import re
 from trafilatura import fetch_url, extract
 import json
-from tqdm import tqdm
+from rich.progress import SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn, Progress, MofNCompleteColumn, TimeElapsedColumn
 import pandas as pd
 import time
+
+
+headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
+
+progress = Progress(
+    SpinnerColumn(spinner_name="aesthetic"),
+    TextColumn("[progress.description]{task.description}"),
+    TimeElapsedColumn(),
+    BarColumn(bar_width=200),
+    MofNCompleteColumn(),
+    TaskProgressColumn(),
+    TimeRemainingColumn(),
+)
 
 
 def formate_pdf(pdf_content: str):
@@ -37,7 +50,7 @@ def formate_pdf(pdf_content: str):
 
 def get_content(url):
     if url.endswith(".pdf"):
-        request = requests.get(url)
+        request = requests.get(url, headers=headers)
         filestream = io.BytesIO(request.content)
         with pymupdf.open(stream=filestream, filetype="pdf") as doc:
             result = pymupdf4llm.to_markdown(doc)
@@ -52,7 +65,7 @@ def get_image_text_pair(
     url: str = None,
     img_txt_block: list = None
 ):
-    request = requests.get(url)
+    request = requests.get(url, headers=headers)
     content = request.text
     soup = BeautifulSoup(content, "html.parser")
     soup = soup.find(img_txt_block[0], class_=img_txt_block[1])
@@ -113,25 +126,26 @@ class Crawl():
         url_df = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         length = len(url_df)
 
-        for i in tqdm(range(start_idx, length), desc="Crawl contents"):
-            link = url_df.iloc[i]["link"]
-            # skip the content if it is in the file already
-            if content_list and (link in content_list):
-                continue
+        with progress:
+            for i in progress.track(range(start_idx, length), description="Crawl contents"):
+                link = url_df.iloc[i]["link"]
+                # skip the content if it is in the file already
+                if content_list and (link in content_list):
+                    continue
 
-            if self.crawl_type == "text":
-                result = get_content(url=link)
-                dictt = {"content": result, "url": link}
-                with open(save_path, "a+", encoding="utf-8") as file:
-                    file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
-            elif self.crawl_type == "img-text":
-                result = get_image_text_pair(url=link, img_txt_block=img_txt_block)
-                for item in result:
+                if self.crawl_type == "text":
+                    result = get_content(url=link)
+                    dictt = {"content": result, "url": link}
                     with open(save_path, "a+", encoding="utf-8") as file:
-                        file.write(json.dumps(item, ensure_ascii=False) + "\n")
+                        file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+                elif self.crawl_type == "img-text":
+                    result = get_image_text_pair(url=link, img_txt_block=img_txt_block)
+                    for item in result:
+                        with open(save_path, "a+", encoding="utf-8") as file:
+                            file.write(json.dumps(item, ensure_ascii=False) + "\n")
 
-            if sleep_time:
-                time.sleep(sleep_time)
+                if sleep_time:
+                    time.sleep(sleep_time)
 
         crawl_df = pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         if (len(crawl_df) == 0):

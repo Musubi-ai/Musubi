@@ -6,7 +6,7 @@ import io
 import re
 from trafilatura import fetch_url, extract
 import json
-from tqdm import tqdm
+from rich.progress import SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn, Progress, MofNCompleteColumn, TimeElapsedColumn
 import pandas as pd
 import aiohttp
 import asyncio
@@ -14,6 +14,16 @@ from functools import partial
 
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
+
+progress = Progress(
+    SpinnerColumn(spinner_name="aesthetic"),
+    TextColumn("[progress.description]{task.description}"),
+    TimeElapsedColumn(),
+    BarColumn(bar_width=200),
+    MofNCompleteColumn(),
+    TaskProgressColumn(),
+    TimeRemainingColumn(),
+)
 
 
 def formate_pdf(pdf_content: str):
@@ -126,19 +136,20 @@ class AsyncCrawl():
                 elif self.crawl_type == "img-text":
                     tasks.append(get_image_text_pair(url=link, img_txt_block=img_txt_block))
 
-            for task in tqdm(asyncio.as_completed(tasks), total=len(tasks), desc="Crawl contents"):
-                try:
-                    res, url = await task
-                    with open(save_path, "a+", encoding="utf-8") as file:
-                        if self.crawl_type == "text":
-                            file.write(json.dumps({"content": res, "url": url}, ensure_ascii=False) + "\n")
-                        elif self.crawl_type == "img-text":
-                            for item in res:
-                                file.write(json.dumps(item, ensure_ascii=False) + "\n")
-                    if sleep_time:
-                        await asyncio.sleep(sleep_time)
-                except Exception as e:
-                    print(f"Error during task execution: {e}")
+            with progress:
+                for task in progress.track(asyncio.as_completed(tasks), total=len(tasks), description="Crawl contents"):
+                    try:
+                        res, url = await task
+                        with open(save_path, "a+", encoding="utf-8") as file:
+                            if self.crawl_type == "text":
+                                file.write(json.dumps({"content": res, "url": url}, ensure_ascii=False) + "\n")
+                            elif self.crawl_type == "img-text":
+                                for item in res:
+                                    file.write(json.dumps(item, ensure_ascii=False) + "\n")
+                        if sleep_time:
+                            await asyncio.sleep(sleep_time)
+                    except Exception as e:
+                        print(f"Error during task execution: {e}")
 
         crawl_df = pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         if (len(crawl_df) == 0):

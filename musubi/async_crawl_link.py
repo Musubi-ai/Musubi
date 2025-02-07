@@ -4,12 +4,22 @@ from bs4 import BeautifulSoup
 from typing import List
 import json
 import random
-from tqdm import tqdm
 import aiohttp
 import asyncio
+from rich.progress import SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn, Progress, MofNCompleteColumn, TimeElapsedColumn
 
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
+
+progress = Progress(
+    SpinnerColumn(spinner_name="aesthetic"),
+    TextColumn("[progress.description]{task.description}"),
+    TimeElapsedColumn(),
+    BarColumn(bar_width=200),
+    MofNCompleteColumn(),
+    TaskProgressColumn(),
+    TimeRemainingColumn(),
+)
 
 
 class AsyncScan:
@@ -118,14 +128,15 @@ class AsyncScan:
                 page = self.pages_lst[i]
                 tasks.append(self.get_urls(session, page))
 
-            for task in tqdm(asyncio.as_completed(tasks), total=len(tasks), desc="Crawl urls"):
-                link_list = await task
-                for link in link_list:
-                    if url_list and link in url_list:
-                        continue
-                    dictt = {"link": link}
-                    with open(self.url_path, "a+", encoding="utf-8") as file:
-                        file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+            with progress:
+                for task in progress.track(asyncio.as_completed(tasks), total=len(tasks), description="Crawling urls"):
+                    link_list = await task
+                    for link in link_list:
+                        if url_list and link in url_list:
+                            continue
+                        dictt = {"link": link}
+                        with open(self.url_path, "a+", encoding="utf-8") as file:
+                            file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":

@@ -9,9 +9,20 @@ from bs4 import BeautifulSoup
 from typing import List
 import json
 import time
-from tqdm import tqdm
+from rich.progress import SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn, Progress, MofNCompleteColumn, TimeElapsedColumn
+
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
+
+progress = Progress(
+    SpinnerColumn(spinner_name="aesthetic"),
+    TextColumn("[progress.description]{task.description}"),
+    TimeElapsedColumn(),
+    BarColumn(bar_width=200),
+    MofNCompleteColumn(),
+    TaskProgressColumn(),
+    TimeRemainingColumn(),
+)
 
 
 class BaseCrawl(ABC):
@@ -120,15 +131,16 @@ class Scan(BaseCrawl):
         else:
             url_list = None
 
-        for i in tqdm(range(start_page, self.length), desc="Crawl urls"):
-            page = self.pages_lst[i]
-            link_list = self.get_urls(page=page)
-            for link in link_list:
-                if url_list and link in url_list:
-                    continue 
-                dictt = {"link": link}
-                with open(self.url_path, "a+", encoding="utf-8") as file:
-                    file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+        with progress:
+            for i in progress.track(range(start_page, self.length), description="Crawling urls..."):
+                page = self.pages_lst[i]
+                link_list = self.get_urls(page=page)
+                for link in link_list:
+                    if url_list and link in url_list:
+                        continue 
+                    dictt = {"link": link}
+                    with open(self.url_path, "a+", encoding="utf-8") as file:
+                        file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
 
     def check_link_result(self):
         page = self.pages_lst[0]
@@ -167,19 +179,20 @@ class Scroll(BaseCrawl):
     ):
         n = 0
         scroll_time = scroll_time if scroll_time is not None else self.scroll_time
-        pbar = tqdm(total = scroll_time, desc="Scroll")
+        
         last_height = self.driver.execute_script("return document.body.scrollHeight")
+        with progress:
+            task = progress.add_task("Scrolling...", total=scroll_time)
+            while n < scroll_time:
+                self.driver.execute_script("window.scrollBy(0, document.body.scrollHeight);")
+                n += 1
+                time.sleep(self.sleep_time)
+                progress.update(task, advance=1)
 
-        while n < scroll_time:
-            self.driver.execute_script("window.scrollBy(0, document.body.scrollHeight);")
-            n += 1
-            time.sleep(self.sleep_time)
-            pbar.update(1)
-
-            new_height = self.driver.execute_script("return document.body.scrollHeight")
-            if new_height == last_height:
-                break
-            last_height = new_height
+                new_height = self.driver.execute_script("return document.body.scrollHeight")
+                if new_height == last_height:
+                    break
+                last_height = new_height
 
     def crawl_link(self):
         is_url_path = os.path.isfile(self.url_path)
@@ -341,7 +354,6 @@ class Click(BaseCrawl):
         self.browse_website()
         n = 0
         click_time = click_time if click_time is not None else self.click_time
-        pbar = tqdm(total = click_time, desc="Click")
 
         is_url_path = os.path.isfile(self.url_path)
         if is_url_path:
@@ -349,36 +361,38 @@ class Click(BaseCrawl):
         else:
             url_list = None
 
-        while n < click_time:
-            elements = self.driver.find_elements(By.CLASS_NAME, self.block1[1])
+        with progress:
+            task = progress.add_task("Clicking...", total=click_time)
+            while n < click_time:
+                elements = self.driver.find_elements(By.CLASS_NAME, self.block1[1])
 
-            for item in elements:
-                item = item.find_element(By.TAG_NAME, "a")
-                url = item.get_attribute("href")
-                if self.root_path:
-                    if self.root_path[-1] == url[0] == "/":
-                        self.root_path = self.root_path[:-1]
-                    elif (self.root_path[-1] != "/") and (url[0] != "/"):
-                        self.root_path = self.root_path + "/"
-                    elif ("http" in self.root_path) and ("http" in url):
-                        self.root_path = ""
-                    url = self.root_path + url
-                if url_list and url in url_list:
-                    continue 
-                dictt = {"link": url}
+                for item in elements:
+                    item = item.find_element(By.TAG_NAME, "a")
+                    url = item.get_attribute("href")
+                    if self.root_path:
+                        if self.root_path[-1] == url[0] == "/":
+                            self.root_path = self.root_path[:-1]
+                        elif (self.root_path[-1] != "/") and (url[0] != "/"):
+                            self.root_path = self.root_path + "/"
+                        elif ("http" in self.root_path) and ("http" in url):
+                            self.root_path = ""
+                        url = self.root_path + url
+                    if url_list and url in url_list:
+                        continue 
+                    dictt = {"link": url}
 
-                with open(self.url_path, "a+", encoding="utf-8") as file:
-                    file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+                    with open(self.url_path, "a+", encoding="utf-8") as file:
+                        file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
 
-            button = self.driver.find_element("xpath", self.block2[1])
-            try:
-                self.driver.execute_script("$(arguments[0]).click()", button)
-            except:
-                button.click()
-            n += 1
-            if self.sleep_time:
-                time.sleep(self.sleep_time)
-            pbar.update(1)
+                button = self.driver.find_element("xpath", self.block2[1])
+                try:
+                    self.driver.execute_script("$(arguments[0]).click()", button)
+                except:
+                    button.click()
+                n += 1
+                if self.sleep_time:
+                    time.sleep(self.sleep_time)
+                progress.update(task, advance=1)
 
     def check_link_result(self):
         ...

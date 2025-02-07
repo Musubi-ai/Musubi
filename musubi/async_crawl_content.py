@@ -36,7 +36,7 @@ def formate_pdf(pdf_content: str):
         line = text_list[i]
         if (len(line) == 0) or (len(line.replace(" ", "")) == 0):
             continue
-        if re.search("([一二三四五六七八九十]、\s\w*)|([123456789].\s\w*)|([零壹貳參肆伍陸柒捌玖拾]、\s\w*)|([一二三四五六七八九十]、\w*)|([零壹貳參肆伍陸柒捌玖拾]、\w*)", line):
+        if re.search(r"([一二三四五六七八九十]、\s\w*)|([123456789].\s\w*)|([零壹貳參肆伍陸柒捌玖拾]、\s\w*)|([一二三四五六七八九十]、\w*)|([零壹貳參肆伍陸柒捌玖拾]、\w*)", line):
             line = "\n" + line + "\n" if i != 0 else line + "\n"
         if line[-1] in ["。", "：", ":", "？", "?", ".", "」", ")", "|", "`", "-", "》"]:
             line = line + "\n"
@@ -137,7 +137,7 @@ class AsyncCrawl():
                     tasks.append(get_image_text_pair(url=link, img_txt_block=img_txt_block))
 
             with progress:
-                for task in progress.track(asyncio.as_completed(tasks), total=len(tasks), description="Crawl contents"):
+                for task in progress.track(asyncio.as_completed(tasks), total=len(tasks), description="[bright_cyan]Crawl contents"):
                     try:
                         res, url = await task
                         with open(save_path, "a+", encoding="utf-8") as file:

@@ -132,7 +132,7 @@ class Scan(BaseCrawl):
             url_list = None
 
         with progress:
-            for i in progress.track(range(start_page, self.length), description="Crawling urls..."):
+            for i in progress.track(range(start_page, self.length), description="[bright_cyan]Crawling urls..."):
                 page = self.pages_lst[i]
                 link_list = self.get_urls(page=page)
                 for link in link_list:
@@ -182,7 +182,7 @@ class Scroll(BaseCrawl):
         
         last_height = self.driver.execute_script("return document.body.scrollHeight")
         with progress:
-            task = progress.add_task("Scrolling...", total=scroll_time)
+            task = progress.add_task("[bright_cyan]Scrolling...", total=scroll_time)
             while n < scroll_time:
                 self.driver.execute_script("window.scrollBy(0, document.body.scrollHeight);")
                 n += 1
@@ -362,7 +362,7 @@ class Click(BaseCrawl):
             url_list = None
 
         with progress:
-            task = progress.add_task("Clicking...", total=click_time)
+            task = progress.add_task("[bright_cyan]Clicking...", total=click_time)
             while n < click_time:
                 elements = self.driver.find_elements(By.CLASS_NAME, self.block1[1])
 
@@ -399,20 +399,20 @@ class Click(BaseCrawl):
 
 
 if __name__ == "__main__":
-    prefix =  "https://www.u5mr.com/category/lifestyle/page/"
+    prefix =  "https://www.sakura.com.tw/LifeStyle"
     suffix = None
     root_path = None
-    pages = 7
-    block1 = ["div", "post-img"]
-    block2 = None
+    pages = 5
+    block1 = ["div", "article-card_header"]
+    block2 = ["xpath", "//*[@id=\"main\"]/section[2]/div[2]/div/nav/ul/li[6]/a"]
     url_path = "test.json"
-    scan = Scan(prefix, suffix, root_path, pages, block1, block2, url_path)
+    # scan = Scan(prefix, suffix, root_path, pages, block1, block2, url_path)
     # scan.check_link_reslt()
-    scan.crawl_link()
+    # scan.crawl_link()
 
-    # scroll = Scroll(prefix, suffix, root_path, pages, block1, block2, url_path)
+    scroll = Scroll(prefix, suffix, root_path, pages, block1, block2, url_path)
     # scroll.check_link_result()
-    # scroll.crawl_link()    
+    scroll.crawl_link()    
 
     # onepage = OnePage(prefix=prefix, suffix=suffix, root_path=root_path, pages=pages, block1=block1, block2=block2, url_path=url_path)
     # onepage.check_link_result()

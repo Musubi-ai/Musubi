@@ -35,7 +35,7 @@ def formate_pdf(pdf_content: str):
         line = text_list[i]
         if (len(line) == 0) or (len(line.replace(" ", "")) == 0):
             continue
-        if re.search("([一二三四五六七八九十]、\s\w*)|([123456789].\s\w*)|([零壹貳參肆伍陸柒捌玖拾]、\s\w*)|([一二三四五六七八九十]、\w*)|([零壹貳參肆伍陸柒捌玖拾]、\w*)", line):
+        if re.search(r"([一二三四五六七八九十]、\s\w*)|([123456789].\s\w*)|([零壹貳參肆伍陸柒捌玖拾]、\s\w*)|([一二三四五六七八九十]、\w*)|([零壹貳參肆伍陸柒捌玖拾]、\w*)", line):
             line = "\n" + line + "\n" if i != 0 else line + "\n"
         if line[-1] in ["。", "：", ":", "？", "?", ".", "」", ")", "|", "`", "-", "》"]:
             line = line + "\n"
@@ -127,7 +127,7 @@ class Crawl():
         length = len(url_df)
 
         with progress:
-            for i in progress.track(range(start_idx, length), description="Crawl contents"):
+            for i in progress.track(range(start_idx, length), description="[bright_cyan]Crawl contents"):
                 link = url_df.iloc[i]["link"]
                 # skip the content if it is in the file already
                 if content_list and (link in content_list):

@@ -129,7 +129,7 @@ class AsyncScan:
                 tasks.append(self.get_urls(session, page))
 
             with progress:
-                for task in progress.track(asyncio.as_completed(tasks), total=len(tasks), description="Crawling urls"):
+                for task in progress.track(asyncio.as_completed(tasks), total=len(tasks), description="[bright_cyan]Crawling urls"):
                     link_list = await task
                     for link in link_list:
                         if url_list and link in url_list:

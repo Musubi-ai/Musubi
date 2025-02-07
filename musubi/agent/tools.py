@@ -75,7 +75,6 @@ def get_container(url):
                     if len(possible_containers) == 0:
                         if (40 > len(text) > 15) and (len(text.split("#")) < 3) and tag.a:
                             possible_containers.append([tag.name, class_attr])
-                            print(text)
                 except:
                     pass
 

@@ -14,18 +14,18 @@ parser.add_argument("--upgrade_pages", default=50, help="expected pages to scan 
 # arguments for config file
 parser.add_argument("--website_config_path", default=r"config\websites.json", help="webiste config file", type=str)
 # arguments for add mode
-parser.add_argument("--dir", default="英語與翻譯教學", help="webiste name and its corresponding directory", type=str)
-parser.add_argument("--name", default="英語與翻譯教學所有文章", help="category of articels in the website", type=str)
+parser.add_argument("--dir", default="新興市場情報誌", help="webiste name and its corresponding directory", type=str)
+parser.add_argument("--name", default="新興市場情報誌經貿動態", help="category of articels in the website", type=str)
 parser.add_argument("--class_", default="中文", help="main class of the website", type=str)
-parser.add_argument("--prefix", default="https://classic-blog.udn.com/trjason/article?f_ORDER_BY=new&pno=", help="prefix of url", type=str)
-parser.add_argument("--suffix", default="&f_ART_CATE=&f_IS_PUBLISH=Y", help="suffix of url", type=str)
+parser.add_argument("--prefix", default="https://mvp-plan.cdri.org.tw/knowledge/3/more/62", help="prefix of url", type=str)
+parser.add_argument("--suffix", default=None, help="suffix of url", type=str)
 parser.add_argument("--root_path", default=None, help="root path of root website", type=str)
-parser.add_argument("--pages", default=30, help="pages of websites", type=int)
-parser.add_argument("--block1", default=['div', 'news_list_in_title'], help="main list of tag and class", type=list)
+parser.add_argument("--pages", default=1, help="pages of websites", type=int)
+parser.add_argument("--block1", default=['div', 'col-12 col-md-3 p-0 m-0 p-2'], help="main list of tag and class", type=list)
 parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
 parser.add_argument("--img_txt_block", default=None, help="main list of tag and class for crawling image-text pair", type=list)
-parser.add_argument("--type", default="scan", help="way of crawling websites", type=str, choices=["scan", "scroll", "onepage", "click"])
-parser.add_argument("--async_", default=True, help="asynchronous crawling or not", type=bool)
+parser.add_argument("--type", default="onepage", help="way of crawling websites", type=str, choices=["scan", "scroll", "onepage", "click"])
+parser.add_argument("--async_", default=False, help="asynchronous crawling or not", type=bool)
 args = parser.parse_args()
 
 
@@ -43,8 +43,7 @@ pipe.pipeline(
     block2 = args.block2,
     type = args.type,
     img_txt_block = args.img_txt_block,
-    async_ = args.async_,
-    sleep_time=None
+    async_ = args.async_
     )
 
 # pipe.start_by_idx(idx=63, upgrade_pages=50)

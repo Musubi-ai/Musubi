@@ -146,7 +146,7 @@ class Scroll(BaseCrawl):
         block1: List[str] = None,
         block2: List[str] = None,
         url_path: str = None,
-        sleep_time: int = None,
+        sleep_time: int = 3,
         **kwargs
     ):
         super().__init__(prefix, suffix, root_path, pages, block1, block2, url_path, sleep_time)
@@ -318,7 +318,7 @@ class Click(BaseCrawl):
         block1: List[str] = None,
         block2: List[str] = None,
         url_path: str = None,
-        sleep_time: int = None,
+        sleep_time: int = 5,
         **kwargs
     ):
         super().__init__(prefix, suffix, root_path, pages, block1, block2, url_path, sleep_time)

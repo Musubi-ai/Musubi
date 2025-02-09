@@ -127,7 +127,7 @@ class Crawl():
         length = len(url_df)
 
         with progress:
-            for i in progress.track(range(start_idx, length), description="[bright_cyan]Crawl contents"):
+            for i in progress.track(range(start_idx, length), description="[bright_cyan]Crawling contents"):
                 link = url_df.iloc[i]["link"]
                 # skip the content if it is in the file already
                 if content_list and (link in content_list):

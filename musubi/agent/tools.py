@@ -82,7 +82,7 @@ def get_container(url):
         for tag in soup.find_all():
             if tag.find('a', href=True):
                 class_attr = " ".join(tag.get("class", []))
-                if (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr):
+                if (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr) or ("layout" in class_attr):
                     continue
                 text = tag.get_text(separator="#", strip=True)
                 try:

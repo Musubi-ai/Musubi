@@ -137,7 +137,7 @@ class AsyncCrawl():
                     tasks.append(get_image_text_pair(url=link, img_txt_block=img_txt_block))
 
             with progress:
-                for task in progress.track(asyncio.as_completed(tasks), total=len(tasks), description="[bright_cyan]Crawl contents"):
+                for task in progress.track(asyncio.as_completed(tasks), total=len(tasks), description="[bright_cyan]Crawling contents"):
                     try:
                         res, url = await task
                         with open(save_path, "a+", encoding="utf-8") as file:

@@ -15,12 +15,12 @@ parser.add_argument("--upgrade_pages", default=50, help="expected pages to scan 
 parser.add_argument("--website_config_path", default=r"config\websites.json", help="webiste config file", type=str)
 # arguments for add mode
 parser.add_argument("--dir", default="台灣好新聞", help="webiste name and its corresponding directory", type=str)
-parser.add_argument("--name", default="台灣好新聞健康頻道", help="category of articels in the website", type=str)
+parser.add_argument("--name", default="台灣好新聞聊理財", help="category of articels in the website", type=str)
 parser.add_argument("--class_", default="中文", help="main class of the website", type=str)
-parser.add_argument("--prefix", default="https://www.taiwanhot.net/news/focus/55/%E5%81%A5%E5%BA%B7%E9%A0%BB%E9%81%93?page=", help="prefix of url", type=str)
+parser.add_argument("--prefix", default="https://www.taiwanhot.net/news/focus/27/%E8%B2%A1%E7%B6%93%E9%A0%BB%E9%81%93/sub/31/%E8%81%8A%E7%90%86%E8%B2%A1?page=", help="prefix of url", type=str)
 parser.add_argument("--suffix", default=None, help="suffix of url", type=str)
 parser.add_argument("--root_path", default=None, help="root path of root website", type=str)
-parser.add_argument("--pages", default=532, help="pages of websites", type=int)
+parser.add_argument("--pages", default=3, help="pages of websites", type=int)
 parser.add_argument("--block1", default=['h4', 'news-title'], help="main list of tag and class", type=list)
 parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
 parser.add_argument("--img_txt_block", default=None, help="main list of tag and class for crawling image-text pair", type=list)
@@ -33,7 +33,7 @@ pipe = Pipeline(website_config_path=args.website_config_path)
 
 pipe.pipeline(
     dir = args.dir,
-    name = args.name,
+    name = args.name, 
     class_ = args.class_,
     prefix = args.prefix,
     suffix = args.suffix,

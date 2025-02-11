@@ -25,36 +25,12 @@ progress = Progress(
 )
 
 
-def formate_pdf(pdf_content: str):
-    text_list = pdf_content.split("\n")
-    length = len(text_list)
-
-    formated_doc = ""
-
-    for i in range(length):
-        line = text_list[i]
-        if (len(line) == 0) or (len(line.replace(" ", "")) == 0):
-            continue
-        if re.search(r"([一二三四五六七八九十]、\s\w*)|([123456789].\s\w*)|([零壹貳參肆伍陸柒捌玖拾]、\s\w*)|([一二三四五六七八九十]、\w*)|([零壹貳參肆伍陸柒捌玖拾]、\w*)", line):
-            line = "\n" + line + "\n" if i != 0 else line + "\n"
-        if line[-1] in ["。", "：", ":", "？", "?", ".", "」", ")", "|", "`", "-", "》"]:
-            line = line + "\n"
-        if line[0] == "#" and line[-1] != "\n":
-            line = line + "\n"
-        if len(line) - len(line.lstrip()) > 0:
-            line = line.lstrip()
-        formated_doc += line
-
-    return formated_doc
-
-
 def get_content(url):
     if url.endswith(".pdf"):
         request = requests.get(url, headers=headers)
         filestream = io.BytesIO(request.content)
         with pymupdf.open(stream=filestream, filetype="pdf") as doc:
             result = pymupdf4llm.to_markdown(doc)
-        result = formate_pdf(result)
     else:
         downloaded = fetch_url(url)
         result = extract(downloaded, favor_precision=True, output_format="markdown")

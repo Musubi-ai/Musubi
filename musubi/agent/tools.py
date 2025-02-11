@@ -51,11 +51,11 @@ def analyze_website(url):
     return navigation_type
 
 
-def get_container(url):
+def get_container(url: str):
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
         print(f"Failed to fetch the page: {response.status_code}")
-        return []
+        return [], []
     
     soup = BeautifulSoup(response.text, 'html.parser')
     soup = soup.find("body")
@@ -88,6 +88,9 @@ def get_container(url):
                 try:
                     if (40 > len(text) > 15) and ("#" not in text) and tag.a:
                         possible_containers.append([tag.name, class_attr])
+                    if len(possible_containers) == 0:
+                        if (40 > len(text) > 15) and (len(text.split("#")) < 3) and tag.a:
+                            possible_containers.append([tag.name, class_attr])
                 except:
                     pass
 

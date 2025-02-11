@@ -1,4 +1,4 @@
-TOOL_CALLING_SYSTEM_PROMPT = """You are an expert assistant who can solve any task using  tool calls. You will be given a task to solve as best you can.
+TOOL_CALLING_SYSTEM_PROMPT = """You are an expert assistant who can solve any task using tool calls. You will be given a task to solve as best you can.
 To do so, you have been given access to the following tools: {{tool_names}}
 
 The tool call you write is an action: after the tool is executed, you will get the result of the tool call as an "observation".

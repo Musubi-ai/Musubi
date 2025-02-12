@@ -64,5 +64,4 @@ class OpenAIModel(BaseModel):
         messages=self.messages,
         **generate_kwargs
         )
-        response = completion.choices[0].message.content
-        return response
+        return completion.choices[0].message.content

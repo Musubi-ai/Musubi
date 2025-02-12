@@ -56,7 +56,7 @@ def google_search(query: str = None):
             root_paths.append(root_path)
 
     driver.quit()
-    return urls[0], root_paths[0]
+    return (urls[0], root_paths[0])
 
 
 def analyze_website(url: str) -> str:
@@ -74,7 +74,7 @@ def analyze_website(url: str) -> str:
         url (str): The target website URL to analyze
             
     Returns:
-        str: The recommended crawling method, one of:
+        navigation_type (str): The recommended crawling method, one of:
             'scan', 'click', 'scroll', or 'onepage'
             
     Examples:
@@ -124,7 +124,7 @@ def get_container(url: str):
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
         print(f"Failed to fetch the page: {response.status_code}")
-        return [], []
+        return ([], [])
     
     soup = BeautifulSoup(response.text, 'html.parser')
     soup = soup.find("body")
@@ -197,7 +197,7 @@ def get_container(url: str):
         menu_soup = soup.find("menu")
         a_tags = menu_soup.find_all("a")
         if len(a_tags) > 1:
-            return ["menu", None], ["a", None]
+            return (["menu", None], ["a", None])
     
     candidates = []
     if len(possible_containers) > 0:
@@ -205,9 +205,9 @@ def get_container(url: str):
         max_num = max(counter, key=lambda x: x[1])[1]
         candidates = [list(item) for item, count in counter if count == max_num]
         if len(candidates) > 1:
-            return candidates[-1], None
+            return (candidates[-1], None)
         else:
-            return candidates[0], None
+            return (candidates[0], None)
         
 
 def get_prefix_and_suffix(

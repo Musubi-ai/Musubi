@@ -13,17 +13,31 @@ from collections import Counter
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
 
 
-def google_search(
-    query: str = None,
-    num_results: int = 1,
-    headless: Optional[bool] = True
-):
+def google_search(query: str = None):
+    """
+    Search input query on google.
+
+    Args:
+        query (`str`):
+            The query you want to search on google.
+
+    Returns:
+        tuple[str, str]: A tuple containing two strings:
+            - url: First URL from google search results
+            - root_path: Root path (scheme + domain) extracted from the URL
+
+    Example:
+        >>> url, root_path = google_search("The New York Times")
+        >>> print(url)
+        'https://www.nytimes.com/international/'
+        >>> print(root_paths)
+        'https://www.nytimes.com'
+    """
     query = query.replace(" ", "+")
     query_url = "https://www.google.com/search?q={}&udm=14".format(query)
     user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'
     options = Options()
-    if headless:
-        options.add_argument("--headless")
+    options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1920x1080")
     options.add_argument('--user-agent=%s' % user_agent)
@@ -42,16 +56,71 @@ def google_search(
             root_paths.append(root_path)
 
     driver.quit()
-    return urls[:num_results], root_paths[:num_results]
+    return urls[0], root_paths[0]
 
 
-def analyze_website(url: str):
+def analyze_website(url: str) -> str:
+    """
+    Analyzes a website's navigation mechanism to determine the optimal crawling method.
+    
+    This function examines the website structure and navigation patterns to suggest
+    the most appropriate crawling strategy from the following options:
+    - 'scan': Website uses page numbers in URL (e.g., /page/1/, /page/2/)
+    - 'click': Navigation requires clicking through elements (e.g., "Next" buttons)
+    - 'scroll': Content loads dynamically through infinite scrolling
+    - 'onepage': All content is available on a single page
+    
+    Args:
+        url (str): The target website URL to analyze
+            
+    Returns:
+        str: The recommended crawling method, one of:
+            'scan', 'click', 'scroll', or 'onepage'
+            
+    Examples:
+        >>> url = "https://takao.tw/page/2/"
+        >>> method = analyze_website(url)
+        >>> print(method)
+        'scan'
+        
+    Note:
+        The analysis is performed using the WebsiteNavigationAnalyzer class
+        which examines the DOM structure and navigation patterns.
+    """
     analyzer = WebsiteNavigationAnalyzer(url)
     navigation_type = analyzer.analyze_navigation_type()
     return navigation_type
 
 
 def get_container(url: str):
+    """Analyzes a webpage to find potential container elements that hold link content.
+
+    This function scrapes a webpage and searches for HTML elements that likely contain
+    meaningful link content based on various heuristics like text length, presence of links,
+    and class attributes. It prioritizes containers within the <main> tag and applies
+    progressively looser criteria if no suitable containers are found.
+
+    Args:
+        url: A string containing the URL of the webpage to analyze.
+
+    Returns:
+        A tuple containing two lists:
+        - First list: Contains [element_name, class_name] of the most common container,
+          or ["menu", None] if only a menu structure is found.
+        - Second list: Contains [child_element_name, class_name] if a specific child
+          element is identified, or None if no child element is needed.
+
+    Notes:
+        The function uses several strategies to identify containers:
+        1. Looks for elements in <main> with links and specific text length (15-40 chars)
+        2. Searches entire body if no containers found in <main>
+        3. Checks for elements with longer text (>300 chars) and link tags
+        4. Looks for elements containing links with images
+        5. Falls back to menu structure if no other containers found
+
+    The function filters out elements with empty class attributes or classes containing
+    "footer", "page", or "layout" terms.
+    """
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
         print(f"Failed to fetch the page: {response.status_code}")
@@ -145,6 +214,35 @@ def get_prefix_and_suffix(
     url: str = None,
     root_path: str = None
 ):
+    """Analyzes pagination URLs to extract common prefix/suffix patterns and maximum page number.
+
+    This function fetches a webpage and analyzes its pagination links to identify common patterns
+    in the URL structure. It looks for pagination-related elements in navigation tags and anchor
+    tags, then determines the common prefix and suffix used in pagination URLs.
+
+    Args:
+        url: The URL of the webpage to analyze for pagination patterns.
+        root_path: Optional base URL path to prepend to relative URLs found in the page.
+            If provided, will be used to construct complete URLs when prefix doesn't contain 'http'.
+
+    Returns:
+        If successful in finding pagination pattern:
+            A tuple containing:
+            - prefix (str): The common URL prefix before the page number
+            - suffix (str): The common URL suffix after the page number
+            - max_page (int): The highest page number found in the pagination links
+        If unsuccessful:
+            An empty list.
+
+    Raises:
+        Exception: If a suitable prefix cannot be constructed from the provided root_path.
+        
+    Example:
+        >>> url = "https://example.com/blog"
+        >>> prefix, suffix, max_page = get_prefix_and_suffix(url)
+        >>> print(f"{prefix}5{suffix}")
+        https://example.com/blog/page/5/
+    """
     pagination_candidates = ["pg", "pagination", "page", "pag"]
     response = requests.get(url, headers=headers)
     if response.status_code != 200:

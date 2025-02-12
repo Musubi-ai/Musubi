@@ -1,5 +1,6 @@
 import openai
 import groq
+import anthropic
 from typing import Optional
 from abc import ABC, abstractmethod
 import os
@@ -24,12 +25,13 @@ class BaseModel(ABC):
 
     def __call__(
         self,
-        message: str
+        message: str,
+        **generate_kwargs
     ):
         if not isinstance(message, str):
             raise ValueError("The message should be string.")
         self.messages.append({"role": "user", "content": message})
-        result = self.execute()
+        result = self.execute(**generate_kwargs)
         self.messages.append({"role": "assistant", "content": result})
         return result
     
@@ -42,12 +44,12 @@ class BaseModel(ABC):
 class OpenAIModel(BaseModel):
     def __init__(
         self, 
-        api_key: str,
+        api_key: Optional[str] = None,
         system_prompt: Optional[str] = None, 
         model: Optional[str] = None
     ):
         super().__init__(system_prompt, model)
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        self.api_key = api_key if api_key else os.getenv("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError("API Key is required for OpenAIModel.")
         if self.model is None:
@@ -66,12 +68,12 @@ class OpenAIModel(BaseModel):
 class GroqModel(BaseModel):
     def __init__(
         self, 
-        api_key: str,
+        api_key: Optional[str] = None,
         system_prompt: Optional[str] = None, 
         model: Optional[str] = None
     ):
         super().__init__(system_prompt, model)
-        self.api_key = api_key or os.getenv("GROQ_API_KEY")
+        self.api_key = api_key if api_key else os.getenv("GROQ_API_KEY")
         if not self.api_key:
             raise ValueError("API Key is required for GroqModel.")
         if self.model is None:
@@ -90,12 +92,12 @@ class GroqModel(BaseModel):
 class GrokModel(BaseModel):
     def __init__(
         self, 
-        api_key: str,
+        api_key: Optional[str] = None,
         system_prompt: Optional[str] = None, 
         model: Optional[str] = None
     ):
         super().__init__(system_prompt, model)
-        self.api_key = api_key or os.getenv("XAI_API_KEY")
+        self.api_key = api_key if api_key else os.getenv("XAI_API_KEY")
         if not self.api_key:
             raise ValueError("API Key is required for GrokModel.")
         if self.model is None:
@@ -117,12 +119,12 @@ class GrokModel(BaseModel):
 class DeepseekModel(BaseModel):
     def __init__(
         self, 
-        api_key: str,
+        api_key: Optional[str] = None,
         system_prompt: Optional[str] = None, 
         model: Optional[str] = None
     ):
         super().__init__(system_prompt, model)
-        self.api_key = api_key or os.getenv("DEEPSEEK_API_Key")
+        self.api_key = api_key if api_key else os.getenv("DEEPSEEK_API_KEY")
         if not self.api_key:
             raise ValueError("API Key is required for DeepseekModel.")
         if self.model is None:
@@ -139,3 +141,38 @@ class DeepseekModel(BaseModel):
         **generate_kwargs
         )
         return completion.choices[0].message.content
+    
+
+class ClaudeModel(BaseModel):
+    def __init__(
+        self, 
+        api_key: Optional[str] = None,
+        system_prompt: Optional[str] = None, 
+        model: Optional[str] = None
+    ):
+        super().__init__(system_prompt, model)
+        self.api_key = api_key if api_key else os.getenv("ANTHROPIC_API_KEY")
+        if not self.api_key:
+            raise ValueError("API Key is required for ClaudeModel.")
+        if self.model is None:
+            self.model = "claude-3-5-sonnet-20241022"
+        self.client = anthropic.Anthropic(
+            api_key=self.api_key,
+        )
+    
+    def execute(self, **generate_kwargs):
+        completion = self.client.messages.create(
+        model=self.model,
+        messages=self.messages,
+        **generate_kwargs
+        )
+        return completion.content[0].text
+
+
+MODEL_NAMES={
+    "openai": OpenAIModel,
+    "groq": GroqModel,
+    "xai": GrokModel,
+    "deepseek": DeepseekModel,
+    "anthropic": ClaudeModel
+}

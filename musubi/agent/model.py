@@ -22,7 +22,12 @@ class BaseModel(ABC):
         if self.system_prompt is not None:
             self.messages.append({"role": "system", "content": self.system_prompt})
 
-    def __call__(self, message):
+    def __call__(
+        self,
+        message: str
+    ):
+        if not isinstance(message, str):
+            raise ValueError("The message should be string.")
         self.messages.append({"role": "user", "content": message})
         result = self.execute()
         self.messages.append({"role": "assistant", "content": result})
@@ -42,21 +47,12 @@ class OpenAIModel(BaseModel):
         model: Optional[str] = None
     ):
         super().__init__(system_prompt, model)
-        api_key = api_key if api_key else os.getenv("OPENAI_API_KEY")
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        if not self.api_key:
+            raise ValueError("API Key is required for OpenAIModel.")
         if self.model is None:
-            self.model = "chatgpt-4o-latest"
-        self.client = openai.OpenAI(api_key=api_key)
-
-    def __call__(
-        self, 
-        message: str
-    ):
-        if not isinstance(message, str):
-            raise ValueError("The message should be string.")
-        self.messages.append({"role": "user", "content": message})
-        result = self.execute()
-        self.messages.append({"role": "assistant", "content": result})
-        return result
+            self.model = "gpt-4o"
+        self.client = openai.OpenAI(api_key=self.api_key)
     
     def execute(self, **generate_kwargs):
         completion = self.client.chat.completions.create(

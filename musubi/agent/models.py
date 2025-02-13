@@ -222,6 +222,8 @@ class GeminiModel(BaseModel):
         return completion.choices[0].message.content
 
 
+#TODO: Add huggingface inference api model
+# Check https://huggingface.co/docs/huggingface_hub/package_reference/inference_client
 MODEL_NAMES={
     "openai": OpenAIModel,
     "groq": GroqModel,

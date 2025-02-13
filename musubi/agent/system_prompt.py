@@ -95,10 +95,10 @@ Your available actions are:
 {{tool_descriptions}}
 
 Here are the rules you should always follow to solve your task:
-1. ALWAYS provide a tool call, else you will fail.
+1. ALWAYS provide a action call when Action, else you will fail.
 2. Always use the right arguments for the actions. Never use variable names as the action arguments, use the value instead.
-3. Call a tool only when needed: do not call the google_search tool if you do not need information, try to solve the task yourself.
-If no action call is needed, use final_answer tool to return your answer.
+3. Execute an action call only when needed: do not execute the google_search action if you do not need information, try to solve the task yourself.
+If no action call is needed, use final_answer action to return your answer.
 4. Never re-do a action call that you previously did with the exact same parameters.
 
 Now Begin! If you solve the task correctly, you will receive a reward of $1,000,000.

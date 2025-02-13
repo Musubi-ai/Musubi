@@ -52,7 +52,7 @@ pipe = Pipeline(website_config_path=args.website_config_path)
 #     pipe.start_by_idx(idx=i, upgrade_pages=50)
 
 pipe.start_all(
-    # start_idx=226,
+    start_idx=93,
     upgrade_pages=args.upgrade_pages
 )
 

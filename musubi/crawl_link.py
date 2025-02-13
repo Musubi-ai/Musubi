@@ -122,7 +122,7 @@ class Scan(BaseCrawl):
             url_list = None
 
         
-        for i in tqdm(range(start_page, self.length), description="[bright_cyan]Crawling urls..."):
+        for i in tqdm(range(start_page, self.length), desc="Crawling urls..."):
             page = self.pages_lst[i]
             link_list = self.get_urls(page=page)
             for link in link_list:

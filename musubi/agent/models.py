@@ -1,6 +1,7 @@
 import openai
 import groq
 import anthropic
+from huggingface_hub import InferenceClient
 from typing import Optional
 from abc import ABC, abstractmethod
 import os
@@ -193,6 +194,7 @@ class ClaudeModel(BaseModel):
         )
         return completion.content[0].text
 
+
 class GeminiModel(BaseModel):
     def __init__(
         self, 
@@ -222,13 +224,44 @@ class GeminiModel(BaseModel):
         return completion.choices[0].message.content
 
 
-#TODO: Add huggingface inference api model
-# Check https://huggingface.co/docs/huggingface_hub/package_reference/inference_client
+class HFModel(BaseModel):
+    def __init__(
+        self, 
+        api_key: Optional[str] = None,
+        system_prompt: Optional[str] = None, 
+        model: Optional[str] = None
+    ):
+        super().__init__()
+        self.api_key = api_key if api_key else os.getenv("HF_TOKEN")
+        if not self.api_key:
+            raise ValueError("API Key is required for HFModel.")
+        self.messages = []
+        self.system_prompt = system_prompt
+        if self.system_prompt is not None:
+            self.messages.append({"role": "system", "content": self.system_prompt})
+        self.model = model
+        if self.model is None:
+            self.model = "Qwen/Qwen2.5-Coder-32B-Instruct"
+        self.client = InferenceClient(
+            model=self.model,
+            api_key=self.api_key,
+        )
+    
+    def execute(self, **generate_kwargs):
+        completion = self.client.chat.completions.create(
+        model=self.model,
+        messages=self.messages,
+        **generate_kwargs
+        )
+        return completion.choices[0].message.content
+
+
 MODEL_NAMES={
     "openai": OpenAIModel,
     "groq": GroqModel,
     "xai": GrokModel,
     "deepseek": DeepseekModel,
     "anthropic": ClaudeModel,
-    "google": GeminiModel
+    "google": GeminiModel,
+    "huggingface": HFModel
 }

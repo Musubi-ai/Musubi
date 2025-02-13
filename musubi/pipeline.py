@@ -9,6 +9,10 @@ from collections import defaultdict
 from typing import List, Optional
 import warnings
 import pandas as pd
+from rich.console import Console
+
+
+console = Console()
 
 
 class Pipeline:
@@ -108,7 +112,6 @@ class Pipeline:
         self.async_ = self.website_df.iloc[idx]["async_"]
 
         if upgrade_pages:
-            print("---------------------------------------------\nIn upgrade mode now, checking whether the index exists or not.\n---------------------------------------------")
             self.args_dict["pages"] = self.args_dict["pages"] if self.args_dict["pages"] <= upgrade_pages else upgrade_pages
             indices = self.website_df["idx"].to_list()
             if idx not in indices:
@@ -120,7 +123,7 @@ class Pipeline:
         contents_folder_path.mkdir(parents=True, exist_ok=True)
 
         # start scanning the links
-        print("---------------------------------------------\nGetting urls from {}!\n---------------------------------------------".format(self.name))
+        console.log("Getting urls from {}!".format(self.name))
         if self.type not in ["scan", "scroll", "onepage", "click"]:
             raise ValueError("The type can only be scan, scroll, onepage, or click but got {}.".format(self.type))
         elif self.type == "scan":
@@ -143,13 +146,11 @@ class Pipeline:
         deduplicate_by_value(self.args_dict["url_path"], key="link")
         
         # Start crawling the websites
-        print("Crawling contents in urls from {}!\n---------------------------------------------".format(self.name))
+        console.log("Crawling contents in urls from {}!".format(self.name))
         if self.img_txt_block is not None:
             crawl = Crawl(self.args_dict["url_path"], crawl_type="img-text")
-            print("Crawling image-text pair.")
             crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx, sleep_time=sleep_time, img_txt_block=self.img_txt_block)
         else:
-            print("Crawling pure text data.")
             if self.async_:
                 crawl = AsyncCrawl(self.args_dict["url_path"], crawl_type="text")
                 asyncio.run(crawl.crawl_contents(save_path=self.save_path))
@@ -176,14 +177,11 @@ class Pipeline:
         self.website_df = pd.read_json(self.website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         length = len(self.website_df)
         if upgrade_pages:
-            print("---------------------------------------------\nIn upgrade mode now, setting the upgraded page for each website based on upgrade_page argument.\n---------------------------------------------")
             pages = self.website_df["pages"].to_list()
             pages = [page if page <= upgrade_pages else upgrade_pages for page in pages]
-            print("Upgrading text data of each website.\n---------------------------------------------")
             for i in range(start_idx, length):
                 self.start_by_idx(idx=i, upgrade_pages=pages[i], save_dir=save_dir)
         else:
-            print("---------------------------------------------\nIn add mode now.\n---------------------------------------------")
             for i in range(start_idx, length):
                 self.start_by_idx(idx=i, save_dir=save_dir)
 

@@ -9,20 +9,10 @@ from bs4 import BeautifulSoup
 from typing import List
 import json
 import time
-from rich.progress import SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn, Progress, MofNCompleteColumn, TimeElapsedColumn
+from tqdm import tqdm
 
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
-
-progress = Progress(
-    SpinnerColumn(spinner_name="aesthetic"),
-    TextColumn("[progress.description]{task.description}"),
-    TimeElapsedColumn(),
-    BarColumn(bar_width=200),
-    MofNCompleteColumn(),
-    TaskProgressColumn(),
-    TimeRemainingColumn(),
-)
 
 
 class BaseCrawl(ABC):
@@ -131,16 +121,16 @@ class Scan(BaseCrawl):
         else:
             url_list = None
 
-        with progress:
-            for i in progress.track(range(start_page, self.length), description="[bright_cyan]Crawling urls..."):
-                page = self.pages_lst[i]
-                link_list = self.get_urls(page=page)
-                for link in link_list:
-                    if url_list and link in url_list:
-                        continue 
-                    dictt = {"link": link}
-                    with open(self.url_path, "a+", encoding="utf-8") as file:
-                        file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+        
+        for i in tqdm(range(start_page, self.length), description="[bright_cyan]Crawling urls..."):
+            page = self.pages_lst[i]
+            link_list = self.get_urls(page=page)
+            for link in link_list:
+                if url_list and link in url_list:
+                    continue 
+                dictt = {"link": link}
+                with open(self.url_path, "a+", encoding="utf-8") as file:
+                    file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
 
     def check_link_result(self):
         page = self.pages_lst[0]
@@ -181,13 +171,12 @@ class Scroll(BaseCrawl):
         scroll_time = scroll_time if scroll_time is not None else self.scroll_time
         
         last_height = self.driver.execute_script("return document.body.scrollHeight")
-        with progress:
-            task = progress.add_task("[bright_cyan]Scrolling...", total=scroll_time)
+        with tqdm(total=scroll_time, desc="Scrolling", colour="cyan") as pbar:
             while n < scroll_time:
                 self.driver.execute_script("window.scrollBy(0, document.body.scrollHeight);")
                 n += 1
                 time.sleep(self.sleep_time)
-                progress.update(task, advance=1)
+                pbar.update(1)
 
                 new_height = self.driver.execute_script("return document.body.scrollHeight")
                 if new_height == last_height:
@@ -361,8 +350,7 @@ class Click(BaseCrawl):
         else:
             url_list = None
 
-        with progress:
-            task = progress.add_task("[bright_cyan]Clicking...", total=click_time)
+        with tqdm(total=click_time, desc="Clicking") as pbar:
             while n < click_time:
                 elements = self.driver.find_elements(By.CLASS_NAME, self.block1[1])
 
@@ -392,7 +380,7 @@ class Click(BaseCrawl):
                 n += 1
                 if self.sleep_time:
                     time.sleep(self.sleep_time)
-                progress.update(task, advance=1)
+                pbar.update(1)
 
     def check_link_result(self):
         ...

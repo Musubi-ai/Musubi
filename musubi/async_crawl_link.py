@@ -6,20 +6,10 @@ import json
 import random
 import aiohttp
 import asyncio
-from rich.progress import SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn, Progress, MofNCompleteColumn, TimeElapsedColumn
+from tqdm import tqdm
 
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
-
-progress = Progress(
-    SpinnerColumn(spinner_name="aesthetic"),
-    TextColumn("[progress.description]{task.description}"),
-    TimeElapsedColumn(),
-    BarColumn(bar_width=200),
-    MofNCompleteColumn(),
-    TaskProgressColumn(),
-    TimeRemainingColumn(),
-)
 
 
 class AsyncScan:
@@ -128,8 +118,8 @@ class AsyncScan:
                 page = self.pages_lst[i]
                 tasks.append(self.get_urls(session, page))
 
-            with progress:
-                for task in progress.track(asyncio.as_completed(tasks), total=len(tasks), description="[bright_cyan]Crawling urls"):
+            with tqdm(total=len(tasks), desc="Crawling urls") as pbar:
+                for task in asyncio.as_completed(tasks):
                     link_list = await task
                     for link in link_list:
                         if url_list and link in url_list:
@@ -137,6 +127,7 @@ class AsyncScan:
                         dictt = {"link": link}
                         with open(self.url_path, "a+", encoding="utf-8") as file:
                             file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+                    pbar.update(1)
 
 
 if __name__ == "__main__":

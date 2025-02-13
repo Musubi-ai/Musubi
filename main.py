@@ -10,7 +10,7 @@ import glob
 parser = argparse.ArgumentParser()
 # arguments for upgrade mode
 parser.add_argument("--index", default=130, help="index of website in the website list", type=int)
-parser.add_argument("--upgrade_pages", default=50, help="expected pages to scan or scroll in upgrade mode", type=int)
+parser.add_argument("--upgrade_pages", default=60, help="expected pages to scan or scroll in upgrade mode", type=int)
 # arguments for config file
 parser.add_argument("--website_config_path", default=r"config\websites.json", help="webiste config file", type=str)
 # arguments for add mode
@@ -31,30 +31,30 @@ args = parser.parse_args()
 
 pipe = Pipeline(website_config_path=args.website_config_path)
 
-pipe.pipeline(
-    dir = args.dir,
-    name = args.name, 
-    class_ = args.class_,
-    prefix = args.prefix,
-    suffix = args.suffix,
-    root_path = args.root_path,
-    pages = args.pages,
-    block1 = args.block1,
-    block2 = args.block2,
-    type = args.type,
-    img_txt_block = args.img_txt_block,
-    async_ = args.async_
-    )
+# pipe.pipeline(
+#     dir = args.dir,
+#     name = args.name, 
+#     class_ = args.class_,
+#     prefix = args.prefix,
+#     suffix = args.suffix,
+#     root_path = args.root_path,
+#     pages = args.pages,
+#     block1 = args.block1,
+#     block2 = args.block2,
+#     type = args.type,
+#     img_txt_block = args.img_txt_block,
+#     async_ = args.async_
+#     )
 
 # pipe.start_by_idx(idx=63, upgrade_pages=50)
 
 # for i in tqdm(range(95, 102)):
 #     pipe.start_by_idx(idx=i, upgrade_pages=50)
 
-# pipe.start_all(
-#     start_idx=226,
-#     upgrade_pages=args.upgrade_pages
-# )
+pipe.start_all(
+    # start_idx=226,
+    upgrade_pages=args.upgrade_pages
+)
 
 # delete_website_by_idx(idx = 227, websitelist_path=args.websitelist_path)
 

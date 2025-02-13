@@ -82,10 +82,6 @@ def analyze_website(url: str) -> str:
         >>> method = analyze_website(url)
         >>> print(method)
         'scan'
-        
-    Note:
-        The analysis is performed using the WebsiteNavigationAnalyzer class
-        which examines the DOM structure and navigation patterns.
     """
     analyzer = WebsiteNavigationAnalyzer(url)
     navigation_type = analyzer.analyze_navigation_type()
@@ -109,17 +105,6 @@ def get_container(url: str):
           or ["menu", None] if only a menu structure is found.
         - Second list: Contains [child_element_name, class_name] if a specific child
           element is identified, or None if no child element is needed.
-
-    Notes:
-        The function uses several strategies to identify containers:
-        1. Looks for elements in <main> with links and specific text length (15-40 chars)
-        2. Searches entire body if no containers found in <main>
-        3. Checks for elements with longer text (>300 chars) and link tags
-        4. Looks for elements containing links with images
-        5. Falls back to menu structure if no other containers found
-
-    The function filters out elements with empty class attributes or classes containing
-    "footer", "page", or "layout" terms.
     """
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
@@ -233,9 +218,6 @@ def get_prefix_and_suffix(
             - max_page (int): The highest page number found in the pagination links
         If unsuccessful:
             An empty list.
-
-    Raises:
-        Exception: If a suitable prefix cannot be constructed from the provided root_path.
         
     Example:
         >>> url = "https://example.com/blog"

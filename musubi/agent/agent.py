@@ -11,12 +11,12 @@ class MusubiAgent:
         api_key: Optional[str] = None,
         system_prompt: Optional[str] = None, 
         model: Optional[str] = None,
-        tools: List[Callable] = None,
+        actions: List[Callable] = None,
         max_turns: Optional[int] = 20
     ):
-        self.tools = tools
+        self.actions = actions
         self.max_turns = max_turns
-        self.prompt = self.get_agent_prompt(self.tools)
+        self.prompt = self.get_agent_prompt(self.actions)
         if model_source.lower() not in MODEL_NAMES.keys():
             raise ValueError("Didn't get appropriate model source."
                              "The model source should be one of `{}`".format(str(list(MODEL_NAMES.keys()))))
@@ -25,7 +25,7 @@ class MusubiAgent:
             system_prompt = system_prompt,
             model = model
         )
-        self.known_actions = self.get_actions(self.tools)
+        self.known_actions = self.get_actions(self.actions)
 
     def query(self, prompt):
         i = 0
@@ -53,9 +53,9 @@ class MusubiAgent:
             else:
                 return
 
-    def get_agent_prompt(self, tools):
-        tools_str = "\n".join([f"{tool.__doc__} \n" for tool in tools])
-        print(tools_str)
+    def get_agent_prompt(self, actions):
+        actions_str = "\n".join(["{} \n".format(action.__name__ + ":\n" + action.__doc__) for action in actions])
+        print(actions_str)
         
         prompt = f"""
         You run in a loop of Thought, Action, PAUSE, Observation.
@@ -66,7 +66,7 @@ class MusubiAgent:
         
         Your available actions are:
         
-        {tools_str}
+        {actions_str}
         
         Always look things up on Wikipedia if you have the opportunity to do so.
         
@@ -88,5 +88,11 @@ class MusubiAgent:
         
         return prompt
 
-    def get_actions(self, tools):
-        return {tool.__name__: tool for tool in tools}
+    def get_actions_name(self, actions):
+        return {action.__name__: action for action in actions}
+    
+    def get_actions_name_and_docstring(
+        self,
+        actions: List[Callable]
+    ):
+        return "\n".join(["{} \n".format("Tool " + str(i+1) + ". " + action.__name__ + ":\n" + action.__doc__) for i, action in enumerate(actions)])

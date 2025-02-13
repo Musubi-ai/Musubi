@@ -2,12 +2,13 @@ from selenium.webdriver import Edge
 from selenium.webdriver.edge.options import Options
 from selenium.webdriver.common.by import By
 import time
-from typing import Optional
+from typing import Optional, List
 from ..utils.analyze import WebsiteNavigationAnalyzer
 from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 from collections import Counter
+from ..pipeline import Pipeline
 
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
@@ -294,3 +295,63 @@ def get_prefix_and_suffix(
         return (prefix, suffix, max_page)
     else:
         return []
+
+
+# Wrapper function with cleaner doxstring
+def pipeline_tool(
+    dir: str = None,
+    name: str = None,
+    class_: str = None,
+    prefix: str = None,
+    suffix: Optional[int] = None,
+    root_path: Optional[int] = None,
+    pages: int = None,
+    block1: List[str] = None,
+    block2: Optional[List[str]] = None,
+    type: str = None,
+    start_page: Optional[int] = 0
+):
+    """
+        Main function to add new website into config json file and scrape website articles.
+
+        Args:
+            dir (`str`):
+                Folder name of new website.
+            name (`str`):
+                Subfolder name under the website.
+            class_ (`str`):
+                The type name of data in the website.
+            prefix (`str`):
+                Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str(pages) + "suffix".
+            suffix (`str`, *optional*):
+                Suffix of the url if exist.
+            root_path (`str`, *optional*):
+                Root of the url if urls in tags are presented in relative fashion.
+            pages (`int`):
+                Number of crawling pages.
+            block1 (`list`):
+                List of html tag and its class. The first element in the list should be the name of tag, e.g., "div" or "article", and the 
+                second element in the list should be the class of the tag.
+            block2 (`list`, *optional*):
+                Second block if crawling nested structure.
+            type (`str`):
+                Type of crawling method to crawl urls on the website. The type should be one of the `scan`, `scroll`, `onepage`, or `click`,
+                otherwise it will raise an error.
+            start_page (`int`, *optional*):
+                From which page to start crawling urls.
+    """
+    pipeline = Pipeline()
+    config_dict = {
+        "dir": dir, 
+        "name": name, 
+        "class_": class_, 
+        "prefix": prefix, 
+        "suffix": suffix, 
+        "root_path": root_path, 
+        "pages": pages, 
+        "block1": block1, 
+        "block2": block2, 
+        "type": type,
+        "start_page": start_page
+    }
+    pipeline.pipeline(**config_dict)

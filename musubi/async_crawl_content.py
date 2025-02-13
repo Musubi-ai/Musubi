@@ -3,10 +3,9 @@ from bs4 import BeautifulSoup
 import pymupdf
 import pymupdf4llm
 import io
-import re
+from tqdm import tqdm
 from trafilatura import fetch_url, extract
 import json
-from rich.progress import SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn, Progress, MofNCompleteColumn, TimeElapsedColumn
 import pandas as pd
 import aiohttp
 import asyncio
@@ -15,39 +14,6 @@ from functools import partial
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
 
-progress = Progress(
-    SpinnerColumn(spinner_name="aesthetic"),
-    TextColumn("[progress.description]{task.description}"),
-    TimeElapsedColumn(),
-    BarColumn(bar_width=200),
-    MofNCompleteColumn(),
-    TaskProgressColumn(),
-    TimeRemainingColumn(),
-)
-
-
-def formate_pdf(pdf_content: str):
-    text_list = pdf_content.split("\n")
-    length = len(text_list)
-
-    formated_doc = ""
-
-    for i in range(length):
-        line = text_list[i]
-        if (len(line) == 0) or (len(line.replace(" ", "")) == 0):
-            continue
-        if re.search(r"([一二三四五六七八九十]、\s\w*)|([123456789].\s\w*)|([零壹貳參肆伍陸柒捌玖拾]、\s\w*)|([一二三四五六七八九十]、\w*)|([零壹貳參肆伍陸柒捌玖拾]、\w*)", line):
-            line = "\n" + line + "\n" if i != 0 else line + "\n"
-        if line[-1] in ["。", "：", ":", "？", "?", ".", "」", ")", "|", "`", "-", "》"]:
-            line = line + "\n"
-        if line[0] == "#" and line[-1] != "\n":
-            line = line + "\n"
-        if len(line) - len(line.lstrip()) > 0:
-            line = line.lstrip()
-        formated_doc += line
-
-    return formated_doc
-
 
 async def get_content(url: str = None, session: aiohttp.ClientSession = None):
     if url.endswith(".pdf"):
@@ -55,7 +21,6 @@ async def get_content(url: str = None, session: aiohttp.ClientSession = None):
             filestream = io.BytesIO(await request.read())
         with pymupdf.open(stream=filestream.getvalue(), filetype="pdf") as doc:
             result = pymupdf4llm.to_markdown(doc)
-        result = formate_pdf(result)
     else:
         loop = asyncio.get_event_loop()
         downloaded = await loop.run_in_executor(None, fetch_url, url)
@@ -136,8 +101,9 @@ class AsyncCrawl():
                 elif self.crawl_type == "img-text":
                     tasks.append(get_image_text_pair(url=link, img_txt_block=img_txt_block))
 
-            with progress:
-                for task in progress.track(asyncio.as_completed(tasks), total=len(tasks), description="[bright_cyan]Crawling contents"):
+            
+            with tqdm(total=len(tasks), desc="Crawling urls") as pbar:
+                for task in asyncio.as_completed(tasks):
                     try:
                         res, url = await task
                         with open(save_path, "a+", encoding="utf-8") as file:
@@ -150,6 +116,7 @@ class AsyncCrawl():
                             await asyncio.sleep(sleep_time)
                     except Exception as e:
                         print(f"Error during task execution: {e}")
+                    pbar.update(1)
 
         crawl_df = pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         if (len(crawl_df) == 0):

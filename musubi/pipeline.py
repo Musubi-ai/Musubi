@@ -199,7 +199,7 @@ class Pipeline:
         block2: Optional[List[str]] = None,
         img_txt_block: Optional[List[str]] = None,
         type: str = None,
-        async_: bool = False,
+        async_: bool = True,
         start_page: Optional[int] = 0,
         start_idx: Optional[int] = 0,
         sleep_time: Optional[int] = None,
@@ -223,7 +223,7 @@ class Pipeline:
             suffix (`str`, *optional*):
                 Suffix of the url if exist.
             root_path (`str`, *optional*):
-                Root of the url if urls in a tags are presented in relative fashion.
+                Root of the url if urls in tags are presented in relative fashion.
             pages (`int`):
                 Number of crawling pages.
             block1 (`list`):

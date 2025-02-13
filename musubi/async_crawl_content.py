@@ -102,7 +102,7 @@ class AsyncCrawl():
                     tasks.append(get_image_text_pair(url=link, img_txt_block=img_txt_block))
 
             
-            with tqdm(total=len(tasks), desc="Crawling urls") as pbar:
+            with tqdm(total=len(tasks), desc="Crawling contents") as pbar:
                 for task in asyncio.as_completed(tasks):
                     try:
                         res, url = await task

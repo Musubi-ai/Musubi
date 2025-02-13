@@ -93,7 +93,7 @@ class Crawl():
         length = len(url_df)
 
         
-        for i in tqdm(range(start_idx, length), description="[bright_cyan]Crawling contents"):
+        for i in tqdm(range(start_idx, length), description="Crawling contents"):
             link = url_df.iloc[i]["link"]
             # skip the content if it is in the file already
             if content_list and (link in content_list):

@@ -323,7 +323,7 @@ def pipeline_tool(
         name (`str`):
             Subfolder name under the website.
         class_ (`str`):
-            The type name of data in the website.
+                The type of data in the website. The most general case to use this argument is using the main language of website name, e.g., English, 中文,...
         prefix (`str`):
             Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str(pages) + "suffix".
         suffix (`str`, *optional*):
@@ -340,8 +340,8 @@ def pipeline_tool(
         type (`str`):
             Type of crawling method to crawl urls on the website. The type should be one of the `scan`, `scroll`, `onepage`, or `click`,
             otherwise it will raise an error.
-        start_page (`int`, *optional*):
-            From which page to start crawling urls.
+        start_page (`int`, *optional*, default=0):
+            From which page to start crawling urls. 0 is first page, 1 is second page, and so forth.
     """
     pipeline = Pipeline()
     config_dict = {

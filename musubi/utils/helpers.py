@@ -1,9 +1,31 @@
 import json
-from typing import List, Optional
+from typing import List, Optional, Union
 import warnings
 import pandas as pd
 from tqdm import tqdm
 from pathlib import Path
+import re
+
+
+def is_valid_format(
+    s: str, 
+    prefix: str, 
+    suffix: Union[str] = None
+):
+    """
+    Checks if the given string follows the format: prefix + digits + optional suffix.
+    
+    Args:
+        s (str): The string to be checked.
+        prefix (str): The required prefix at the beginning of the string.
+        suffix (str or None): The optional suffix at the end of the string. If None, no suffix is required.
+    
+    Returns:
+        bool: True if the string matches the format, otherwise False.
+    """
+    suffix_pattern = re.escape(suffix) if suffix is not None else ""
+    pattern = re.compile(rf'^{re.escape(prefix)}\d+{suffix_pattern}$')
+    return bool(pattern.match(s))
 
 
 def add_new_website(

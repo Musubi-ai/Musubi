@@ -12,3 +12,5 @@ test.py
 .env
 .pytest_cache
 config/tasks.json
+use_agent.py
+use_pipeline.py

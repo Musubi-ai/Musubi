@@ -3,15 +3,20 @@ from selenium.webdriver.edge.options import Options
 from selenium.webdriver.common.by import By
 import time
 from typing import Optional, List
-from ..utils.analyze import WebsiteNavigationAnalyzer
 from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 from collections import Counter
+import json
+import sys
+from rich.console import Console
+from ..utils.analyze import WebsiteNavigationAnalyzer
 from ..pipeline import Pipeline
+from ..utils import is_valid_format
 
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
+console = Console()
 
 
 def google_search(query: str = None):
@@ -109,8 +114,8 @@ def get_container(url: str):
     """
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        print(f"Failed to fetch the page: {response.status_code}")
-        return ([], [])
+        console.log(f"Failed to fetch the page: {response.status_code}")
+        return ([], None)
     
     soup = BeautifulSoup(response.text, 'html.parser')
     soup = soup.find("body")
@@ -141,10 +146,10 @@ def get_container(url: str):
                     continue
                 text = tag.get_text(separator="#", strip=True)
                 try:
-                    if (40 > len(text) > 15) and ("#" not in text) and tag.a:
+                    if (len(text) > 15) and ("#" not in text) and tag.a:
                         possible_containers.append([tag.name, class_attr])
                     if len(possible_containers) == 0:
-                        if (40 > len(text) > 15) and (len(text.split("#")) < 3) and tag.a:
+                        if (len(text) > 15) and (len(text.split("#")) < 3) and tag.a:
                             possible_containers.append([tag.name, class_attr])
                 except:
                     pass
@@ -199,7 +204,7 @@ def get_container(url: str):
             return (candidates[0], None)
         
 
-def get_prefix_and_suffix(
+def get_prefix_suffix_and_max_page(
     url: str = None,
     root_path: str = None
 ):
@@ -221,7 +226,7 @@ def get_prefix_and_suffix(
             - suffix (str): The common URL suffix after the page number
             - max_page (int): The highest page number found in the pagination links
         If unsuccessful:
-            An empty list.
+            An empty tuple.
         
     Example:
         >>> url = "https://example.com/blog"
@@ -232,7 +237,7 @@ def get_prefix_and_suffix(
     pagination_candidates = ["pg", "pagination", "page", "pag"]
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        print(f"Failed to fetch the page: {response.status_code}")
+        console.log(f"Failed to fetch the page: {response.status_code}")
         return []
     
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -249,7 +254,7 @@ def get_prefix_and_suffix(
                 if any(item in href for item in pagination_candidates):
                     urls.append(href)
     except:
-        print("Cannot find nav tag.")
+        console.log("Cannot find nav tag.")
 
     if len(urls) == 0:
         a_soup = soup.find_all("a", href=True)
@@ -293,11 +298,48 @@ def get_prefix_and_suffix(
                     else:
                         raise Exception("Cannot find suitable prefix")
                 break
-
-        max_page = max([int(url.replace(prefix, "").replace(suffix, "")) for url in urls])
+        if suffix == "":
+            suffix = None
+        max_page = max([int(url.replace(prefix, "").replace(suffix, "")) for url in urls if is_valid_format(s=url, prefix=prefix, suffix=suffix)])
         return (prefix, suffix, max_page)
     else:
-        return []
+        return (None, None, None)
+    
+
+def final_answer(text: str = None):
+    """Parses and processes the final inference result from Musubi agent.
+
+    This function takes the raw text output from Musubi agent inference,
+    strips any whitespace, and attempts to parse it as JSON. The parsed 
+    JSON is then validated to ensure it contains the required keys for 
+    further processing.
+
+    Args:
+        text (str, optional): Raw text output from the Musubi agent inference.
+            Defaults to None.
+
+    Returns:
+        dict: The parsed JSON data structure containing the processed inference result.
+    """
+    try:
+        data = json.loads(text.strip())
+    except json.JSONDecodeError as e:
+        console.log("JSON parser error:", e)
+        sys.exit(1)
+    expected_keys = {
+    "dir", "name", "class_", "prefix", "suffix",
+    "root_path", "pages", "block1", "block2",
+    "type", "start_page"
+    }
+    actual_keys = set(data.keys())
+    missing_keys = expected_keys - actual_keys
+    extra_keys = actual_keys - expected_keys
+    if missing_keys or extra_keys:
+        console.log("missing keys:", missing_keys)
+        console.log("extra keys:", extra_keys)
+        raise ValueError("Parsed dictionary doesn't match with necessray format for implementing `pipeline_tool` function.")
+
+    return data
 
 
 # Wrapper function with cleaner doxstring

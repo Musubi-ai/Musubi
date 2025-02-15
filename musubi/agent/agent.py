@@ -1,7 +1,6 @@
 from rich import print, box
 from rich.panel import Panel
-import re
-import json
+import ast
 from .system_prompt import TOOL_CALLING_SYSTEM_PROMPT
 from .models import MODEL_NAMES
 from typing import List, Optional, Callable
@@ -52,10 +51,22 @@ class MusubiAgent:
             ))
             chosen_action_dict = self.extract_action_dict(res)
             chosen_action_name, chosen_action_arguments = chosen_action_dict["action_name"], chosen_action_dict["action_arguments"]
-            observation = self.actions_dict[chosen_action_name](**chosen_action_arguments)
-            prompt = "\n<observation>\n" + str(observation) + "\n</observation>\n"
             observation_title = "Observe {}".format(str(step))
             observation_subtitle = "action_name: {}, action_arguments: {}".format(chosen_action_name, str(chosen_action_arguments))
+            if chosen_action_name == "final_answer":
+                done = True
+                print(Panel(
+                    "Final_result:\n" + str(chosen_action_arguments), 
+                    title=observation_title, 
+                    box=box.DOUBLE_EDGE, 
+                    subtitle=observation_subtitle,
+                    border_style="green1",
+                    subtitle_align="left"
+                ))
+                return chosen_action_arguments
+            observation = self.actions_dict[chosen_action_name](**chosen_action_arguments)
+            prompt = "\n<observation>\n" + str(observation) + "\n</observation>\n"
+            
             print(Panel(
                 str(observation), 
                 title=observation_title, 
@@ -83,17 +94,19 @@ class MusubiAgent:
             template = template.replace(f"{{{{{key}}}}}", value)
         return template.strip()
     
-    def extract_action_dict(
-        self,
-        text: str
-    ):
-        pattern = r'<action>(.*?)</action>'
-        match = re.search(pattern, text, re.DOTALL)
+    def extract_action_dict(self, text: str):
+        start_idx = text.find("<action>")
+        end_idx = text.find("</action>")
         
-        if match:
-            try:
-                dict_str = match.group(1)
-                return json.loads(dict_str)
-            except json.JSONDecodeError:
-                return None
-        return None
+        if start_idx == -1 or end_idx == -1:
+            raise ValueError("Could not find <action> tags in the text")
+            
+        # Extract the string including dictionary string
+        action_content = text[start_idx + len("<action>"):end_idx].strip()
+        
+        # Parse the string into a Python dictionary
+        try:
+            action_dict = ast.literal_eval(action_content)
+            return action_dict
+        except Exception as e:
+            raise ValueError(f"Unexpected error during parsing: {str(e)}")

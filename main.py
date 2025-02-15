@@ -14,14 +14,14 @@ parser.add_argument("--upgrade_pages", default=60, help="expected pages to scan 
 # arguments for config file
 parser.add_argument("--website_config_path", default=r"config\websites.json", help="webiste config file", type=str)
 # arguments for add mode
-parser.add_argument("--dir", default="WalkingFish", help="webiste name and its corresponding directory", type=str)
-parser.add_argument("--name", default="WalkingFish所有文章", help="category of articels in the website", type=str)
+parser.add_argument("--dir", default="TechNews", help="webiste name and its corresponding directory", type=str)
+parser.add_argument("--name", default="TechNews財經", help="category of articels in the website", type=str)
 parser.add_argument("--class_", default="中文", help="main class of the website", type=str)
-parser.add_argument("--prefix", default="https://the-walking-fish.com/page/", help="prefix of url", type=str)
+parser.add_argument("--prefix", default="https://finance.technews.tw/page/", help="prefix of url", type=str)
 parser.add_argument("--suffix", default="/", help="suffix of url", type=str)
-parser.add_argument("--root_path", default="https://the-walking-fish.com", help="root path of root website", type=str)
-parser.add_argument("--pages", default=10, help="pages of websites", type=int)
-parser.add_argument("--block1", default=['h2', 'article-title'], help="main list of tag and class", type=list)
+parser.add_argument("--root_path", default=None, help="root path of root website", type=str)
+parser.add_argument("--pages", default=200, help="pages of websites", type=int)
+parser.add_argument("--block1", default=['h1', 'entry-title'], help="main list of tag and class", type=list)
 parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
 parser.add_argument("--img_txt_block", default=None, help="main list of tag and class for crawling image-text pair", type=list)
 parser.add_argument("--type", default="scan", help="way of crawling websites", type=str, choices=["scan", "scroll", "onepage", "click"])
@@ -31,30 +31,30 @@ args = parser.parse_args()
 
 pipe = Pipeline(website_config_path=args.website_config_path)
 
-# pipe.pipeline(
-#     dir = args.dir,
-#     name = args.name, 
-#     class_ = args.class_,
-#     prefix = args.prefix,
-#     suffix = args.suffix,
-#     root_path = args.root_path,
-#     pages = args.pages,
-#     block1 = args.block1,
-#     block2 = args.block2,
-#     type = args.type,
-#     img_txt_block = args.img_txt_block,
-#     async_ = args.async_
-#     )
+pipe.pipeline(
+    dir = args.dir,
+    name = args.name, 
+    class_ = args.class_,
+    prefix = args.prefix,
+    suffix = args.suffix,
+    root_path = args.root_path,
+    pages = args.pages,
+    block1 = args.block1,
+    block2 = args.block2,
+    type = args.type,
+    img_txt_block = args.img_txt_block,
+    async_ = args.async_
+    )
 
 # pipe.start_by_idx(idx=63, upgrade_pages=50)
 
 # for i in tqdm(range(95, 102)):
 #     pipe.start_by_idx(idx=i, upgrade_pages=50)
 
-pipe.start_all(
-    start_idx=93,
-    upgrade_pages=args.upgrade_pages
-)
+# pipe.start_all(
+#     start_idx=93,
+#     upgrade_pages=args.upgrade_pages
+# )
 
 # delete_website_by_idx(idx = 227, websitelist_path=args.websitelist_path)
 

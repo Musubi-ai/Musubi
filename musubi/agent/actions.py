@@ -125,10 +125,10 @@ def get_container(url: str):
                     continue
                 text = tag.get_text(separator="#", strip=True)
                 try:
-                    if (40 > len(text) > 15) and ("#" not in text) and tag.a:
+                    if (len(text) > 15) and ("#" not in text) and tag.a:
                         possible_containers.append([tag.name, class_attr])
                     if len(possible_containers) == 0:
-                        if (40 > len(text) > 15) and (len(text.split("#")) < 3) and tag.a:
+                        if (len(text) > 15) and (len(text.split("#")) < 3) and tag.a:
                             possible_containers.append([tag.name, class_attr])
                 except:
                     pass

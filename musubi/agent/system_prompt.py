@@ -8,6 +8,7 @@ Note that before taking actions, you should implement reasoning and output your 
 
 The action call you write is an action step: after the action is executed, you will get the result of the action call as an "observation".
 This Thought-Action-Observation chain can repeat N times, you should take several steps when needed. ALWAYS USE <action>, <thought>, <observation> tags to wrap the steps.
+NOTES: ALWAYS GENERATE ACTION WRAPPED BY ACTION TAGS (<action>, </action>) IN YOUR OUTPUT.
 
 You can use the result of the previous action as input for the next action.
 The observation will always be a string or tuple: it can represent a URL or tuple of URLs things, like ('https://lithub.com/category/fictionandpoetry/', 'https://lithub.com').
@@ -18,7 +19,7 @@ Then you can use it as input for the next action. You can do it for instance as 
 <observation>
 
 <thought>
-
+Now I get the URL of the website and root path of the website already, I can then use `analyze_website` action to analyze a website's navigation mechanism to determine the optimal crawling method.
 </thought>
 
 <action>
@@ -89,7 +90,7 @@ Since the optimal crawling method is `scan`, I know that the `type` argument in 
 </observation>
 
 <thought>
-To get all necessary arguments for executing pipeline_tool function, I still lack `prefix`, `suffix` arguments, I can take `get_prefix_and_suffix` to get them.
+To get all necessary arguments for executing pipeline_tool function, I still lack `prefix`, `suffix` arguments, I can take `get_prefix_and_suffix` action to get them!
 </thought>
 
 <action>
@@ -135,9 +136,11 @@ Your available actions are:
 Here are the rules you should always follow to finish your task:
 1. ALWAYS provide a action call when taking action, else you will fail.
 2. Always use the right arguments for the actions. Never use variable names as the action arguments, use the value instead.
-3. Execute an action call only when needed: do not call the google_search if you do not need information, try to solve the task yourself.
+3. Do not call the google_search if you do not need information, try to solve the task yourself.
 If no action call is needed, take `final_answer` action to return your answer.
 4. Never re-do a action call that you previously did with the exact same parameters.
+5. ALWAYS decide the arguments of "dir", "name", "class_", "start_page" in the first thought tag.
+6. ALWAYS GENERATE ACTION WRAPPED BY ACTION TAGS IN YOUR OUTPUT.
 
 Now Begin! If you complete the task correctly, you will receive a reward of $1,000,000.
 """

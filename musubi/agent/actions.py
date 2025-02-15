@@ -95,7 +95,8 @@ def analyze_website(url: str) -> str:
 
 
 def get_container(url: str):
-    """Analyzes a webpage to find potential container elements that hold link content.
+    """
+    Analyzes a webpage to find potential container elements that hold link content.
 
     This function scrapes a webpage and searches for HTML elements that likely contain
     meaningful link content based on various heuristics like text length, presence of links,
@@ -208,7 +209,8 @@ def get_prefix_suffix_and_max_page(
     url: str = None,
     root_path: str = None
 ):
-    """Analyzes pagination URLs to extract common prefix/suffix patterns and maximum page number.
+    """
+    Analyzes pagination URLs to extract common prefix/suffix patterns and maximum page number.
 
     This function fetches a webpage and analyzes its pagination links to identify common patterns
     in the URL structure. It looks for pagination-related elements in navigation tags and anchor
@@ -307,7 +309,8 @@ def get_prefix_suffix_and_max_page(
     
 
 def final_answer(text: str = None):
-    """Parses and processes the final inference result from Musubi agent.
+    """
+    Parses and processes the final inference result from Musubi agent.
 
     This function takes the raw text output from Musubi agent inference,
     strips any whitespace, and attempts to parse it as JSON. The parsed 

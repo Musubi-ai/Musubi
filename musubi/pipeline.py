@@ -217,7 +217,7 @@ class Pipeline:
             name (`str`):
                 Subfolder name under the website.
             class_ (`str`):
-                The type name of data in the website.
+                The type of data in the website. The most general case to use this argument is using the main language of website name, e.g., English, 中文,...
             prefix (`str`):
                 Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str(pages) + "suffix".
             suffix (`str`, *optional*):
@@ -238,9 +238,9 @@ class Pipeline:
                 otherwise it will raise an error.
             async_ (`bool`, , *optional*, default=False):
                 If True, crawling website in the asynchronous fashion.
-            start_page (`int`, *optional*):
-                From which page to start crawling urls.
-            start_idx (`int`, ):
+            start_page (`int`, *optional*, default=0):
+                From which page to start crawling urls. 0 is first page, 1 is second page, and so forth.
+            start_idx (`int`,  default=0):
                 From which idx in link.json to start crawling articles.
             sleep_time (`int`, *optional*):
                 Sleep time to prevent ban from website.

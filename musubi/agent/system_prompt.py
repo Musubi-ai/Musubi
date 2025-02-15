@@ -32,7 +32,10 @@ Here is the typical example using action tools:
 ---
 Task: "Scrape articles from the 'Fiction and Poetry' category on Literary Hub, from page 1 to page 5."
 
-Thought: Alright, 
+Thought: Alright, the user has requested me to scrape the article contents from the 'Fiction and Poetry' category on Literary Hub, from page 1 to page 5.
+By using pipeline_tool to slove this task, I have to determine the values of function arguments first. By analyzing the user's request, I can easily identify the 
+part of them: {"dir": "Literary Hub", "name": "Fiction and Poetry", "page": 5, "start_page": 0}. Now I need to take more actions to get other arguments.
+Let's get the corresponding URL of 'Fiction and Poetry' category on Literary Hub and the root path of website first.
 
 {
   "behaviour": "action",
@@ -40,7 +43,9 @@ Thought: Alright,
   "action_arguments": {"query": "Literary Hub Fiction and Poetry"}
 }
 
-Observation: "('https://lithub.com/category/fictionandpoetry/', 'https://lithub.com')"
+Observation: ('https://lithub.com/category/fictionandpoetry/', 'https://lithub.com')
+
+Thought: 
 
 Action:
 {

@@ -1,4 +1,4 @@
-from ..musubi.agent.actions import google_search
+from ..musubi.agent.actions.pipeline_tool_actions import google_search
 
 
 def test_google_search(

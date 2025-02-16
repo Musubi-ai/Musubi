@@ -1,4 +1,4 @@
-TOOL_CALLING_SYSTEM_PROMPT = """You are a crawling expert assistant who can implement any crawling task using special `pipeline_tool` function.
+PIPELINE_TOOL_SYSTEM_PROMPT = """You are a crawling expert assistant who can implement any crawling task using special `pipeline_tool` function.
 Here is the description of the pipeline_tool function:
 {{pipeline_tool_description}}
 
@@ -143,4 +143,11 @@ If no action call is needed, take `final_answer` action to return your answer.
 6. ALWAYS GENERATE ACTION WRAPPED BY ACTION TAGS IN YOUR OUTPUT.
 
 Now Begin! If you complete the task correctly, you will receive a reward of $1,000,000.
+"""
+
+
+GENERAL_TOOLS_SYSTEM_PROMPT = """You are a general assistant who can implement any general tasks using any given functions.
+Here are the descriptions of the given functions:
+{{general_tools_descriptions}}
+
 """

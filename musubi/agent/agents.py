@@ -1,13 +1,13 @@
 from rich import print, box
 from rich.panel import Panel
 import ast
-from .system_prompt import TOOL_CALLING_SYSTEM_PROMPT
+from .system_prompt import PIPELINE_TOOL_SYSTEM_PROMPT
 from .models import MODEL_NAMES
 from typing import List, Optional, Callable
-from .actions import pipeline_tool
+from .actions.pipeline_tool_actions import pipeline_tool
 
 
-class MusubiAgent:
+class PipelineAgent:
     def __init__(
         self,
         actions: List[Callable],
@@ -84,7 +84,7 @@ class MusubiAgent:
         self,
         actions: List[Callable]
     ):
-        template = TOOL_CALLING_SYSTEM_PROMPT
+        template = PIPELINE_TOOL_SYSTEM_PROMPT
         values = {
             "pipeline_tool_description": pipeline_tool.__doc__, 
             "action_names": ", ".join([func.__name__ for func in actions]), 

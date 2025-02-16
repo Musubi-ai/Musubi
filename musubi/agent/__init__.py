@@ -1,2 +1,2 @@
-from .agent import MusubiAgent
+from .agents import PipelineAgent
 from .models import *

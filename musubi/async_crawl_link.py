@@ -44,7 +44,6 @@ class AsyncScan:
                 self.pages_lst = [self.prefix + str((self.page_init_val + i) * self.multiplier) + self.suffix for i in range(self.pages)]
             else:
                 self.pages_lst = [self.prefix + str((self.page_init_val + i) * self.multiplier) for i in range(self.pages)]
-
         self.length = len(self.pages_lst)
         self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")
 

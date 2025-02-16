@@ -205,34 +205,36 @@ def get_container(url: str):
             return (candidates[0], None)
         
 
-def get_prefix_suffix_and_max_page(
+def get_page_info(
     url: str = None,
     root_path: str = None
 ):
     """
-    Analyzes pagination URLs to extract common prefix/suffix patterns and maximum page number.
+    Analyzes webpage pagination to extract URL patterns and page number information.
 
-    This function fetches a webpage and analyzes its pagination links to identify common patterns
-    in the URL structure. It looks for pagination-related elements in navigation tags and anchor
-    tags, then determines the common prefix and suffix used in pagination URLs.
+    Fetches a webpage and analyzes its pagination links to determine the URL structure
+    used for pagination. It searches for pagination-related elements within navigation
+    and anchor tags to extract common patterns in the URLs.
 
     Args:
-        url: The URL of the webpage to analyze for pagination patterns.
-        root_path: Optional base URL path to prepend to relative URLs found in the page.
-            If provided, will be used to construct complete URLs when prefix doesn't contain 'http'.
+        url: URL of the webpage to analyze.
+        root_path: Base URL path to prepend to relative URLs. Required when the
+            extracted prefix doesn't contain 'http'. If the root_path ends with '/'
+            and prefix starts with '/', the extra slash will be handled appropriately.
 
     Returns:
-        If successful in finding pagination pattern:
-            A tuple containing:
-            - prefix (str): The common URL prefix before the page number
-            - suffix (str): The common URL suffix after the page number
-            - max_page (int): The highest page number found in the pagination links
-        If unsuccessful:
-            An empty tuple.
-        
-    Example:
+        tuple:
+            A 5-element tuple containing:
+            - prefix (str): Common URL prefix before page number
+            - suffix (str): Common URL suffix after page number
+            - max_page (int): Highest page number found
+            - page_init_val (int): Starting page number
+            - multiplier (int): Increment between page numbers
+            If no pagination is found, returns (None, None, None, None, None)
+
+    Examples:
         >>> url = "https://example.com/blog"
-        >>> prefix, suffix, max_page = get_prefix_and_suffix(url)
+        >>> prefix, suffix, max_page, page_init_val, multiplier = get_page_info(url)
         >>> print(f"{prefix}5{suffix}")
         https://example.com/blog/page/5/
     """
@@ -300,12 +302,22 @@ def get_prefix_suffix_and_max_page(
                     else:
                         raise Exception("Cannot find suitable prefix")
                 break
+        pages = [int(url.replace(prefix, "").replace(suffix, "")) for url in urls if is_valid_format(s=url, prefix=prefix, suffix=suffix)]
         if suffix == "":
             suffix = None
-        max_page = max([int(url.replace(prefix, "").replace(suffix, "")) for url in urls if is_valid_format(s=url, prefix=prefix, suffix=suffix)])
-        return (prefix, suffix, max_page)
+        max_page = max(pages)
+        if min(pages) == 2:
+            page_init_val = 1
+        elif min(pages)==1:
+            page_init_val = 0
+        try:
+            multiplier = abs(pages[1] - pages[0])
+        except:
+            multiplier = 1
+
+        return (prefix, suffix, max_page, page_init_val, multiplier)
     else:
-        return (None, None, None)
+        return (None, None, None, None, None)
     
 
 def final_answer(text: str = None):
@@ -354,6 +366,8 @@ def pipeline_tool(
     suffix: Optional[int] = None,
     root_path: Optional[int] = None,
     pages: int = None,
+    page_init_val: Optional[int] = 1,
+    multiplier: Optional[int] = 1,
     block1: List[str] = None,
     block2: Optional[List[str]] = None,
     type: str = None,
@@ -370,13 +384,17 @@ def pipeline_tool(
         class_ (`str`):
                 The type of data in the website. The most general case to use this argument is using the main language of website name, e.g., English, 中文,...
         prefix (`str`):
-            Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str(pages) + "suffix".
+            Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str((page_inint_val + pages) * multiplier) + "suffix".
         suffix (`str`, *optional*):
             Suffix of the url if exist.
         root_path (`str`, *optional*):
             Root of the url if urls in tags are presented in relative fashion.
         pages (`int`):
             Number of crawling pages.
+        page_init_val (`int`, default=1):
+            Initial value of page.
+        multiplier (`int`, default=1):
+            Multiplier of page.
         block1 (`list`):
             List of html tag and its class. The first element in the list should be the name of tag, e.g., "div" or "article", and the 
             second element in the list should be the class of the tag.
@@ -396,7 +414,9 @@ def pipeline_tool(
         "prefix": prefix, 
         "suffix": suffix, 
         "root_path": root_path, 
-        "pages": pages, 
+        "pages": pages,
+        "page_init_val": page_init_val,
+        "multiplier": multiplier,
         "block1": block1, 
         "block2": block2, 
         "type": type,

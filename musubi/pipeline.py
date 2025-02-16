@@ -267,7 +267,9 @@ class Pipeline:
             "prefix": "https://www.wazaiii.com/category?tag=17&ntype=&pages=", 
             "suffix": None, 
             "root_path": None, 
-            "pages": 5, 
+            "pages": 5,
+            "page_init_val": 1,
+            "multiplier": 1,
             "block1": ["div", "entry-image"], 
             "block2": None, 
             "type": "scan", 
@@ -291,8 +293,8 @@ class Pipeline:
             type = type,
             async_ = async_,
             website_config_path = self.website_config_path,
-            page_init_val=page_init_val,
-            multiplier=multiplier
+            page_init_val = page_init_val,
+            multiplier = multiplier
         )
 
         try:

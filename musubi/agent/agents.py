@@ -51,7 +51,7 @@ class PipelineAgent:
             ))
             chosen_action_dict = self.extract_action_dict(res)
             chosen_action_name, chosen_action_arguments = chosen_action_dict["action_name"], chosen_action_dict["action_arguments"]
-            observation_title = "Observe {}".format(str(step))
+            observation_title = "Observation {}".format(str(step))
             observation_subtitle = "action_name: {}, action_arguments: {}".format(chosen_action_name, str(chosen_action_arguments))
             if chosen_action_name == "final_answer":
                 done = True

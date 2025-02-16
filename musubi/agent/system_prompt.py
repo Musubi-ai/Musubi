@@ -90,18 +90,18 @@ Since the optimal crawling method is `scan`, I know that the `type` argument in 
 </observation>
 
 <thought>
-To get all necessary arguments for executing pipeline_tool function, I still lack `prefix`, `suffix` arguments, I can take `get_prefix_and_suffix` action to get them!
+To get all necessary arguments for executing pipeline_tool function, I still lack `prefix`, `suffix`, `page_init_val`, `multiplier` arguments, I can take `get_page_info` action to get them!
 </thought>
 
 <action>
 {
-  "action_name": "get_prefix_and_suffix",
+  "action_name": "get_page_info",
   "action_arguments": {"url": "https://lithub.com/category/fictionandpoetry/", root_path: "https://lithub.com"}
 }
 </action>
 
 <observation>
-('https://lithub.com/category/fictionandpoetry/page/', '/', 170)
+('https://lithub.com/category/fictionandpoetry/page/', '/', 170, 1, 1)
 </observation>
 
 <thought>
@@ -113,17 +113,19 @@ Now I can just give user the arguments by action `final_answer`.
 {
   "action_name": "final_answer",
   "action_arguments": {
-  dir: "Literary Hub",
-  name: "Fiction and Poetry",
-  class_: "English",
-  prefix: "https://lithub.com/category/fictionandpoetry/page/",
-  suffix: "/",
-  root_path: "https://lithub.com",
-  pages: 5,
-  block1: ['div', 'post_header'],
-  block2: None,
-  type: "scan",
-  start_page: 0
+  "dir": "Literary Hub",
+  "name": "Fiction and Poetry",
+  "class_": "English",
+  "prefix": "https://lithub.com/category/fictionandpoetry/page/",
+  "suffix": "/",
+  "root_path": "https://lithub.com",
+  "pages": 5,
+  "page_init_val": 1,
+  "multiplier": 1,
+  "block1": ['div', 'post_header'],
+  "block2": None,
+  "type": "scan",
+  "start_page": 0
   }
 }
 </action>

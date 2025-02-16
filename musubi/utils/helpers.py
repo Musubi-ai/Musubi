@@ -43,6 +43,8 @@ def add_new_website(
     img_txt_block: Optional[List] = None,
     type: str = None,
     async_: bool = False,
+    page_init_val: int = 1,
+    multiplier: int = 1,
 ):
     if not website_config_path:
         website_config_path = Path("config") / "websites.json"
@@ -98,7 +100,9 @@ def add_new_website(
             "block1": block1,
             "block2": block2,
             "type": type,
-            "async_": async_
+            "async_": async_,
+            "page_init_val": page_init_val,
+            "multiplier": multiplier
         }
 
     with open(website_config_path, "a+", encoding="utf-8") as file:

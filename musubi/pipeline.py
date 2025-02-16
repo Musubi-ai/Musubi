@@ -74,6 +74,8 @@ class Pipeline:
         if not self.is_nan.iloc[idx]["root_path"]:
             self.args_dict["root_path"] = self.website_df.iloc[idx]["root_path"]
         self.args_dict["pages"] = self.website_df.iloc[idx]["pages"]
+        self.args_dict["page_init_val"] = self.website_df.iloc[idx]["page_init_val"]
+        self.args_dict["multiplier"] = self.website_df.iloc[idx]["multiplier"]
         if not self.is_nan.iloc[idx]["block1"]:
             self.args_dict["block1"] = self.website_df.iloc[idx]["block1"]
         if not self.is_nan.iloc[idx]["block2"].all():
@@ -195,6 +197,8 @@ class Pipeline:
         suffix: Optional[int] = None,
         root_path: Optional[int] = None,
         pages: int = None,
+        page_init_val: Optional[int] = 1,
+        multiplier: Optional[int] = 1,
         block1: List[str] = None,
         block2: Optional[List[str]] = None,
         img_txt_block: Optional[List[str]] = None,
@@ -219,13 +223,17 @@ class Pipeline:
             class_ (`str`):
                 The type of data in the website. The most general case to use this argument is using the main language of website name, e.g., English, 中文,...
             prefix (`str`):
-                Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str(pages) + "suffix".
+                Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str((page_init_val + pages) * multiplier) + "suffix".
             suffix (`str`, *optional*):
                 Suffix of the url if exist.
             root_path (`str`, *optional*):
                 Root of the url if urls in tags are presented in relative fashion.
             pages (`int`):
                 Number of crawling pages.
+            page_init_val (`int`, default=1):
+                Initial value of page.
+            multiplier (`int`, default=1):
+                Multiplier of page.
             block1 (`list`):
                 List of html tag and its class. The first element in the list should be the name of tag, e.g., "div" or "article", and the 
                 second element in the list should be the class of the tag.
@@ -282,7 +290,9 @@ class Pipeline:
             img_txt_block = img_txt_block,
             type = type,
             async_ = async_,
-            website_config_path = self.website_config_path
+            website_config_path = self.website_config_path,
+            page_init_val=page_init_val,
+            multiplier=multiplier
         )
 
         try:

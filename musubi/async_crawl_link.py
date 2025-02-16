@@ -19,6 +19,8 @@ class AsyncScan:
         suffix: str = None,
         root_path: str = None,
         pages: int = None,
+        page_init_val: int = 1,
+        multiplier: int = 1,
         block1: List[str] = None,
         block2: List[str] = None,
         url_path: str = None,
@@ -29,6 +31,8 @@ class AsyncScan:
         self.suffix = suffix
         self.root_path = root_path
         self.pages = pages
+        self.page_init_val = page_init_val
+        self.multiplier = multiplier
         self.url_path = url_path
         self.block1 = block1
         self.block2 = block2
@@ -37,9 +41,9 @@ class AsyncScan:
             self.pages_lst = [self.prefix]
         else:
             if suffix:
-                self.pages_lst = [self.prefix + str(i+1) + self.suffix for i in range(self.pages)]
+                self.pages_lst = [self.prefix + str((self.page_init_val + i) * self.multiplier) + self.suffix for i in range(self.pages)]
             else:
-                self.pages_lst = [self.prefix + str(i+1) for i in range(self.pages)]
+                self.pages_lst = [self.prefix + str((self.page_init_val + i) * self.multiplier) for i in range(self.pages)]
 
         self.length = len(self.pages_lst)
         self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")

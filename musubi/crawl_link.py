@@ -6,7 +6,7 @@ from selenium.webdriver.edge.options import Options
 from selenium.webdriver.common.by import By
 import pandas as pd
 from bs4 import BeautifulSoup
-from typing import List
+from typing import List, Optional
 import json
 import time
 from tqdm import tqdm
@@ -26,6 +26,8 @@ class BaseCrawl(ABC):
         block2: List[str] = None,
         url_path: str = None,
         sleep_time: int = None,
+        page_init_val: int = 1,
+        multiplier: int = 1,
     ):
         self.prefix = prefix
         self.suffix = suffix
@@ -35,6 +37,8 @@ class BaseCrawl(ABC):
         self.block1 = block1
         self.block2 = block2
         self.sleep_time = sleep_time
+        self.page_init_val = page_init_val
+        self.multiplier = multiplier
 
     @abstractmethod
     def crawl_link(self):
@@ -56,16 +60,18 @@ class Scan(BaseCrawl):
         block2: List[str] = None,
         url_path: str = None,
         sleep_time: int = None,
+        page_init_val: int = 1,
+        multiplier: int = 1,
         **kwargs
     ):
-        super().__init__(prefix, suffix, root_path, pages, block1, block2, url_path, sleep_time)
+        super().__init__(prefix, suffix, root_path, pages, block1, block2, url_path, sleep_time, page_init_val, multiplier)
         if pages == 1:
             self.pages_lst = [self.prefix]
         else:
             if suffix:
-                self.pages_lst = [self.prefix + str(i+1) + self.suffix for i in range(self.pages)]
+                self.pages_lst = [self.prefix + str((self.page_init_val + i) * self.multiplier) + self.suffix for i in range(self.pages)]
             else:
-                self.pages_lst = [self.prefix + str(i+1) for i in range(self.pages)]
+                self.pages_lst = [self.prefix + str((self.page_init_val + i) * self.multiplier) for i in range(self.pages)]
 
         self.length = len(self.pages_lst)
         self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")

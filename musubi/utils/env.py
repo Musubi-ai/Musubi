@@ -24,6 +24,7 @@ def logging_hf_cli(
         env_path = create_env_file()
         set_key(env_path, key_to_set="HF_TOKEN", value_to_set=hf_token)
 
+
 def upload_folder(
     hf_token: str = None,
     repo_id: str = None,
@@ -41,5 +42,4 @@ def upload_folder(
         repo_type=repo_type,
         folder_path=folder_path,
     )
-
 

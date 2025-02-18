@@ -78,7 +78,6 @@ def upgrade_all(
     pipeline.start_all(start_idx=start_idx, upgrade_pages=upgrade_pages, save_dir=save_dir)
 
 
-
 def upgrade_by_idx(
     idx: Optional[int],
     website_config_path: Optional[str] = None,

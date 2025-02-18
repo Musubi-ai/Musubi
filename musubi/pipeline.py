@@ -2,7 +2,7 @@ from .crawl_link import Scan, Scroll, OnePage, Click
 from .crawl_content import Crawl
 from .async_crawl_link import AsyncScan
 from .async_crawl_content import AsyncCrawl
-from .utils import add_new_website, delete_website_by_idx, deduplicate_by_value
+from .utils import add_new_website, delete_website_config_by_idx, deduplicate_by_value
 import asyncio
 from pathlib import Path
 from collections import defaultdict
@@ -35,9 +35,9 @@ class Pipeline:
 
     def start_by_idx(
         self,
+        idx: Optional[int],
         start_page: Optional[int] = 0,
         start_idx: Optional[int] = 0,
-        idx: Optional[int] = None,
         upgrade_pages: Optional[int] = None,
         sleep_time: Optional[int] = None,
         save_dir: Optional[str] = None,
@@ -60,8 +60,6 @@ class Pipeline:
             save_dir (`str`, *optional*):
                 Folder to save link.json and articles.
         """
-        if idx is None:
-            raise ValueError("The index cannot be unassigned, please fill index argument.")
         self.args_dict = defaultdict(lambda: None)
         self.website_df = pd.read_json(self.website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         self.website_df_length = len(self.website_df)
@@ -307,4 +305,4 @@ class Pipeline:
             )
         except:
             warnings.warn("Failed to parse website, delete the idx from webiste config now.")
-            delete_website_by_idx(idx=new_website_idx, website_config_path=self.website_config_path)
+            delete_website_config_by_idx(idx=new_website_idx, website_config_path=self.website_config_path)

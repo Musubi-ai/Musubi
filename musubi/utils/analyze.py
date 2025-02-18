@@ -8,10 +8,10 @@ import time
 class ConfigAnalyzer:
     def __init__(
         self,
-        websitelist_path = Path("config") / "websites.json"
+        website_config_path = Path("config") / "websites.json"
     ):
-        self.websitelist_path = websitelist_path
-        self.df = pd.read_json(self.websitelist_path, lines=True)
+        self.website_config_path = website_config_path
+        self.df = pd.read_json(self.website_config_path, lines=True)
 
     def domain_analyze(self):
         main_domain = self.df["dir"].to_list()

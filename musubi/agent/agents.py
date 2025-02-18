@@ -1,9 +1,9 @@
 from rich import print, box
 from rich.panel import Panel
 import ast
+from typing import List, Optional, Callable
 from .system_prompt import PIPELINE_TOOL_SYSTEM_PROMPT
 from .models import MODEL_NAMES
-from typing import List, Optional, Callable
 from .actions.pipeline_tool_actions import pipeline_tool
 
 

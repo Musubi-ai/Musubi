@@ -111,15 +111,33 @@ def add_new_website(
     return idx
 
 
-def delete_website_by_idx(
-    idx: int = None,
-    website_config_path = None
+def delete_website_config_by_idx(
+    idx: int,
+    website_config_path = Path("config") / "websites.json"
 ):
+    """Deletes a website configuration from websites.json by index and reorders remaining configs.
+
+    This function removes a website configuration entry by its index from the JSON file,
+    then reindexes all remaining configurations to maintain consecutive ordering.
+    If the file becomes empty after deletion, it will be cleared.
+
+    Args:
+        idx (int): The index of the website configuration to delete.
+        website_config_path (optional): Path to the websites configuration file.
+            Defaults to Path("config") / "websites.json".
+
+    Note:
+        - The function uses JSONL format (one JSON object per line)
+        - After deletion, all configurations with indices >= idx will have their indices decremented by 1
+        - If the file becomes empty, it will be cleared rather than containing empty lines
+
+    Examples:
+        >>> delete_website_config_by_idx(2)  # Deletes configuration at index 2
+        >>> delete_website_config_by_idx(
+        ...     idx=1,
+        ...     website_config_path=Path("custom/config/websites.json")
+        ... )
     """
-    Delete website config in website.json by index and sort all configs. 
-    """
-    if not website_config_path:
-        website_config_path = Path("config") / "websites.json"
     website_df = pd.read_json(website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
     dictts = website_df[website_df["idx"] != idx].to_dict("records")
     length = len(dictts)

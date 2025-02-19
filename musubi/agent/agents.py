@@ -8,7 +8,7 @@ from .models import MODEL_NAMES
 from .actions.pipeline_tool_actions import pipeline_tool
 
 
-class BaseAgent:
+class BaseAgent(ABC):
     def __init__(
         self,
         actions: List[Callable],

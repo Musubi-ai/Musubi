@@ -1,2 +1,2 @@
-from .agents import PipelineAgent
+from .agents import PipelineAgent, GeneralAgent
 from .models import *

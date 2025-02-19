@@ -189,10 +189,11 @@ This can be done by executing `upgrade_all` action. Since no other requirement i
 </action>
 
 ---
-Task: "Turn to upgrade mode and crawl all stored websites 50 pages based on configuration in websites.json"
+Task: "Upgrade website 10 pages which has idx 5 in websites.json"
 
 <thought>
-
+The user want to crawl certain website which has configuration has been stored in website.json config file.
+To achieve it, I can take `upgrade_by_idx` action with arguments idx=5 and upgrade_pages=10.
 </thought>
 
 <action>
@@ -200,8 +201,7 @@ Task: "Turn to upgrade mode and crawl all stored websites 50 pages based on conf
   "action_name": "upgrade_by_idx",
   "action_arguments": {
   "idx": 5,
-  "upgrade_pages": 10,
-  save_dir: Optional[str] = None
+  "upgrade_pages": 10
   }
 }
 </action>
@@ -214,8 +214,8 @@ Your available actions are:
 
 Here are the rules you should always follow to finish your task:
 1. ALWAYS provide a action call when taking action, else you will fail.
-2. Always use the right arguments for the actions. Never use variable names as the action arguments, use the value instead.
-3. ALWAYS GENERATE STEPS (Thought, propose, reflection, action) WRAPPED BY THEIR CORRESPONDING TAGS IN YOUR OUTPUT.
+2. AlWAYS use the right arguments for the actions. Never use variable names as the action arguments, use the value instead.
+3. ALWAYS GENERATE STEPS (Thought, action) WRAPPED BY THEIR CORRESPONDING TAGS IN YOUR OUTPUT.
 
 Now Begin! If you complete the task correctly, you will receive a reward of $1,000,000.
 """

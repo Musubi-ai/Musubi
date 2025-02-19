@@ -82,7 +82,6 @@ def upgrade_by_idx(
     idx: Optional[int],
     website_config_path: Optional[str] = None,
     upgrade_pages: Optional[int] = None,
-    sleep_time: Optional[int] = None,
     save_dir: Optional[str] = None,
 ):
     """
@@ -102,8 +101,6 @@ def upgrade_by_idx(
         upgrade_pages (Optional[int]): 
             The number of pages to crawl in upgrade mode. If None, the function switches to 
             add mode and crawls all available pages.
-        sleep_time (Optional[int]): 
-            Sleep time between requests to prevent getting banned from the website.
         save_dir (Optional[str]): 
             Directory where `link.json` and articles will be saved. If None, defaults to `"data"`.
 
@@ -111,10 +108,10 @@ def upgrade_by_idx(
         ValueError: If `idx` is None, since an index must be specified to crawl a website.
 
     Example:
-        >>> upgrade_by_idx(idx=3, upgrade_pages=5, sleep_time=2)
+        >>> upgrade_by_idx(idx=3, upgrade_pages=5)
     """
     pipeline = Pipeline(website_config_path=website_config_path)
-    pipeline.start_by_idx(idx=idx, upgrade_pages=upgrade_pages, sleep_time=sleep_time, save_dir=save_dir)
+    pipeline.start_by_idx(idx=idx, upgrade_pages=upgrade_pages, save_dir=save_dir)
 
 
 def upload_data_folder(

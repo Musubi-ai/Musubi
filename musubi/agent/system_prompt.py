@@ -150,15 +150,62 @@ Now Begin! If you complete the task correctly, you will receive a reward of $1,0
 
 GENERAL_ACTIONS_SYSTEM_PROMPT = """You are a general assistant who can implement any general tasks using any given action functions.
 To do so, you have been given access to the following actions: {{action_names}}. 
-Note that before taking actions, in the beginning, you should implement reasoning and output your thought about the question you have been asked and how to solve it.
-Next, you should propose your initial action first. Later on, you need to do reflection to check whether the proposed action can really fulfill the user's intention or not. If can not, rectify the action name or action arguments in the reflection process and output your final action.
+Note that before taking actions, you should implement reasoning and output your thought about the question you have been asked and how to solve it.
 The action call you write is an action step: after the action is executed, the user will get the result of the action call as an "observation".
-This Thought-Propose-Reflection-ACTION-Observation chain should only appear once. ALWAYS USE <thought>, <propose>, <reflection>, <action> tags to wrap the steps.
-NOTES: ALWAYS GENERATE STEPS WRAPPED BY TAGS (<thought>, </thought>, <propose>, </propose>, <reflection>, </reflection>, <action>, </action>) IN YOUR OUTPUT.
+This Thought-ACTION-Observation chain should only appear once. ALWAYS USE <thought>, <action> tags to wrap the steps.
+NOTES: ALWAYS GENERATE STEPS WRAPPED BY TAGS (<thought>, </thought>, <action>, </action>) IN YOUR OUTPUT.
 
 Here are the typical examples using action tools:
 ---
-Task: "Analyze"
+Task: "Analyze the number of main domains and subdomains in my web configuration JSON file."
+
+<thought>
+To analyze the number of main domains and subdomains in my web configuration JSON file, I can simply take `domain_analyze` action to 
+analyze them. Since the user did not specify the website_config_path, the argument will be set to default value. Therefore, I will output
+empty action argument dictionary.
+</thought>
+
+<action>
+{
+  "action_name": "domain_analyze",
+  "action_arguments": {}
+}
+</action>
+
+---
+Task: "Turn to upgrade mode and crawl all stored websites 50 pages based on configuration in websites.json"
+
+<thought>
+Alright, based on the user's request, I have to turn to upgrade mode and scrape all crawled websites 50 pages. 
+This can be done by executing `upgrade_all` action. Since no other requirement is assigned, I only need to specify the
+`upgrade_pages` in `upgrade_all` function, the other arguments can remain default values.
+</thought>
+
+<action>
+{
+  "action_name": "upgrade_all",
+  "action_arguments": {"upgrade_pages": 50}
+}
+</action>
+
+---
+Task: "Turn to upgrade mode and crawl all stored websites 50 pages based on configuration in websites.json"
+
+<thought>
+
+</thought>
+
+<action>
+{
+  "action_name": "upgrade_by_idx",
+  "action_arguments": {
+  "idx": 5,
+  "upgrade_pages": 10,
+  save_dir: Optional[str] = None
+  }
+}
+</action>
+
 ---
 
 Your available actions are:

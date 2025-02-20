@@ -3,7 +3,7 @@ from rich.panel import Panel
 import ast
 from typing import List, Optional, Callable
 from abc import ABC, abstractmethod
-from .system_prompt import PIPELINE_TOOL_SYSTEM_PROMPT, GENERAL_ACTIONS_SYSTEM_PROMPT
+from .system_prompt import PIPELINE_TOOL_SYSTEM_PROMPT, GENERAL_ACTIONS_SYSTEM_PROMPT, MUSUBI_AGENT_PROMPT
 from .models import MODEL_NAMES
 from .actions.pipeline_tool_actions import pipeline_tool
 
@@ -64,7 +64,96 @@ class BaseAgent(ABC):
         ...
 
 
+class MusubiAgent:
+    def __init__(
+        self, 
+        candidates: List[Callable],
+        model_source: str = "openai",
+        api_key: Optional[str] = None,
+        model_type: Optional[str] = None
+    ):
+        self.candidates = candidates
+        self.candidates_dict = {candidate.__class__.__name__: candidate for candidate in candidates}
+        self.system_prompt = self.get_system_prompt(self.candidates)
+        if model_source.lower() not in MODEL_NAMES.keys():
+            raise ValueError("Didn't get appropriate model source."
+                             "The model source should be one of `{}`".format(str(list(MODEL_NAMES.keys()))))
+        self.model = MODEL_NAMES[model_source.lower()](
+            api_key = api_key,
+            system_prompt = self.system_prompt,
+            model_type = model_type
+        )
+
+        self.model_type = self.model.model_type
+
+    def execute(
+        self,
+        prompt: str,
+        temperature: float = 0.3,
+        **generate_kwargs
+    ):
+        res, step_tokens = self.model(prompt, temperature=temperature, **generate_kwargs) 
+        action_subtitle = "model_type: {}, step_token_use: {}".format(self.model_type, step_tokens)
+        print(Panel(
+            res, 
+            title="Reasoning...", 
+            box=box.DOUBLE_EDGE, 
+            subtitle=action_subtitle,
+            border_style="orange1",
+            subtitle_align="left"
+        ))
+        chosen_action_dict = self.extract_action_dict(res)
+        _, chosen_candidates = chosen_action_dict["action_name"], chosen_action_dict["agent_type"]
+        print(Panel(
+                "Executing assigned task. The assigned agent is {}.".format(str(chosen_candidates)),
+                title="Assignment",
+                box=box.DOUBLE_EDGE, 
+                border_style="red1",
+                subtitle_align="left"
+            ))
+        chosen_agent = self.candidates_dict[chosen_candidates]
+        chosen_agent.execute(prompt)
+            
+    def extract_action_dict(self, text: str):
+        start_idx = text.find("<action>")
+        end_idx = text.find("</action>")
+        
+        if start_idx == -1 or end_idx == -1:
+            raise ValueError("Could not find <action> tags in the text")
+            
+        # Extract the string including dictionary string
+        action_content = text[start_idx + len("<action>"):end_idx].strip()
+        
+        # Parse the string into a Python dictionary
+        try:
+            action_dict = ast.literal_eval(action_content)
+            return action_dict
+        except Exception as e:
+            raise ValueError(f"Unexpected error during parsing: {str(e)}")
+
+    def get_system_prompt(
+        self,
+        candidates: List[Callable]
+    ):
+        template = MUSUBI_AGENT_PROMPT
+        values = {
+            "agent_names": ", ".join([candidate.__class__.__name__ for candidate in candidates]), 
+            "agents_description": "\n".join([str(i+1) + ". " + candidate.__class__.__name__ + ":\n" + candidate.__class__.__doc__ for i, candidate in enumerate(candidates)])
+        }
+        for key, value in values.items():
+            template = template.replace(f"{{{{{key}}}}}", value)
+        return template.strip()
+
+
 class PipelineAgent(BaseAgent):
+    """
+    A pipeline-based agent that executes actions in a stepwise manner to get arguments for `pipeline_tool` function using a language model.
+    The `pipeline_tool` function add new website into config json file and scrape website articles.
+
+    This agent processes a given prompt through an iterative execution cycle, interacting 
+    with predefined actions and a language model until a final answer is reached or the 
+    maximum number of steps is exceeded.
+    """
     def __init__(
         self, 
         actions: List[Callable],
@@ -78,12 +167,13 @@ class PipelineAgent(BaseAgent):
     def execute(
         self,
         prompt: str,
+        temperature: float = 0.3,
         **generate_kwargs
     ):
         done = False
         step = 1
         while not done or step <= self.max_turns:
-            res, step_tokens = self.model(prompt, **generate_kwargs) 
+            res, step_tokens = self.model(prompt, temperature=temperature, **generate_kwargs) 
             action_title = "Action {}".format(str(step))
             action_subtitle = "model_type: {}, step_token_use: {}".format(self.model_type, step_tokens)
             print(Panel(
@@ -141,6 +231,12 @@ class PipelineAgent(BaseAgent):
 
 
 class GeneralAgent(BaseAgent):
+    """
+    A general-purpose agent that executes predefined actions using a language model.
+
+    This agent processes a given prompt, selects an appropriate action, and executes it. 
+    It supports different types of analyses and general task execution.
+    """
     def __init__(
         self, 
         actions: List[Callable],
@@ -153,9 +249,10 @@ class GeneralAgent(BaseAgent):
     def execute(
         self,
         prompt: str,
+        temperature: float = 0.3,
         **generate_kwargs
     ):
-        res, step_tokens = self.model(prompt, **generate_kwargs) 
+        res, step_tokens = self.model(prompt, temperature=temperature, **generate_kwargs) 
         action_title = "Action"
         action_subtitle = "model_type: {}, step_token_use: {}".format(self.model_type, step_tokens)
         print(Panel(

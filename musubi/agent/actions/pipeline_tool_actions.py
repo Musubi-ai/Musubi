@@ -121,13 +121,14 @@ def get_container(url: str):
     soup = BeautifulSoup(response.text, 'html.parser')
     soup = soup.find("body")
     possible_containers = []
+    ignore_class = ["left", "right"]
 
     main_soup = soup.find("main")
     if main_soup:
         for tag in main_soup.find_all():
             if tag.find('a', href=True):
                 class_attr = " ".join(tag.get("class", []))
-                if (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr):
+                if (any(cls in class_attr for cls in ignore_class)) or (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr):
                     continue
                 text = tag.get_text(separator="#", strip=True)
                 try:
@@ -143,7 +144,7 @@ def get_container(url: str):
         for tag in soup.find_all():
             if tag.find('a', href=True):
                 class_attr = " ".join(tag.get("class", []))
-                if (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr) or ("layout" in class_attr):
+                if (any(cls in class_attr for cls in ignore_class)) or (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr) or ("layout" in class_attr):
                     continue
                 text = tag.get_text(separator="#", strip=True)
                 try:
@@ -159,7 +160,7 @@ def get_container(url: str):
         for tag in soup.find_all():
             if tag.find('a', href=True):
                 class_attr = " ".join(tag.get("class", []))
-                if (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr):
+                if (any(cls in class_attr for cls in ignore_class)) or  (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr):
                     continue
                 text = tag.get_text(separator="#", strip=True)
                 try:
@@ -176,7 +177,7 @@ def get_container(url: str):
         for tag in soup.find_all():
             if tag.find('a', href=True):
                 class_attr = " ".join(tag.get("class", []))
-                if (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr):
+                if (any(cls in class_attr for cls in ignore_class)) or  (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr):
                     continue
                 text = tag.get_text(separator="#", strip=True)
                 text_list = text.split("#")

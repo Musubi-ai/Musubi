@@ -121,14 +121,14 @@ def get_container(url: str):
     soup = BeautifulSoup(response.text, 'html.parser')
     soup = soup.find("body")
     possible_containers = []
-    ignore_class = ["left", "right"]
+    ignore_class = ["left", "right", "footer", "page", "layout", "nav"]
 
     main_soup = soup.find("main")
     if main_soup:
         for tag in main_soup.find_all():
             if tag.find('a', href=True):
                 class_attr = " ".join(tag.get("class", []))
-                if (any(cls in class_attr for cls in ignore_class)) or (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr):
+                if (any(cls in class_attr for cls in ignore_class)) or (class_attr == ""):
                     continue
                 text = tag.get_text(separator="#", strip=True)
                 try:
@@ -144,7 +144,7 @@ def get_container(url: str):
         for tag in soup.find_all():
             if tag.find('a', href=True):
                 class_attr = " ".join(tag.get("class", []))
-                if (any(cls in class_attr for cls in ignore_class)) or (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr) or ("layout" in class_attr):
+                if (any(cls in class_attr for cls in ignore_class)) or (class_attr == ""):
                     continue
                 text = tag.get_text(separator="#", strip=True)
                 try:
@@ -160,24 +160,7 @@ def get_container(url: str):
         for tag in soup.find_all():
             if tag.find('a', href=True):
                 class_attr = " ".join(tag.get("class", []))
-                if (any(cls in class_attr for cls in ignore_class)) or  (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr):
-                    continue
-                text = tag.get_text(separator="#", strip=True)
-                try:
-                    if (len(text) > 300) and ("#" in text) and tag.a:
-                        a_tag = tag.a
-                        a_class = " ".join(a_tag.get("class", []))
-                        if a_class == "":
-                            continue
-                        possible_containers.append(["a", a_class])
-                except:
-                    pass
-
-    if len(possible_containers) == 0:
-        for tag in soup.find_all():
-            if tag.find('a', href=True):
-                class_attr = " ".join(tag.get("class", []))
-                if (any(cls in class_attr for cls in ignore_class)) or  (class_attr == "") or ("footer" in class_attr) or ("page" in class_attr):
+                if (any(cls in class_attr for cls in ignore_class)) or  (class_attr == ""):
                     continue
                 text = tag.get_text(separator="#", strip=True)
                 text_list = text.split("#")
@@ -189,11 +172,24 @@ def get_container(url: str):
                 except:
                     pass
 
+                try:
+                    if (len(text) > 300) and ("#" in text) and tag.a:
+                        a_tag = tag.a
+                        a_class = " ".join(a_tag.get("class", []))
+                        if a_class == "":
+                            continue
+                        possible_containers.append(["a", a_class])
+                except:
+                    pass
+
     if len(possible_containers) == 0:
-        menu_soup = soup.find("menu")
-        a_tags = menu_soup.find_all("a")
-        if len(a_tags) > 1:
-            return (["menu", None], ["a", None])
+        try:
+            menu_soup = soup.find("menu")
+            a_tags = menu_soup.find_all("a")
+            if len(a_tags) > 1:
+                return (["menu", None], ["a", None])
+        except:
+            return ([None, None], [None, None])
     
     candidates = []
     if len(possible_containers) > 0:

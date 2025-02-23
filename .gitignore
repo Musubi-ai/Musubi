@@ -11,3 +11,4 @@ test.py
 use_agent.py
 use_pipeline.py
 config
+scrape_journal.py

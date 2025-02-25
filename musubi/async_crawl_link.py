@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from bs4 import BeautifulSoup
-from typing import List
+from typing import List, Optional
 import json
 import random
 import aiohttp
@@ -15,15 +15,15 @@ headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 class AsyncScan:
     def __init__(
         self,
-        prefix: str = None,
-        suffix: str = None,
-        root_path: str = None,
-        pages: int = None,
-        page_init_val: int = 1,
-        multiplier: int = 1,
+        prefix: str,
+        suffix: Optional[str] = None,
+        root_path: Optional[str] = None,
+        pages: Optional[int] = None,
         block1: List[str] = None,
-        block2: List[str] = None,
-        url_path: str = None,
+        block2: Optional[List[str]] = None,
+        url_path: Optional[str] = None,
+        page_init_val: Optional[int] = 1,
+        multiplier: Optional[int] = 1,
         max_concurrent_tasks: int = 10,
         **kwargs
     ):

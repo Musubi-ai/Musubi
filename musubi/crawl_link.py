@@ -18,16 +18,16 @@ headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 class BaseCrawl(ABC):
     def __init__(
         self,
-        prefix: str = None,
-        suffix: str = None,
-        root_path: str = None,
-        pages: int = None,
+        prefix: str,
+        suffix: Optional[str] = None,
+        root_path: Optional[str] = None,
+        pages: Optional[int] = None,
         block1: List[str] = None,
-        block2: List[str] = None,
-        url_path: str = None,
-        sleep_time: int = None,
-        page_init_val: int = 1,
-        multiplier: int = 1,
+        block2: Optional[List[str]] = None,
+        url_path: Optional[str] = None,
+        sleep_time: Optional[int] = None,
+        page_init_val: Optional[int] = 1,
+        multiplier: Optional[int] = 1,
     ):
         self.prefix = prefix
         self.suffix = suffix
@@ -52,16 +52,16 @@ class BaseCrawl(ABC):
 class Scan(BaseCrawl):
     def __init__(
         self, 
-        prefix: str = None,
-        suffix: str = None,
-        root_path: str = None,
-        pages: int = None,
+        prefix: str,
+        suffix: Optional[str] = None,
+        root_path: Optional[str] = None,
+        pages: Optional[int] = None,
         block1: List[str] = None,
-        block2: List[str] = None,
-        url_path: str = None,
-        sleep_time: int = None,
-        page_init_val: int = 1,
-        multiplier: int = 1,
+        block2: Optional[List[str]] = None,
+        url_path: Optional[str] = None,
+        sleep_time: Optional[int] = None,
+        page_init_val: Optional[int] = 1,
+        multiplier: Optional[int] = 1,
         **kwargs
     ):
         super().__init__(prefix, suffix, root_path, pages, block1, block2, url_path, sleep_time, page_init_val, multiplier)
@@ -147,14 +147,14 @@ class Scan(BaseCrawl):
 class Scroll(BaseCrawl):
     def __init__(
         self, 
-        prefix: str = None,
-        suffix: str = None,
-        root_path: str = None,
-        pages: int = None,
+        prefix: str,
+        suffix: Optional[str] = None,
+        root_path: Optional[str] = None,
+        pages: Optional[int] = None,
         block1: List[str] = None,
-        block2: List[str] = None,
-        url_path: str = None,
-        sleep_time: int = 3,
+        block2: Optional[List[str]] = None,
+        url_path: Optional[str] = None,
+        sleep_time: Optional[int] = None,
         **kwargs
     ):
         super().__init__(prefix, suffix, root_path, pages, block1, block2, url_path, sleep_time)
@@ -238,14 +238,14 @@ class Scroll(BaseCrawl):
 class OnePage(BaseCrawl):
     def __init__(
         self, 
-        prefix: str = None,
-        suffix: str = None,
-        root_path: str = None,
-        pages: int = None,
+        prefix: str,
+        suffix: Optional[str] = None,
+        root_path: Optional[str] = None,
+        pages: Optional[int] = None,
         block1: List[str] = None,
-        block2: List[str] = None,
-        url_path: str = None,
-        sleep_time: int = None,
+        block2: Optional[List[str]] = None,
+        url_path: Optional[str] = None,
+        sleep_time: Optional[int] = None,
         **kwargs
     ):
         super().__init__(prefix, suffix, root_path, pages, block1, block2, url_path, sleep_time)
@@ -319,14 +319,14 @@ class OnePage(BaseCrawl):
 class Click(BaseCrawl):
     def __init__(
         self, 
-        prefix: str = None,
-        suffix: str = None,
-        root_path: str = None,
-        pages: int = None,
+        prefix: str,
+        suffix: Optional[str] = None,
+        root_path: Optional[str] = None,
+        pages: Optional[int] = None,
         block1: List[str] = None,
-        block2: List[str] = None,
-        url_path: str = None,
-        sleep_time: int = 5,
+        block2: Optional[List[str]] = None,
+        url_path: Optional[str] = None,
+        sleep_time: Optional[int] = 5,
         **kwargs
     ):
         super().__init__(prefix, suffix, root_path, pages, block1, block2, url_path, sleep_time)

@@ -173,6 +173,8 @@ class Pipeline:
             upgrade_pages (`int`, *optional*):
                 How many pages to crawl in upgrade mode. If not None, fuction will switch to upgrade mode and crawl specified number of pages.
                 If None, function will switch into add mode and crawl all pages of websites.
+            save_dir (`str`, *optional*):
+                Folder to save link.json and articles.
         """
         self.website_df = pd.read_json(self.website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         length = len(self.website_df)

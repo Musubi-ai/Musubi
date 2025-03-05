@@ -112,21 +112,21 @@ class IdxScheduler(BaseScheduler):
                         task_params = get_idx_task_params()
                         task_params["task_name"] = task_name
                         # Generate unique task id by uuid4
-                        job_id = str(uuid.uuid4())
+                        task_id = str(uuid.uuid4())
                         
                         # Add task
                         scheduler.add_job(
                             self.start_by_idx_task, 
                             'cron', 
-                            id=job_id, 
+                            id=task_id, 
                             kwargs=task_params,
                             **cron_params
                         )
-                        active_jobs[job_id] = task_name
-                        print(f"Add task '{task_name}', ID: {job_id}")
+                        active_jobs[task_id] = task_name
+                        print(f"Add task '{task_name}', ID: {task_id}")
 
                         task_config = {
-                            "job_id": job_id, 
+                            "task_id": task_id, 
                             "cron_params": cron_params,
                             "task_params": task_params,
                             "task_type": "by_idx"
@@ -143,27 +143,27 @@ class IdxScheduler(BaseScheduler):
                         continue
                 
                 elif command == 'pause':
-                    job_id = input("Task ID: ").strip()
-                    if job_id in active_jobs:
-                        scheduler.pause_job(job_id)
-                        print(f"Pause task '{active_jobs[job_id]}'.")
+                    task_id = input("Task ID: ").strip()
+                    if task_id in active_jobs:
+                        scheduler.pause_job(task_id)
+                        print(f"Pause task '{active_jobs[task_id]}'.")
                     else:
-                        print("Cannot find the task having ID {}!".format(job_id))
+                        print("Cannot find the task having ID {}!".format(task_id))
                 
                 elif command == 'resume':
-                    job_id = input("Enter task ID: ").strip()
-                    if job_id in active_jobs:
-                        scheduler.resume_job(job_id)
-                        print(f"Task '{active_jobs[job_id]}' has been resumed.")
+                    task_id = input("Enter task ID: ").strip()
+                    if task_id in active_jobs:
+                        scheduler.resume_job(task_id)
+                        print(f"Task '{active_jobs[task_id]}' has been resumed.")
                     else:
                         print("Cannot find task ID!")
                 
                 elif command == 'list':
                     print("Current task list：")
-                    for job_id, task_name in active_jobs.items():
-                        job = scheduler.get_job(job_id)
+                    for task_id, task_name in active_jobs.items():
+                        job = scheduler.get_job(task_id)
                         status = "pausing" if job.next_run_time is None else "operating"
-                        print(f"  - ID: {job_id}, Name: {task_name}, Status: {status}")
+                        print(f"  - ID: {task_id}, Name: {task_name}, Status: {status}")
                 
                 elif command == 'exit':
                     print("Shut downing Scheduler...")
@@ -235,23 +235,23 @@ class UpgradeScheduler(BaseScheduler):
                         task_params = get_upgrade_task_params()
                         task_params["task_name"] = task_name
                         # Generate unique task id by uuid4
-                        job_id = str(uuid.uuid4())
+                        task_id = str(uuid.uuid4())
                         
                         # Add task
                         scheduler.add_job(
                             self.upgrade_task, 
                             'cron', 
-                            id=job_id, 
+                            id=task_id, 
                             kwargs=task_params,
                             **cron_params
                         )
-                        active_jobs[job_id] = task_name
-                        print(f"Add task '{task_name}', ID: {job_id}")
+                        active_jobs[task_id] = task_name
+                        print(f"Add task '{task_name}', ID: {task_id}")
                         task_config = {
-                            "job_id": job_id, 
+                            "task_id": task_id, 
                             "cron_params": cron_params,
                             "task_params": task_params,
-                            "task_type": "upgrade"
+                            "task_type": "upgrade_all"
                         }
                         
                         with open(self.config_path, "a+", encoding="utf-8") as file:
@@ -265,27 +265,27 @@ class UpgradeScheduler(BaseScheduler):
                         continue
                 
                 elif command == 'pause':
-                    job_id = input("Task ID: ").strip()
-                    if job_id in active_jobs:
-                        scheduler.pause_job(job_id)
-                        print(f"Pause task '{active_jobs[job_id]}'.")
+                    task_id = input("Task ID: ").strip()
+                    if task_id in active_jobs:
+                        scheduler.pause_job(task_id)
+                        print(f"Pause task '{active_jobs[task_id]}'.")
                     else:
-                        print("Cannot find the task having ID {}!".format(job_id))
+                        print("Cannot find the task having ID {}!".format(task_id))
                 
                 elif command == 'resume':
-                    job_id = input("Enter task ID: ").strip()
-                    if job_id in active_jobs:
-                        scheduler.resume_job(job_id)
-                        print(f"Task '{active_jobs[job_id]}' has been resumed.")
+                    task_id = input("Enter task ID: ").strip()
+                    if task_id in active_jobs:
+                        scheduler.resume_job(task_id)
+                        print(f"Task '{active_jobs[task_id]}' has been resumed.")
                     else:
                         print("Cannot find task ID!")
                 
                 elif command == 'list':
                     print("Current task list：")
-                    for job_id, task_name in active_jobs.items():
-                        job = scheduler.get_job(job_id)
+                    for task_id, task_name in active_jobs.items():
+                        job = scheduler.get_job(task_id)
                         status = "pausing" if job.next_run_time is None else "operating"
-                        print(f"  - ID: {job_id}, Nmae: {task_name}, Status: {status}")
+                        print(f"  - ID: {task_id}, Nmae: {task_name}, Status: {status}")
                 
                 elif command == 'exit':
                     print("Shut downing Scheduler...")
@@ -302,8 +302,8 @@ class UpgradeScheduler(BaseScheduler):
             print("Shut down scheduler.")
 
 
-def start_task_by_job_id(
-    job_id: str = None,
+def start_task_by_task_id(
+    task_id: str = None,
     tasks_config_path: Optional[str] = None,
     send_notification: Optional[bool] = False,
     app_password: Optional[str] = None,
@@ -314,13 +314,13 @@ def start_task_by_job_id(
         tasks_config_path = Path("config") / "tasks.json"
     config_dir = Path(tasks_config_path).resolve().parents[0]
     tasks_config_df = pd.read_json(tasks_config_path, lines=True, dtype_backend="pyarrow", engine="pyarrow")
-    id_filtered_df = tasks_config_df[tasks_config_df["job_id"]==job_id]
+    id_filtered_df = tasks_config_df[tasks_config_df["task_id"]==task_id]
     cron_params = id_filtered_df.iloc[0]["cron_params"]
     task_params = id_filtered_df.iloc[0]["task_params"]
     scheduler = BackgroundScheduler()
     scheduler.start()
 
-    if id_filtered_df.iloc[0]["task_type"] == "upgrade":
+    if id_filtered_df.iloc[0]["task_type"] == "upgrade_all":
         upgrade_seed = UpgradeScheduler(
             send_notification=send_notification,
             app_password=app_password,
@@ -331,7 +331,7 @@ def start_task_by_job_id(
         scheduler.add_job(
             upgrade_seed.upgrade_task, 
             'cron', 
-            id=job_id, 
+            id=task_id, 
             kwargs=task_params,
             **cron_params
         )
@@ -346,11 +346,11 @@ def start_task_by_job_id(
         scheduler.add_job(
             idx_seed.start_by_idx_task, 
             'cron', 
-            id=job_id, 
+            id=task_id, 
             kwargs=task_params,
             **cron_params
         )
-    print("Start new task with job_id {}".format(job_id))
+    print("Start new task with task_id {}".format(task_id))
         
     try:
         while True:

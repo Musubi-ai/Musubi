@@ -180,7 +180,7 @@ class IdxScheduler(BaseScheduler):
             print("Shut down scheduler.")
 
 
-class UpgradeScheduler(BaseScheduler):
+class UpdateScheduler(BaseScheduler):
     def __init__(
         self, 
         send_notification: Optional[bool] = False,
@@ -321,7 +321,7 @@ def start_task_by_task_id(
     scheduler.start()
 
     if id_filtered_df.iloc[0]["task_type"] == "update_all":
-        update_seed = UpgradeScheduler(
+        update_seed = UpdateScheduler(
             send_notification=send_notification,
             app_password=app_password,
             sender_email=sender_email,

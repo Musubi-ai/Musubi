@@ -189,7 +189,7 @@ This can be done by executing `update_all` action. Since no other requirement is
 </action>
 
 ---
-Task: "Upgrade website 10 pages which has idx 5 in websites.json"
+Task: "Update website 10 pages which has idx 5 in websites.json"
 
 <thought>
 The user want to crawl certain website which has configuration has been stored in website.json config file.

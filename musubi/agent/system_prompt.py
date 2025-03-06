@@ -173,18 +173,18 @@ empty action argument dictionary.
 </action>
 
 ---
-Task: "Turn to upgrade mode and crawl all stored websites 50 pages based on configuration in websites.json"
+Task: "Turn to update mode and crawl all stored websites 50 pages based on configuration in websites.json"
 
 <thought>
-Alright, based on the user's request, I have to turn to upgrade mode and scrape all crawled websites 50 pages. 
-This can be done by executing `upgrade_all` action. Since no other requirement is assigned, I only need to specify the
-`upgrade_pages` in `upgrade_all` function, the other arguments can remain default values.
+Alright, based on the user's request, I have to turn to update mode and scrape all crawled websites 50 pages. 
+This can be done by executing `update_all` action. Since no other requirement is assigned, I only need to specify the
+`update_pages` in `update_all` function, the other arguments can remain default values.
 </thought>
 
 <action>
 {
-  "action_name": "upgrade_all",
-  "action_arguments": {"upgrade_pages": 50}
+  "action_name": "update_all",
+  "action_arguments": {"update_pages": 50}
 }
 </action>
 
@@ -193,15 +193,15 @@ Task: "Upgrade website 10 pages which has idx 5 in websites.json"
 
 <thought>
 The user want to crawl certain website which has configuration has been stored in website.json config file.
-To achieve it, I can take `upgrade_by_idx` action with arguments idx=5 and upgrade_pages=10.
+To achieve it, I can take `update_by_idx` action with arguments idx=5 and update_pages=10.
 </thought>
 
 <action>
 {
-  "action_name": "upgrade_by_idx",
+  "action_name": "update_by_idx",
   "action_arguments": {
   "idx": 5,
-  "upgrade_pages": 10
+  "update_pages": 10
   }
 }
 </action>

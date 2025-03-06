@@ -1,2 +1,3 @@
 from .notification import Notify
-from .scheduler import IdxScheduler, UpgradeScheduler, start_task_by_job_id
+from .scheduler_legacy import IdxScheduler, UpgradeScheduler, start_task_by_task_id
+from .scheduler import Scheduler

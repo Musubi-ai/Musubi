@@ -47,16 +47,16 @@ def type_analyze(website_config_path = Path("config") / "websites.json"):
     return report
 
 
-def upgrade_all(
+def update_all(
     website_config_path = Path("config") / "websites.json",
     start_idx: Optional[int] = 0,
-    upgrade_pages: Optional[int] = None,
+    update_pages: Optional[int] = None,
     save_dir: Optional[str] = None
 ):
     """
     Crawls all websites listed in the website configuration JSON file.
 
-    This function initializes a `Pipeline` instance and calls `start_all()` to upgrade 
+    This function initializes a `Pipeline` instance and calls `start_all()` to update 
     or fully crawl all websites in the configuration file, starting from `start_idx`.
 
     Args:
@@ -65,31 +65,31 @@ def upgrade_all(
             Defaults to `"config/websites.json"`.
         start_idx (Optional[int]): 
             The index from which to start upgrading or crawling websites. Defaults to `0`.
-        upgrade_pages (Optional[int]): 
-            The number of pages to crawl in upgrade mode. If None, the function switches to 
+        update_pages (Optional[int]): 
+            The number of pages to crawl in update mode. If None, the function switches to 
             add mode and crawls all available pages.
         save_dir (Optional[str]): 
             Directory where `link.json` and articles will be saved. If None, defaults to `"data"`.
 
     Example:
-        >>> upgrade_all(start_idx=2, upgrade_pages=50)
+        >>> update_all(start_idx=2, update_pages=50)
     """
     pipeline = Pipeline(website_config_path=website_config_path)
-    pipeline.start_all(start_idx=start_idx, upgrade_pages=upgrade_pages, save_dir=save_dir)
+    pipeline.start_all(start_idx=start_idx, update_pages=update_pages, save_dir=save_dir)
 
 
-def upgrade_by_idx(
+def update_by_idx(
     idx: Optional[int],
     website_config_path: Optional[str] = None,
-    upgrade_pages: Optional[int] = None,
+    update_pages: Optional[int] = None,
     save_dir: Optional[str] = None,
 ):
     """
     Crawls articles from a website specified by `idx` in `websites.json` or `imgtxt_webs.json` 
-    in upgrade mode.
+    in update mode.
 
     This function initializes a `Pipeline` instance and calls `start_by_idx()` to crawl a 
-    specified number of pages in upgrade mode. If `upgrade_pages` is None, it will crawl all 
+    specified number of pages in update mode. If `update_pages` is None, it will crawl all 
     pages of the website in add mode.
 
     Args:
@@ -98,8 +98,8 @@ def upgrade_by_idx(
             If None, defaults to `"config/websites.json"`.
         idx (Optional[int]): 
             The index of the website to crawl in the configuration file. Must not be None.
-        upgrade_pages (Optional[int]): 
-            The number of pages to crawl in upgrade mode. If None, the function switches to 
+        update_pages (Optional[int]): 
+            The number of pages to crawl in update mode. If None, the function switches to 
             add mode and crawls all available pages.
         save_dir (Optional[str]): 
             Directory where `link.json` and articles will be saved. If None, defaults to `"data"`.
@@ -108,10 +108,10 @@ def upgrade_by_idx(
         ValueError: If `idx` is None, since an index must be specified to crawl a website.
 
     Example:
-        >>> upgrade_by_idx(idx=3, upgrade_pages=5)
+        >>> update_by_idx(idx=3, update_pages=5)
     """
     pipeline = Pipeline(website_config_path=website_config_path)
-    pipeline.start_by_idx(idx=idx, upgrade_pages=upgrade_pages, save_dir=save_dir)
+    pipeline.start_by_idx(idx=idx, update_pages=update_pages, save_dir=save_dir)
 
 
 def upload_data_folder(

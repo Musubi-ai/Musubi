@@ -1,6 +1,4 @@
-import requests
 import os
-import inspect
 from datetime import datetime
 from typing import Optional
 from pathlib import Path
@@ -10,16 +8,6 @@ from ..utils.env import create_env_file
 from ..pipeline import Pipeline
 
 load_dotenv()
-
-
-def get_var_name(var):
-    current_frame = inspect.currentframe()
-    caller_frame = inspect.getouterframes(current_frame)[1]
-    local_vars = caller_frame.frame.f_locals
-
-    for name, value in local_vars.items():
-        if value is var:
-            return name
 
 
 class Task:
@@ -61,32 +49,32 @@ class Task:
         self,
         task_name: str,
         start_idx: Optional[int] = 0,
-        upgrade_pages: Optional[int] = None,
+        update_pages: Optional[int] = 10,
         save_dir: Optional[str] = None
     ):
         if self.send_notification:
             self.notify.send_gmail(
-                subject="Musubi: Start scheduled upgrading",
+                subject="Musubi: Start scheduled updating",
                 body="Start scheduled task '{}' at {}".format(task_name, datetime.now())
             )
 
         self.pipeline.start_all(
             start_idx=start_idx,
-            upgrade_pages=upgrade_pages,
+            update_pages=update_pages,
             save_dir=save_dir
         )
 
         if self.notify:
             self.notify.send_gmail(
-                subject="Musubi: Finished scheduled upgrading",
+                subject="Musubi: Finished scheduled updating",
                 body="Finished scheduled task '{}' at {}".format(task_name, datetime.now())
             )
 
     def by_idx(
         self,
         task_name: str,
-        idx: Optional[int],
-        upgrade_pages: Optional[int] = None,
+        idx: Optional[int] = 0,
+        update_pages: Optional[int] = None,
         save_dir: Optional[str] = None,
     ):
         if self.notify:
@@ -97,7 +85,7 @@ class Task:
         
         self.pipeline.start_by_idx(
             idx=idx,
-            upgrade_pages=upgrade_pages,
+            update_pages=update_pages,
             save_dir=save_dir
         )
 

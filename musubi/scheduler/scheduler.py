@@ -1,11 +1,12 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from ..pipeline import Pipeline
-from .notification import Notify
 from pathlib import Path
 import os
 from typing import Optional
 from flask import Flask
 import pandas as pd
+from ..pipeline import Pipeline
+from .notification import Notify
+from .tasks import Task
 
 
 app = Flask(__name__)
@@ -55,11 +56,9 @@ def retrieve_task_list():
 
 @app.route("/start/<path:config_dir>/<task_id>", methods=["POST"])
 def start_task(
-    task_id: str,
-    config_dir: str = "config"
+    config_dir: str,
+    task_id: str
 ):
-    website_config_path = Path(config_dir) / "websites.json"
-    pipeline = Pipeline(website_config_path)
     tasks_path = Path(config_dir) / "tasks.json"
     tasks_path.touch(mode=0o600, exist_ok=True)
 
@@ -68,9 +67,10 @@ def start_task(
     assert len(task_config) != 0, "Cannot find the specified task with task_id: {}".format(task_id)
     assert len(task_config) == 1, "Detect multiple tasks sharing the same task id."
     task_data = task_config.iloc[0].to_dict()
-    if task_data["task_type"] == "upgrade_all":
+    task_init = Task(config_dir=config_dir, **task_data["contact_params"])
+    if task_data["task_type"] == "update_all":
         scheduler.add_job(
-            pipeline.start_all,
+            task_init.update_all,
             'cron', 
             id=task_id, 
             kwargs=task_data["task_params"],
@@ -79,7 +79,7 @@ def start_task(
         active_tasks[task_id] = task_data["task_name"]
     elif task_data["task_type"] == "by_idx":
         scheduler.add_job(
-            pipeline.start_by_idx,
+            task_init.by_idx,
             'cron', 
             id=task_id, 
             kwargs=task_data["task_params"],
@@ -87,7 +87,7 @@ def start_task(
         )
         active_tasks[task_id] = task_data["task_name"]
     else:
-        raise ValueError("The task type of specified task should be one of 'upgrade_all' or 'by_idx' but got {}".format(task_data["task_type"]))
+        raise ValueError("The task type of specified task should be one of 'update_all' or 'by_idx' but got {}".format(task_data["task_type"]))
 
 @app.route("/pause/<task_id>", methods=["POST"])
 def pause_task(task_id: str):

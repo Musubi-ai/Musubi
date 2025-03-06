@@ -38,7 +38,7 @@ class Pipeline:
         idx: Optional[int],
         start_page: Optional[int] = 0,
         start_idx: Optional[int] = 0,
-        upgrade_pages: Optional[int] = None,
+        update_pages: Optional[int] = None,
         sleep_time: Optional[int] = None,
         save_dir: Optional[str] = None,
     ):
@@ -52,8 +52,8 @@ class Pipeline:
                 From which idx in link.json to start crawling articles.
             idx (`int`, *optional*):
                 Which website in websites.json or imgtxt_webs.json to crawl.
-            upgrade_pages (`int`, *optional*):
-                How many pages to crawl in upgrade mode. If not None, fuction will switch to upgrade mode and crawl specified number of pages.
+            update_pages (`int`, *optional*):
+                How many pages to crawl in update mode. If not None, fuction will switch to update mode and crawl specified number of pages.
                 If None, function will switch into add mode and crawl all pages of websites.
             sleep_time (`int`, *optional*):
                 Sleep time to prevent ban from website.
@@ -111,11 +111,11 @@ class Pipeline:
         self.type = self.website_df.iloc[idx]["type"]
         self.async_ = self.website_df.iloc[idx]["async_"]
 
-        if upgrade_pages:
-            self.args_dict["pages"] = self.args_dict["pages"] if self.args_dict["pages"] <= upgrade_pages else upgrade_pages
+        if update_pages:
+            self.args_dict["pages"] = self.args_dict["pages"] if self.args_dict["pages"] <= update_pages else update_pages
             indices = self.website_df["idx"].to_list()
             if idx not in indices:
-                raise ValueError("In upgrade mode but assigned index does not exist in website.json file.")
+                raise ValueError("In update mode but assigned index does not exist in website.json file.")
         
         urls_folder_path = Path(self.urls_dir)
         urls_folder_path.mkdir(parents=True, exist_ok=True)
@@ -161,7 +161,7 @@ class Pipeline:
     def start_all(
         self,
         start_idx: Optional[int] = 0,
-        upgrade_pages: Optional[int] = None,
+        update_pages: Optional[int] = None,
         save_dir: Optional[str] = None
     ):
         """
@@ -170,19 +170,19 @@ class Pipeline:
         Args:
             start_idx (`int`, *optional*):
                 From which idx to crawl.
-            upgrade_pages (`int`, *optional*):
-                How many pages to crawl in upgrade mode. If not None, fuction will switch to upgrade mode and crawl specified number of pages.
+            update_pages (`int`, *optional*):
+                How many pages to crawl in update mode. If not None, fuction will switch to update mode and crawl specified number of pages.
                 If None, function will switch into add mode and crawl all pages of websites.
             save_dir (`str`, *optional*):
                 Folder to save link.json and articles.
         """
         self.website_df = pd.read_json(self.website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         length = len(self.website_df)
-        if upgrade_pages:
+        if update_pages:
             pages = self.website_df["pages"].to_list()
-            pages = [page if page <= upgrade_pages else upgrade_pages for page in pages]
+            pages = [page if page <= update_pages else update_pages for page in pages]
             for i in range(start_idx, length):
-                self.start_by_idx(idx=i, upgrade_pages=pages[i], save_dir=save_dir)
+                self.start_by_idx(idx=i, update_pages=pages[i], save_dir=save_dir)
         else:
             for i in range(start_idx, length):
                 self.start_by_idx(idx=i, save_dir=save_dir)

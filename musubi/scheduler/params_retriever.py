@@ -28,11 +28,11 @@ def get_cron_params():
 def get_idx_task_params():
     print("\nEnter task arguments（the arguments are same as those of start_by_idx function）:")
     params = {}
-    cron_fields = ["idx", "upgrade_pages", "save_dir"]
+    cron_fields = ["idx", "update_pages", "save_dir"]
 
     for field in cron_fields:
         value = input(f"{field}: ").strip()
-        if (field == "idx") or (field == "upgrade_pages"):
+        if (field == "idx") or (field == "update_pages"):
             params[field] = int(value) if value else None
         else:
             params[field] = value if value else None
@@ -49,14 +49,14 @@ def get_idx_task_params():
     return params
 
 
-def get_upgrade_task_params():
+def get_update_task_params():
     print("\nEnter task arguments（the arguments are same as those of start_all function）:")
     params = {}
-    cron_fields = ["start_idx", "upgrade_pages", "save_dir"]
+    cron_fields = ["start_idx", "update_pages", "save_dir"]
 
     for field in cron_fields:
         value = input(f"{field}: ").strip()
-        if (field == "idx") or (field == "upgrade_pages"):
+        if (field == "idx") or (field == "update_pages"):
             params[field] = int(value) if value else None
         else:
             params[field] = value if value else None

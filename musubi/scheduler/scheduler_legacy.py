@@ -1,7 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from ..pipeline import Pipeline
 from .notification import Notify
-from .params_retriever import get_cron_params, get_idx_task_params, get_upgrade_task_params
+from .params_retriever import get_cron_params, get_idx_task_params, get_update_task_params
 from ..utils.env import create_env_file
 from typing import Optional
 from pathlib import Path
@@ -72,7 +72,7 @@ class IdxScheduler(BaseScheduler):
         self,
         website_config_path=None,
         idx: int = None,
-        upgrade_pages: Optional[int] = None,
+        update_pages: Optional[int] = None,
         save_dir: Optional[str] = None,
         task_name: str = None
     ):
@@ -85,7 +85,7 @@ class IdxScheduler(BaseScheduler):
         pipe = Pipeline(website_config_path=website_config_path)
         pipe.start_by_idx(
             idx=idx,
-            upgrade_pages=upgrade_pages,
+            update_pages=update_pages,
             save_dir=save_dir
         )
 
@@ -191,11 +191,11 @@ class UpgradeScheduler(BaseScheduler):
     ):
         super().__init__(send_notification, app_password, sender_email, recipient_email, config_dir)
 
-    def upgrade_task(
+    def update_task(
         self,
         website_config_path=None,
         start_idx: Optional[int] = 0,
-        upgrade_pages: Optional[int] = None,
+        update_pages: Optional[int] = None,
         save_dir: Optional[str] = None,
         task_name: str = None
     ):
@@ -208,7 +208,7 @@ class UpgradeScheduler(BaseScheduler):
         pipe = Pipeline(website_config_path=website_config_path)
         pipe.start_all(
             start_idx=start_idx,
-            upgrade_pages=upgrade_pages,
+            update_pages=update_pages,
             save_dir=save_dir
         )
 
@@ -232,14 +232,14 @@ class UpgradeScheduler(BaseScheduler):
                     try:
                         task_name = input("Task name: ").strip()
                         cron_params = get_cron_params()
-                        task_params = get_upgrade_task_params()
+                        task_params = get_update_task_params()
                         task_params["task_name"] = task_name
                         # Generate unique task id by uuid4
                         task_id = str(uuid.uuid4())
                         
                         # Add task
                         scheduler.add_job(
-                            self.upgrade_task, 
+                            self.update_task, 
                             'cron', 
                             id=task_id, 
                             kwargs=task_params,
@@ -251,7 +251,7 @@ class UpgradeScheduler(BaseScheduler):
                             "task_id": task_id, 
                             "cron_params": cron_params,
                             "task_params": task_params,
-                            "task_type": "upgrade_all"
+                            "task_type": "update_all"
                         }
                         
                         with open(self.config_path, "a+", encoding="utf-8") as file:
@@ -320,8 +320,8 @@ def start_task_by_task_id(
     scheduler = BackgroundScheduler()
     scheduler.start()
 
-    if id_filtered_df.iloc[0]["task_type"] == "upgrade_all":
-        upgrade_seed = UpgradeScheduler(
+    if id_filtered_df.iloc[0]["task_type"] == "update_all":
+        update_seed = UpgradeScheduler(
             send_notification=send_notification,
             app_password=app_password,
             sender_email=sender_email,
@@ -329,7 +329,7 @@ def start_task_by_task_id(
             config_dir=config_dir
         )
         scheduler.add_job(
-            upgrade_seed.upgrade_task, 
+            update_seed.update_task, 
             'cron', 
             id=task_id, 
             kwargs=task_params,

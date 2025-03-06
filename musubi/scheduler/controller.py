@@ -20,10 +20,8 @@ class Controller:
         if self.port is None:
             self.port = 5000
         self.root_path = "http://{}:{}".format(self.host, str(self.port))
-    
-    def launch_scheduler(
-        self
-    ):
+
+    def launch_scheduler(self):
         self.scheduler = Scheduler(
             host = self.host,
             port = self.port,
@@ -31,18 +29,23 @@ class Controller:
         )
         self.scheduler.run()
 
-    def shutdown_scheduler(
-        self,
-    ):
+    def shutdown_scheduler(self):
         api = self.root_path + "/shutdown"
         try:
             requests.post(api)
         except requests.exceptions.ConnectionError as e:
             print("The scheduler has been shut down.")
 
-    def retrieve_task_list(
-        self,
-    ):
+    def check_status(self):
+        api = self.root_path
+        try:
+            res = requests.get(api)
+            msg = "status code: {}, message: {}".format(res.status_code, res.text)
+            print(msg)
+        except:
+            print("...")
+
+    def retrieve_task_list(self):
         api = self.root_path + "/tasks"
         try:
             res = requests.get(api)

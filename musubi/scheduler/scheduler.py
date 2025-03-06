@@ -33,8 +33,8 @@ class Scheduler:
         app.run(host=self.host, port=self.port, debug=self.debug)
 
 
-@app.route("/")
-def print_hello():
+@app.route("/", methods=["GET"])
+def check():
     return "Scheduler server is running."
 
 @app.route("/tasks", methods=["GET"])

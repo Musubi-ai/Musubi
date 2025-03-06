@@ -42,9 +42,9 @@ class Controller:
         try:
             res = requests.get(api)
             msg = "status code: {}, message: {}".format(res.status_code, res.text)
-            print(msg)
+            return msg
         except:
-            print("...")
+            return "Failed to retrieve the status of the scheduler server."
 
     def retrieve_task_list(self):
         api = self.root_path + "/tasks"
@@ -52,7 +52,7 @@ class Controller:
             res = requests.get(api)
             return res
         except:
-            print("Something went wromg when retreiving the task list.")
+            return "Something went wromg when retreiving the task list."
 
     def add_task(
         self,
@@ -81,26 +81,37 @@ class Controller:
             contact_params = {"send_notification": False}
         
         task_id = str(uuid.uuid4())
-        task_config = {
-            "task_id": task_id,
-            "task_name": task_name,
-            "task_type": task_type,
-            "config_dir": config_dir,
-            "task_params": task_params,
-            "cron_params": cron_params,
-            "contact_params": contact_params
-        }
         if config_dir:
             self.config_dir = Path(config_dir)
         else:
             self.config_dir = Path("config")
         self.config_dir.mkdir(parents=True, exist_ok=True)
         self.task_config_path = self.config_dir / "tasks.json"
+        task_config = {
+            "task_id": task_id,
+            "task_type": task_type,
+            "config_dir": str(self.config_dir),
+            "task_params": task_params,
+            "cron_params": cron_params,
+            "contact_params": contact_params
+        }
+        
         with open(self.task_config_path, "a+", encoding="utf-8") as file:
             file.write(json.dumps(task_config, ensure_ascii=False) + "\n")
 
-        api = self.root_path + str(self.config_dir) + task_id
+        api = self.root_path + "/" + task_id
+        print(api)
         try:
             requests.post(api)
         except:
             print("Failed to add task into scheduler.")
+
+    def pause_task(
+        self,
+        task_id: str
+    ):
+        api = self.root_path + "/{}".format(task_id)
+        try:
+            requests.post(api)
+        except:
+            print("Failed to pause task with task_id: {}".format(task_id))

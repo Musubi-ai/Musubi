@@ -4,8 +4,6 @@ import os
 from typing import Optional
 from flask import Flask
 import pandas as pd
-from ..pipeline import Pipeline
-from .notification import Notify
 from .tasks import Task
 
 
@@ -20,11 +18,13 @@ class Scheduler:
         self,
         host: Optional[str] = None,
         port: Optional[int] = None,
-        debug: Optional[bool] = True
+        debug: Optional[bool] = True,
+        config_dir: Optional[str] = None
     ):
         self.host = host
         self.port = port
         self.debug = debug
+
 
     def run(self):
         if self.host is None:
@@ -51,15 +51,13 @@ def retrieve_task_list():
         return msg
     for item in task_list:
         print(f"  - ID: {item["ID"]}, Name: {item["Name"]}, Status: {item["Status"]}")
-    task_status_df = pd.DataFrame(task_list)
-    return task_status_df
+    return task_list
 
-@app.route("/start/<path:config_dir>/<task_id>", methods=["POST"])
+@app.route("/<string:task_id>", methods=["POST"])
 def start_task(
-    config_dir: str,
     task_id: str
 ):
-    tasks_path = Path(config_dir) / "tasks.json"
+    tasks_path = Path("config") / "tasks.json"
     tasks_path.touch(mode=0o600, exist_ok=True)
 
     task_df = pd.read_json(tasks_path, lines=True)
@@ -67,7 +65,7 @@ def start_task(
     assert len(task_config) != 0, "Cannot find the specified task with task_id: {}".format(task_id)
     assert len(task_config) == 1, "Detect multiple tasks sharing the same task id."
     task_data = task_config.iloc[0].to_dict()
-    task_init = Task(config_dir=config_dir, **task_data["contact_params"])
+    task_init = Task(config_dir="config", **task_data["contact_params"])
     if task_data["task_type"] == "update_all":
         scheduler.add_job(
             task_init.update_all,
@@ -76,7 +74,7 @@ def start_task(
             kwargs=task_data["task_params"],
             **task_data["cron_params"]
         )
-        active_tasks[task_id] = task_data["task_name"]
+        active_tasks[task_id] = task_data["task_params"]["task_name"]
     elif task_data["task_type"] == "by_idx":
         scheduler.add_job(
             task_init.by_idx,
@@ -85,9 +83,10 @@ def start_task(
             kwargs=task_data["task_params"],
             **task_data["cron_params"]
         )
-        active_tasks[task_id] = task_data["task_name"]
+        active_tasks[task_id] = task_data["task_params"]["task_name"]
     else:
         raise ValueError("The task type of specified task should be one of 'update_all' or 'by_idx' but got {}".format(task_data["task_type"]))
+    return task_data
 
 @app.route("/pause/<task_id>", methods=["POST"])
 def pause_task(task_id: str):

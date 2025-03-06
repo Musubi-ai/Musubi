@@ -47,9 +47,9 @@ class Task:
 
     def update_all(
         self,
-        task_name: str,
+        task_name: str = "update_all_task",
         start_idx: Optional[int] = 0,
-        update_pages: Optional[int] = 10,
+        update_pages: int = 10,
         save_dir: Optional[str] = None
     ):
         if self.send_notification:
@@ -72,7 +72,7 @@ class Task:
 
     def by_idx(
         self,
-        task_name: str,
+        task_name: str = "by_idx_task",
         idx: Optional[int] = 0,
         update_pages: Optional[int] = None,
         save_dir: Optional[str] = None,

@@ -4,7 +4,11 @@ import os
 from typing import Optional
 from flask import Flask
 import pandas as pd
+from rich.console import Console
 from .tasks import Task
+
+
+console = Console()
 
 
 app = Flask(__name__)
@@ -47,10 +51,10 @@ def retrieve_task_list():
         msg = "No scheduled task."
         return msg
     for item in task_list:
-        print(f"  - ID: {item["ID"]}, Name: {item["Name"]}, Status: {item["Status"]}")
+        console.log(f"  - ID: {item["ID"]}, Name: {item["Name"]}, Status: {item["Status"]}", style="green1")
     return task_list
 
-@app.route("/<string:task_id>", methods=["POST"])
+@app.route("/task/<string:task_id>", methods=["POST"])
 def start_task(
     task_id: str
 ):
@@ -85,7 +89,7 @@ def start_task(
         raise ValueError("The task type of specified task should be one of 'update_all' or 'by_idx' but got {}".format(task_data["task_type"]))
     return task_data
 
-@app.route("/pause/<task_id>", methods=["POST"])
+@app.route("/pause/<string:task_id>", methods=["POST"])
 def pause_task(task_id: str):
     if task_id in active_tasks:
         scheduler.pause_job(task_id)
@@ -94,11 +98,20 @@ def pause_task(task_id: str):
         msg = "Cannot find the task having ID {}!".format(task_id)
     return msg
 
-@app.route("/resume/<task_id>", methods=["POST"])
+@app.route("/resume/<string:task_id>", methods=["POST"])
 def resume_task(task_id: str):
     if task_id in active_tasks:
         scheduler.resume_job(task_id)
         msg = "Task '{}' has been resumed.".format(active_tasks[task_id])
+    else:
+        msg = "Cannot find task ID!"
+    return msg
+
+@app.route("/remove/<string:task_id>", methods=["POST"])
+def remove_task(task_id: str):
+    if task_id in active_tasks:
+        scheduler.remove_job(task_id)
+        msg = "Task '{}' has been removed from scheduler.".format(active_tasks[task_id])
     else:
         msg = "Cannot find task ID!"
     return msg

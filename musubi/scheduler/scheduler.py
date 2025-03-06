@@ -19,12 +19,10 @@ class Scheduler:
         host: Optional[str] = None,
         port: Optional[int] = None,
         debug: Optional[bool] = True,
-        config_dir: Optional[str] = None
     ):
         self.host = host
         self.port = port
         self.debug = debug
-
 
     def run(self):
         if self.host is None:
@@ -47,7 +45,6 @@ def retrieve_task_list():
         task_list.append({"ID": task_id, "Name": task_name, "Status": status})
     if len(task_list) == 0:
         msg = "No scheduled task."
-        print(msg)
         return msg
     for item in task_list:
         print(f"  - ID: {item["ID"]}, Name: {item["Name"]}, Status: {item["Status"]}")
@@ -92,19 +89,21 @@ def start_task(
 def pause_task(task_id: str):
     if task_id in active_tasks:
         scheduler.pause_job(task_id)
-        print(f"Pause task '{active_tasks[task_id]}'.")
+        msg = "Pause task '{}'.".format(active_tasks[task_id])
     else:
-        print("Cannot find the task having ID {}!".format(task_id))
+        msg = "Cannot find the task having ID {}!".format(task_id)
+    return msg
 
 @app.route("/resume/<task_id>", methods=["POST"])
 def resume_task(task_id: str):
     if task_id in active_tasks:
         scheduler.resume_job(task_id)
-        print(f"Task '{active_tasks[task_id]}' has been resumed.")
+        msg = "Task '{}' has been resumed.".format(active_tasks[task_id])
     else:
-        print("Cannot find task ID!")
+        msg = "Cannot find task ID!"
+    return msg
 
 @app.route("/shutdown", methods=["POST"])
 def shutdown_scheduler():
     os._exit(0)
-    return "Shut down"
+    return "The scheduler has been shut down."

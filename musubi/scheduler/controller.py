@@ -38,7 +38,8 @@ class Controller:
         self.scheduler = Scheduler(
             host = self.host,
             port = self.port,
-            debug = self.debug
+            debug = self.debug,
+            config_dir = str(self.config_dir)
         )
         self.scheduler.run()
 

@@ -4,6 +4,7 @@ import os
 from typing import Optional
 from flask import Flask
 import pandas as pd
+from dataclasses import dataclass, field
 from rich.console import Console
 from .tasks import Task
 
@@ -17,9 +18,18 @@ scheduler.start()
 active_tasks = {}
 
 
+@dataclass
+class Info:
+    config_dir: str = field(default="config")
+    active_tasks: dict = field(default_factory=dict)
+
+scheduler_info = Info(active_tasks={})
+
+
 class Scheduler:
     def __init__(
         self,
+        config_dir: str = None,
         host: Optional[str] = None,
         port: Optional[int] = None,
         debug: Optional[bool] = True,
@@ -27,6 +37,8 @@ class Scheduler:
         self.host = host
         self.port = port
         self.debug = debug
+        if config_dir is not None:
+            scheduler_info.config_dir = config_dir
 
     def run(self):
         if self.host is None:
@@ -58,7 +70,7 @@ def retrieve_task_list():
 def start_task(
     task_id: str
 ):
-    tasks_path = Path("config") / "tasks.json"
+    tasks_path = Path(scheduler_info.config_dir) / "tasks.json"
     tasks_path.touch(mode=0o600, exist_ok=True)
 
     task_df = pd.read_json(tasks_path, lines=True)
@@ -66,7 +78,7 @@ def start_task(
     assert len(task_config) != 0, "Cannot find the specified task with task_id: {}".format(task_id)
     assert len(task_config) == 1, "Detect multiple tasks sharing the same task id."
     task_data = task_config.iloc[0].to_dict()
-    task_init = Task(config_dir="config", **task_data["contact_params"])
+    task_init = Task(config_dir=scheduler_info.config_dir, **task_data["contact_params"])
     if task_data["task_type"] == "update_all":
         scheduler.add_job(
             task_init.update_all,

@@ -36,7 +36,7 @@ class Task:
                 recipient_email=recipient_email
             )
 
-        if config_dir:
+        if config_dir is not None:
             self.config_dir = Path(config_dir)
         else:
             self.config_dir = Path("config")

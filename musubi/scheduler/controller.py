@@ -2,7 +2,6 @@ import requests
 import uuid
 from pathlib import Path
 import json
-import pandas as pd
 from typing import Optional
 from rich.console import Console
 from .scheduler import Scheduler
@@ -22,12 +21,10 @@ class Controller:
         self.host = host
         self.port = port
         self.debug = debug
-        if self.host is None:
-            self.host = "127.0.0.1"
-        if self.port is None:
-            self.port = 5000
+        self.host = host if host is not None else "127.0.0.1"
+        self.port = port if port is not None else 5000
         self.root_path = "http://{}:{}".format(self.host, str(self.port))
-        if config_dir:
+        if config_dir is not None:
             self.config_dir = Path(config_dir)
         else:
             self.config_dir = Path("config")

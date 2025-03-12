@@ -305,3 +305,7 @@ class GeneralAgent(BaseAgent):
         for key, value in values.items():
             template = template.replace(f"{{{{{key}}}}}", value)
         return template.strip()
+    
+
+class SchedulerAgent(BaseAgent):
+    

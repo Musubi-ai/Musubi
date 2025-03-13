@@ -3,7 +3,7 @@ from rich.panel import Panel
 import ast
 from typing import List, Optional, Callable
 from abc import ABC, abstractmethod
-from .system_prompt import PIPELINE_TOOL_SYSTEM_PROMPT, GENERAL_ACTIONS_SYSTEM_PROMPT, MUSUBI_AGENT_PROMPT
+from .system_prompt import PIPELINE_TOOL_SYSTEM_PROMPT, GENERAL_ACTIONS_SYSTEM_PROMPT, MUSUBI_AGENT_PROMPT, SCHEDULER_ACTIONS_SYSTEM_PROMPT
 from .models import MODEL_NAMES
 from .actions.pipeline_tool_actions import pipeline_tool
 
@@ -146,8 +146,7 @@ class MusubiAgent:
 
 
 class PipelineAgent(BaseAgent):
-    """
-    A pipeline-based agent that executes actions in a stepwise manner to get arguments for `pipeline_tool` function using a language model.
+    """A pipeline-based agent that executes actions in a stepwise manner to get arguments for `pipeline_tool` function using a language model.
     The `pipeline_tool` function add new website into config json file and scrape website articles.
 
     This agent processes a given prompt through an iterative execution cycle, interacting 
@@ -231,8 +230,7 @@ class PipelineAgent(BaseAgent):
 
 
 class GeneralAgent(BaseAgent):
-    """
-    A general-purpose agent that executes predefined actions using a language model.
+    """A general-purpose agent that executes predefined actions using a language model.
 
     This agent processes a given prompt, selects an appropriate action, and executes it. 
     It supports different types of analyses and general task execution.
@@ -308,4 +306,65 @@ class GeneralAgent(BaseAgent):
     
 
 class SchedulerAgent(BaseAgent):
-    
+    """A specialized assistant for implementing and managing scheduled tasks.
+
+    The Scheduler Agent handles all aspects of task scheduling management, including creating, monitoring, pausing, and removing scheduled tasks. It follows a structured reasoning process before taking actions.
+    """
+    def __init__(
+        self, 
+        actions: List[Callable],
+        model_source: str = "openai",
+        api_key: Optional[str] = None,
+        model_type: Optional[str] = None,
+    ):
+        super().__init__(actions, model_source, api_key, model_type)
+
+    def execute(
+        self,
+        prompt: str,
+        temperature: float = 0.3,
+        **generate_kwargs
+    ):
+        res, step_tokens = self.model(prompt, temperature=temperature, **generate_kwargs) 
+        action_title = "Action"
+        action_subtitle = "model_type: {}, step_token_use: {}".format(self.model_type, step_tokens)
+        print(Panel(
+            res, 
+            title=action_title, 
+            box=box.DOUBLE_EDGE, 
+            subtitle=action_subtitle,
+            border_style="yellow1",
+            subtitle_align="left"
+        ))
+        chosen_action_dict = self.extract_action_dict(res)
+        chosen_action_name, chosen_action_arguments = chosen_action_dict["action_name"], chosen_action_dict["action_arguments"]
+        observation_title = "Observation"
+        observation_subtitle = "action_name: {}, action_arguments: {}".format(chosen_action_name, str(chosen_action_arguments))
+        print(Panel(
+                "Executing assigned task.",
+                title=observation_title, 
+                box=box.DOUBLE_EDGE, 
+                subtitle=observation_subtitle,
+                border_style="green1",
+                subtitle_align="left"
+            ))
+        self.actions_dict[chosen_action_name](**chosen_action_arguments)
+        print(Panel(
+                "The task is finished!",
+                title="Completion", 
+                box=box.DOUBLE_EDGE, 
+                border_style="cyan1",
+            ))
+            
+    def get_system_prompt(
+        self,
+        actions: List[Callable]
+    ):
+        template = SCHEDULER_ACTIONS_SYSTEM_PROMPT
+        values = {
+            "action_names": ", ".join([func.__name__ for func in actions]), 
+            "scheduler_action_descriptions": "\n".join([str(i+1) + ". " + func.__name__ + ":\n" + func.__doc__ for i, func in enumerate(actions)])
+        }
+        for key, value in values.items():
+            template = template.replace(f"{{{{{key}}}}}", value)
+        return template.strip()

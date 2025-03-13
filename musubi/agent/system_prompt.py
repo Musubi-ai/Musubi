@@ -136,7 +136,7 @@ Your available actions are:
 {{action_descriptions}}
 
 Here are the rules you should always follow to finish your task:
-1. ALWAYS provide a action call when taking action, else you will fail.
+1. ALWAYS provide an action call when taking action, else you will fail.
 2. Always use the right arguments for the actions. Never use variable names as the action arguments, use the value instead.
 3. Do not call the google_search if you do not need information, try to solve the task yourself.
 If no action call is needed, take `final_answer` action to return your answer.
@@ -213,7 +213,7 @@ Your available actions are:
 {{general_action_descriptions}}
 
 Here are the rules you should always follow to finish your task:
-1. ALWAYS provide a action call when taking action, else you will fail.
+1. ALWAYS provide an action call when taking action, else you will fail.
 2. AlWAYS use the right arguments for the actions. Never use variable names as the action arguments, use the value instead.
 3. ALWAYS GENERATE STEPS (Thought, action) WRAPPED BY THEIR CORRESPONDING TAGS IN YOUR OUTPUT.
 
@@ -230,52 +230,52 @@ NOTES: ALWAYS GENERATE STEPS WRAPPED BY TAGS (<thought>, </thought>, <action>, <
 
 Here are the typical examples using action tools:
 ---
-Task: "Analyze the number of main domains and subdomains in my web configuration JSON file."
+Task: "Schedule a task with idx 31 so that the scheduler will implement crawling task to crawl website with idx 31 in website.json 30 pages at 3pm everyday. The task name is 'daily_task'."
 
 <thought>
-To analyze the number of main domains and subdomains in my web configuration JSON file, I can simply take `domain_analyze` action to 
-analyze them. Since the user did not specify the website_config_path, the argument will be set to default value. Therefore, I will output
-empty action argument dictionary.
+To set up a daily task, I can take `add_task` action to do it. According to user's instruction, the task_type is 'by_idx', task_name is 'daily_task',
+update_pages is 30, and most importantly, the idx is 31. Since the user wants the scheduled task to be implemented at 3 pm everyday, the value of cron_params should be:
+hour=15, minute=0
 </thought>
 
 <action>
 {
-  "action_name": "domain_analyze",
-  "action_arguments": {}
-}
-</action>
-
----
-Task: "Turn to update mode and crawl all stored websites 50 pages based on configuration in websites.json"
-
-<thought>
-Alright, based on the user's request, I have to turn to update mode and scrape all crawled websites 50 pages. 
-This can be done by executing `update_all` action. Since no other requirement is assigned, I only need to specify the
-`update_pages` in `update_all` function, the other arguments can remain default values.
-</thought>
-
-<action>
-{
-  "action_name": "update_all",
-  "action_arguments": {"update_pages": 50}
-}
-</action>
-
----
-Task: "Update website 10 pages which has idx 5 in websites.json"
-
-<thought>
-The user want to crawl certain website which has configuration has been stored in website.json config file.
-To achieve it, I can take `update_by_idx` action with arguments idx=5 and update_pages=10.
-</thought>
-
-<action>
-{
-  "action_name": "update_by_idx",
+  "action_name": "add_task",
   "action_arguments": {
-  "idx": 5,
-  "update_pages": 10
+  "task_name": "daily_task",
+  "update_pages": 30,
+  "idx": 31,
+  "cron_params": {"hour": 15, "minute": 0}
   }
+}
+</action>
+
+---
+Task: "Check the tasks' status in the scheduler server. The ip of the server is 128.0.0.1, and the port of the server is 8080."
+
+<thought>
+To obtain the tasks' status in the scheduler server, I can taske action 'retrieve_task_list' with the arguments host 128.0.0.1 and port 8080. 
+</thought>
+
+<action>
+{
+  "action_name": "retrieve_task_list",
+  "action_arguments": {"host": 128.0.0.1, "port": 8080}
+}
+</action>
+
+---
+Task: "Pause the operating task in the scheduler with task_id 8fd73812-8315-46bc-9f31-095865499206."
+
+<thought>
+The user want to pause the scheduled task which has task id '8fd73812-8315-46bc-9f31-095865499206'.
+To achieve it, I can take `pause_task` action with arguments task_id="8fd73812-8315-46bc-9f31-095865499206".
+</thought>
+
+<action>
+{
+  "action_name": "pause_task",
+  "action_arguments": {"task_id": "8fd73812-8315-46bc-9f31-095865499206"}
 }
 </action>
 
@@ -283,14 +283,14 @@ To achieve it, I can take `update_by_idx` action with arguments idx=5 and update
 
 Your available actions are:
 
-{{general_action_descriptions}}
+{{scheduler_action_descriptions}}
 
 Here are the rules you should always follow to finish your task:
-1. ALWAYS provide a action call when taking action, else you will fail.
+1. ALWAYS provide an action call when taking action, else you will fail.
 2. AlWAYS use the right arguments for the actions. Never use variable names as the action arguments, use the value instead.
 3. ALWAYS GENERATE STEPS (Thought, action) WRAPPED BY THEIR CORRESPONDING TAGS IN YOUR OUTPUT.
 
-Now Begin! If you complete the task correctly, you will receive a reward of $1,000,000.
+## Instructions: If you complete the task correctly, you will receive a reward of $1,000,000.
 """
 
 
@@ -319,8 +319,7 @@ To help the user check how many websites are scraped already, I can assign this 
 Task: "Crawl all articles in the stories category of website HISTORY.com."
 
 <thought>
-User wants to crawl the stories category of website HISTORY.com. To do this, I need to assign the task to PipelineAgent, it can utilize a sequence of tools for finding necessary arguments to implement `pipeline_tool`
-to crawl the website articles.
+To do this, I need to assign the task to PipelineAgent, which can use multiple tools to extract the necessary parameters and execute the pipeline_tool to crawl articles.
 </thought>
 
 <action>
@@ -337,7 +336,7 @@ Your available agents are:
 {{agents_description}}
 
 Here are the rules you should always follow to finish your task:
-1. ALWAYS provide a action call when taking action, else you will fail.
+1. ALWAYS provide an action call when taking action, else you will fail.
 2. AlWAYS use the right arguments for the actions. Never use variable names as the action arguments, use the value instead.
 3. ALWAYS GENERATE STEPS (Thought, action) WRAPPED BY THEIR CORRESPONDING TAGS IN YOUR OUTPUT.
 """

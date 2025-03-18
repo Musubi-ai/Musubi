@@ -210,6 +210,7 @@ class PipelineAgent(BaseAgent):
                 subtitle_align="left"
             ))
             if chosen_action_name == "final_answer":
+                pipeline_tool(**observation)
                 done = True
                 return observation
             step += 1

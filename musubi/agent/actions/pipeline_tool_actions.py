@@ -41,7 +41,7 @@ def google_search(query: str = None):
     """
     query = query.replace(" ", "+")
     query_url = "https://www.google.com/search?q={}&udm=14".format(query)
-    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36  (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")

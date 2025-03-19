@@ -1,10 +1,8 @@
-from selenium.webdriver import Edge
-from selenium.webdriver.edge.options import Options
-from selenium.webdriver.common.by import By
-import time
 from typing import Optional, List
-from urllib.parse import urlparse
 import requests
+import os
+from dotenv import load_dotenv, set_key
+from urllib.parse import quote_plus, urlparse
 from bs4 import BeautifulSoup
 from collections import Counter
 import json
@@ -12,57 +10,83 @@ import sys
 from rich.console import Console
 from ...utils.analyze import WebsiteNavigationAnalyzer
 from ...pipeline import Pipeline
-from ...utils import is_valid_format
+from ...utils import is_valid_format, create_env_file
 
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
 console = Console()
 
 
-def google_search(query: str = None):
-    """
-    Search input query on google.
-
+def google_search(
+    query: str,
+    google_search_api: Optional[str] = None,
+    google_engine_id: Optional[str] = None
+):
+    """Searches Google using the provided query and returns the first result URL.
+    
+    This function performs a Google search using the Custom Search API. It requires
+    valid Google Search API credentials and a Custom Search Engine ID. These can be
+    provided as arguments or stored in environment variables.
+    
     Args:
-        query (`str`):
-            The query you want to search on google.
-
+        query: The search query string to be sent to Google.
+        google_search_api: Optional API key for Google Custom Search. If None,
+            will attempt to retrieve from GOOGLE_SEARCH_API environment variable.
+        google_engine_id: Optional Custom Search Engine ID. If None, will attempt
+            to retrieve from GOOGLE_ENGINE_ID environment variable.
+    
     Returns:
-        tuple[str, str]: A tuple containing two strings:
-            - url: First URL from google search results
-            - root_path: Root path (scheme + domain) extracted from the URL
-
-    Example:
+        A tuple containing:
+            - The URL of the first search result.
+            - The root domain of that URL (scheme + domain).
+    
+    Examples:
         >>> url, root_path = google_search("The New York Times")
         >>> print(url)
         'https://www.nytimes.com/international/'
-        >>> print(root_paths)
+        >>> print(root_path)
         'https://www.nytimes.com'
     """
-    query = query.replace(" ", "+")
-    query_url = "https://www.google.com/search?q={}&udm=14".format(query)
-    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36  (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920x1080")
-    options.add_argument('--user-agent=%s' % user_agent)
-    driver = Edge(options=options)
-    driver.get(query_url)
-    time.sleep(3)
-    search_results = driver.find_elements(By.CSS_SELECTOR, 'a')
-    urls = []
-    root_paths = []
-    for result in search_results:
-        href = result.get_attribute('href')
-        if href and "google.com" not in href:
-            urls.append(href)
-            parse = urlparse(href)
-            root_path = parse.scheme + "://" + parse.netloc
-            root_paths.append(root_path)
+    query = quote_plus(query)
+    env_path = create_env_file()
+    load_dotenv()
+    
+    # Get google custom search api from https://developers.google.com/custom-search/v1/overview?source=post_page-----36e5298086e4--------------------------------&hl=zh-tw.
+    # Also, visit https://cse.google.com/cse/all to build search engine and retrieve engine id.
+    
+    if google_search_api is None:
+        google_search_api = os.getenv("GOOGLE_SEARCH_API")
+        if google_search_api is None:
+            raise Exception(
+                """google_search_api is None and cannot find it in .env file. 
+                Input google_search_api or visit https://developers.google.com/custom-search/v1/overview?source=post_page-----36e5298086e4--------------------------------&hl=zh-tw to apply it."""
+            )
 
-    driver.quit()
-    return (urls[0], root_paths[0])
+    if google_engine_id is None:
+        google_engine_id = os.getenv("GOOGLE_ENGINE_ID")
+        if google_engine_id is None:
+            raise Exception(
+                """google_engine_id is None and cannot find it in .env file. 
+                Input google_engine_id or visit https://cse.google.com/cse/all to build search engine and retrieve engine id."""
+            )
+
+    url = "https://www.googleapis.com/customsearch/v1?cx={}".format(google_engine_id) + "&key={}".format(google_search_api) + "&q={}".format(query) + "&udm=14"
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise Exception("API request error")
+    search_result = response.json()
+    links = [search_result["items"][i]["link"] for i in range(len(search_result["items"]))]
+    res_url = links[0]
+    parse = urlparse(res_url)
+    root_path = parse.scheme + "://" + parse.netloc
+
+
+    if google_search_api != os.getenv("GOOGLE_SEARCH_API"):
+        set_key(env_path, key_to_set="GOOGLE_SEARCH_API", value_to_set=google_search_api)
+    if google_engine_id != os.getenv("GOOGLE_ENGINE_ID"):
+        set_key(env_path, key_to_set="GOOGLE_ENGINE_ID", value_to_set=google_engine_id)
+
+    return (res_url, root_path)
 
 
 def analyze_website(url: str) -> str:

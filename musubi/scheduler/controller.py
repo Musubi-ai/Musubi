@@ -52,7 +52,7 @@ class Controller:
         try:
             res = requests.get(api)
             msg = "status code: {}, message: {}".format(res.status_code, res.text)
-            return msg
+            return (res.status_code, msg)
         except:
             return "Failed to retrieve the status of the scheduler server."
 

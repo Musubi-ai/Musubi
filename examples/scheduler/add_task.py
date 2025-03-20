@@ -1,16 +1,19 @@
 from musubi.scheduler import Controller
-from typing import Optional
 
 
 controller = Controller()
 
 def main():
-    # First check the status of scheduler server
-    status_code, msg = controller.check_status()
-    if status_code == "200":
-        ...
+    status_code, _ = controller.check_status()
+    if status_code == 200:
+        controller.add_task(
+        task_type="update_all",
+        task_name="test1",
+        update_pages=15,
+        cron_params={"hour": 12, "second": 5, "minute": 5, "month": 5}
+    )
 
 
 if __name__ == "__main__":
-    status_code, msg = main()
-    print(status_code)
+    main()
+    # controller.retrieve_task_list()

@@ -202,8 +202,6 @@ def get_container(url: str):
                         for a_element in a_list:
                             text = a_element.get_text()
                             if len(text) > 10:
-                                # a_tag = tag.a
-                                # a_class = " ".join(a_tag.get("class", []))
                                 a_class = " ".join(a_element.get("class", []))
                                 if a_class == "":
                                     continue

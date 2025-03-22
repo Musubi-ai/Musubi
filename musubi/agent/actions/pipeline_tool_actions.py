@@ -180,7 +180,7 @@ def get_container(url: str):
                 except:
                     pass
 
-    if len(possible_containers) == 0:
+    if len(possible_containers) < 5:
         for tag in soup.find_all():
             if tag.find('a', href=True):
                 class_attr = " ".join(tag.get("class", []))
@@ -197,12 +197,17 @@ def get_container(url: str):
                     pass
 
                 try:
-                    if (len(text) > 300) and ("#" in text) and tag.a:
-                        a_tag = tag.a
-                        a_class = " ".join(a_tag.get("class", []))
-                        if a_class == "":
-                            continue
-                        possible_containers.append(["a", a_class])
+                    if (len(text) > 300) and ("#" in text) and tag.a.get_text():
+                        a_list = tag.find_all("a", href=True)
+                        for a_element in a_list:
+                            text = a_element.get_text()
+                            if len(text) > 10:
+                                # a_tag = tag.a
+                                # a_class = " ".join(a_tag.get("class", []))
+                                a_class = " ".join(a_element.get("class", []))
+                                if a_class == "":
+                                    continue
+                                possible_containers.append(["a", a_class])
                 except:
                     pass
 

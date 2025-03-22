@@ -28,7 +28,7 @@ def test_get_container():
         ["a", "topic-item__StyledLink-sc-1tffa4f-0 gvBqQB"],
         ["h3", "item-title h5 mb-2"],
         ["h5", "post-title is-large"],
-        ['div', 'basic-post__item']
+        ['a', 'basic-post__itemsub']
     ]
 
     assert block2_ans == [

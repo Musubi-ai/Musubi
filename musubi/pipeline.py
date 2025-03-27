@@ -297,14 +297,14 @@ class Pipeline:
             multiplier = multiplier
         )
 
-        # try:
-        self.start_by_idx(
-            start_page = start_page,
-            start_idx = start_idx,
-            idx = new_website_idx,
-            sleep_time = sleep_time,
-            save_dir = save_dir
-        )
-        # except Exception as e:
-        #     warnings.warn(f"Error : {e}, Failed to parse website, delete the idx from webiste config now.")
-        #     delete_website_config_by_idx(idx=new_website_idx, website_config_path=self.website_config_path)
+        try:
+            self.start_by_idx(
+                start_page = start_page,
+                start_idx = start_idx,
+                idx = new_website_idx,
+                sleep_time = sleep_time,
+                save_dir = save_dir
+            )
+        except Exception as e:
+            warnings.warn(f"Error : {e}, Failed to parse website, delete the idx from webiste config now.")
+            delete_website_config_by_idx(idx=new_website_idx, website_config_path=self.website_config_path)

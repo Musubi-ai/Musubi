@@ -154,7 +154,7 @@ class Scroll(BaseCrawl):
         block1: List[str] = None,
         block2: Optional[List[str]] = None,
         url_path: Optional[str] = None,
-        sleep_time: Optional[int] = None,
+        sleep_time: Optional[int] = 5,
         **kwargs
     ):
         super().__init__(prefix, suffix, root_path, pages, block1, block2, url_path, sleep_time)
@@ -177,7 +177,7 @@ class Scroll(BaseCrawl):
         scroll_time = scroll_time if scroll_time is not None else self.scroll_time
         
         last_height = self.driver.execute_script("return document.body.scrollHeight")
-        with tqdm(total=scroll_time, desc="Scrolling", colour="cyan") as pbar:
+        with tqdm(total=scroll_time, desc="Scrolling") as pbar:
             while n < scroll_time:
                 self.driver.execute_script("window.scrollBy(0, document.body.scrollHeight);")
                 n += 1
@@ -197,25 +197,30 @@ class Scroll(BaseCrawl):
             url_list = None
         self.browse_website()
         self.scroll()
-        element = self.driver.find_element(By.CLASS_NAME, self.block1[1])
-        elements = element.find_elements(By.TAG_NAME, "a")
+        elements = self.driver.find_elements(By.TAG_NAME, self.block1[0])
 
         for item in elements:
-            url = item.get_attribute("href")
-            if self.root_path:
-                if self.root_path[-1] == url[0] == "/":
-                    self.root_path = self.root_path[:-1]
-                elif (self.root_path[-1] != "/") and (url[0] != "/"):
-                    self.root_path = self.root_path + "/"
-                elif ("http" in self.root_path) and ("http" in url):
-                    self.root_path = ""
-                url = self.root_path + url
-            if url_list and url in url_list:
-                continue 
-            dictt = {"link": url}
+            class_ = item.get_attribute("class")
+            if (class_ == self.block1[1]):
+                if self.block1[0] != "a":
+                    a = item.find_element(By.TAG_NAME, "a")
+                    url = a.get_attribute("href")
+                else:
+                    url = item.get_attribute("href")
+                if self.root_path:
+                    if self.root_path[-1] == url[0] == "/":
+                        self.root_path = self.root_path[:-1]
+                    elif (self.root_path[-1] != "/") and (url[0] != "/"):
+                        self.root_path = self.root_path + "/"
+                    elif ("http" in self.root_path) and ("http" in url):
+                        self.root_path = ""
+                    url = self.root_path + url
+                if url_list and (url in url_list):
+                    continue 
+                dictt = {"link": url}
 
-            with open(self.url_path, "a+", encoding="utf-8") as file:
-                file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+                with open(self.url_path, "a+", encoding="utf-8") as file:
+                    file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
 
     def check_link_result(self):
         self.browse_website()

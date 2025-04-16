@@ -191,7 +191,6 @@ def get_container(url: str):
                 len_condition = any(len(item) > 15 for item in text_list)
                 try:
                     if tag.a and tag.a.img and (text != "") and len_condition:
-                        a_tag = tag.a
                         possible_containers.append([tag.name, class_attr])
                 except:
                     pass

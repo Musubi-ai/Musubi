@@ -28,6 +28,7 @@ dependencies = [
     "anthropic (>=0.45.2,<0.46.0)",
     "flask (>=3.1.0,<4.0.0)"
 ]
+packages = [{ include = "musubi" }]
 
 
 [build-system]

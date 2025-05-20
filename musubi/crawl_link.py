@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from selenium.webdriver import Edge
 from selenium.webdriver.edge.options import Options
 from selenium.webdriver.common.by import By
+from rich.console import Console
 import pandas as pd
 from bs4 import BeautifulSoup
 from typing import List, Optional
@@ -12,6 +13,7 @@ import time
 from tqdm import tqdm
 
 
+console = Console()
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
 
 
@@ -236,7 +238,6 @@ class Scroll(BaseCrawl):
                 url = self.root_path + url
             dictt = {"link": url}
             check_list.append(dictt)
-        
         print(check_list)
 
 
@@ -319,6 +320,7 @@ class OnePage(BaseCrawl):
 
     def check_link_result(self):
         link_list = self.get_urls()
+        print(link_list)
 
 
 class Click(BaseCrawl):
@@ -387,35 +389,51 @@ class Click(BaseCrawl):
                 try:
                     self.driver.execute_script("$(arguments[0]).click()", button)
                 except:
-                    button.click()
+                    try:
+                        button.click()
+                    except:
+                        console.log("Reach click limit or finish clicking.")
                 n += 1
                 if self.sleep_time:
                     time.sleep(self.sleep_time)
                 pbar.update(1)
 
-    def check_link_result(self):
-        ...
+    def check_link_result(
+        self,
+        click_time: int = 5,
+    ):
+        link_list = []
+        self.browse_website()
+        n = 0
+        click_time = click_time if click_time is not None else self.click_time
 
+        with tqdm(total=click_time, desc="Clicking") as pbar:
+            while n < click_time:
+                elements = self.driver.find_elements(By.CLASS_NAME, self.block1[1])
 
-if __name__ == "__main__":
-    prefix =  "https://www.sakura.com.tw/LifeStyle"
-    suffix = None
-    root_path = None
-    pages = 5
-    block1 = ["div", "article-card_header"]
-    block2 = ["xpath", "//*[@id=\"main\"]/section[2]/div[2]/div/nav/ul/li[6]/a"]
-    url_path = "test.json"
-    # scan = Scan(prefix, suffix, root_path, pages, block1, block2, url_path)
-    # scan.check_link_reslt()
-    # scan.crawl_link()
+                for item in elements:
+                    item = item.find_element(By.TAG_NAME, "a")
+                    url = item.get_attribute("href")
+                    if self.root_path:
+                        if self.root_path[-1] == url[0] == "/":
+                            self.root_path = self.root_path[:-1]
+                        elif (self.root_path[-1] != "/") and (url[0] != "/"):
+                            self.root_path = self.root_path + "/"
+                        elif ("http" in self.root_path) and ("http" in url):
+                            self.root_path = ""
+                        url = self.root_path + url
+                    link_list.append(url)
 
-    scroll = Scroll(prefix, suffix, root_path, pages, block1, block2, url_path)
-    # scroll.check_link_result()
-    scroll.crawl_link()    
-
-    # onepage = OnePage(prefix=prefix, suffix=suffix, root_path=root_path, pages=pages, block1=block1, block2=block2, url_path=url_path)
-    # onepage.check_link_result()
-    # onepage.crawl_link()
-
-    # click = Click(prefix=prefix, suffix=suffix, root_path=root_path, pages=pages, block1=block1, block2=block2, url_path=url_path)
-    # click.clickandcrawl()
+                button = self.driver.find_element("xpath", self.block2[1])
+                try:
+                    self.driver.execute_script("$(arguments[0]).click()", button)
+                except:
+                    try:
+                        button.click()
+                    except:
+                        console.log("Reach click limit or finish clicking.")
+                n += 1
+                if self.sleep_time:
+                    time.sleep(self.sleep_time)
+                pbar.update(1)
+        print(link_list)

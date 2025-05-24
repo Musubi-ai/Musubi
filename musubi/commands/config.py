@@ -4,7 +4,6 @@ from rich.console import Console
 from ..utils.env import create_env_file
 
 
-
 def config_command_parser(subparsers=None):
     if subparsers is not None:
         parser = subparsers.add_parser("config")
@@ -71,5 +70,3 @@ def config_command(args):
         set_key(env_path, key_to_set="GEMINI_API_KEY", value_to_set=args.gemini)
     
     console.log("Finished overwriting .env file.")
-
-

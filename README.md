@@ -1,6 +1,6 @@
 <p align="center">
     <br>
-    <img src="imgs\FullLogo_Transparent.png" width="600"/>
+    <img src="imgs\FullLogo.png" width="600"/>
     <br>
 </p>
 

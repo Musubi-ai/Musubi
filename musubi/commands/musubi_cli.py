@@ -1,17 +1,24 @@
 import argparse
+from .config import config_command_parser
 
 
 def build_parser():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Musubi CLI tool")
     subparsers = parser.add_subparsers(dest='command')
 
-    
+    config_command_parser(subparsers)
+
+    return parser
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Musubi CLI tool")
-    parser.add_argument("name", help="your name")
+    parser = build_parser()
     args = parser.parse_args()
-    print(f"Hello, {args.name}!")
+    if hasattr(args, 'func'):
+        args.func(args)
+    else:
+        parser.print_help()
+        exit(1)
 
 if __name__ == "__main__":
     main()

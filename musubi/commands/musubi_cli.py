@@ -1,6 +1,7 @@
 import argparse
 from .config import config_command_parser
 from .get import get_command_parser
+from .agent import agent_command_parser
 
 
 def build_parser():
@@ -9,6 +10,7 @@ def build_parser():
 
     config_command_parser(subparsers)
     get_command_parser(subparsers)
+    agent_command_parser(subparsers)
 
     return parser
 
@@ -21,6 +23,7 @@ def main():
     else:
         parser.print_help()
         exit(1)
+
 
 if __name__ == "__main__":
     main()

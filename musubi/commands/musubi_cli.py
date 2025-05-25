@@ -1,5 +1,6 @@
 import argparse
 from .config import config_command_parser
+from .get import get_command_parser
 
 
 def build_parser():
@@ -7,6 +8,7 @@ def build_parser():
     subparsers = parser.add_subparsers(dest='command')
 
     config_command_parser(subparsers)
+    get_command_parser(subparsers)
 
     return parser
 

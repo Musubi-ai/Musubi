@@ -51,7 +51,7 @@ class Crawl():
     def __init__(
         self,
         url_path: str = None,
-        crawl_type: str = None
+        crawl_type: str = "text"
     ):
         self.url_path = url_path
         self.crawl_type = crawl_type     
@@ -110,7 +110,7 @@ class Crawl():
                     with open(save_path, "a+", encoding="utf-8") as file:
                         file.write(json.dumps(item, ensure_ascii=False) + "\n")
 
-            if sleep_time:
+            if sleep_time is not None:
                 time.sleep(sleep_time)
 
         crawl_df = pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")

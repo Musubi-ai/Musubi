@@ -2,6 +2,7 @@ import argparse
 from .config import config_command_parser
 from .get import get_command_parser
 from .agent import agent_command_parser
+from .pipeline import pipeline_command_parser
 
 
 def build_parser():
@@ -11,6 +12,7 @@ def build_parser():
     config_command_parser(subparsers)
     get_command_parser(subparsers)
     agent_command_parser(subparsers)
+    pipeline_command_parser(subparsers)
 
     return parser
 

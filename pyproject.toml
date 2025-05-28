@@ -14,7 +14,6 @@ dependencies = [
     "pyarrow (>=19.0.0,<20.0.0)",
     "tqdm (>=4.67.1,<5.0.0)",
     "rich (>=13.9.4,<14.0.0)",
-    "pytest (>=8.3.4,<9.0.0)",
     "huggingface-hub (>=0.28.1,<0.29.0)",
     "selenium (>=4.28.1,<5.0.0)",
     "python-dotenv (>=1.0.1,<2.0.0)",
@@ -28,8 +27,14 @@ dependencies = [
     "anthropic (>=0.45.2,<0.46.0)",
     "flask (>=3.1.0,<4.0.0)"
 ]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
 packages = [{ include = "musubi" }]
 
+[project.urls]
+repository = "https://github.com/blaze7451/Musubi"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

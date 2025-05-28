@@ -56,7 +56,7 @@ class AsyncCrawl():
     def __init__(
         self,
         url_path: str = None,
-        crawl_type: str = None,
+        crawl_type: str = "text",
         max_concurrent_tasks: int = 10,
     ):
         self.url_path = url_path
@@ -112,7 +112,7 @@ class AsyncCrawl():
                             elif self.crawl_type == "img-text":
                                 for item in res:
                                     file.write(json.dumps(item, ensure_ascii=False) + "\n")
-                        if sleep_time:
+                        if sleep_time is not None:
                             await asyncio.sleep(sleep_time)
                     except Exception as e:
                         print(f"Error during task execution: {e}")

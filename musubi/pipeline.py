@@ -37,7 +37,6 @@ class Pipeline:
         self,
         idx: Optional[int],
         start_page: Optional[int] = 0,
-        start_idx: Optional[int] = 0,
         update_pages: Optional[int] = None,
         sleep_time: Optional[int] = None,
         save_dir: Optional[str] = None,
@@ -46,12 +45,10 @@ class Pipeline:
         Crawl articles of website specified by idx in websites.json or imgtxt_webs.json.
 
         Args:
-            start_page (`int`, *optional*):
-                From which page to start crawling urls.
-            start_idx (`int`, ):
-                From which idx in link.json to start crawling articles.
             idx (`int`, *optional*):
                 Which website in websites.json or imgtxt_webs.json to crawl.
+            start_page (`int`, *optional*):
+                From which page to start crawling urls.
             update_pages (`int`, *optional*):
                 How many pages to crawl in update mode. If not None, fuction will switch to update mode and crawl specified number of pages.
                 If None, function will switch into add mode and crawl all pages of websites.
@@ -149,14 +146,14 @@ class Pipeline:
         console.log("Crawling contents in urls from {}!".format(self.name))
         if self.img_txt_block is not None:
             crawl = Crawl(self.args_dict["url_path"], crawl_type="img-text")
-            crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx, sleep_time=sleep_time, img_txt_block=self.img_txt_block)
+            crawl.crawl_contents(save_path=self.save_path, sleep_time=sleep_time, img_txt_block=self.img_txt_block)
         else:
             if self.async_:
                 crawl = AsyncCrawl(self.args_dict["url_path"], crawl_type="text")
                 asyncio.run(crawl.crawl_contents(save_path=self.save_path))
             else:
                 crawl = Crawl(self.args_dict["url_path"], crawl_type="text")
-                crawl.crawl_contents(save_path=self.save_path, start_idx=start_idx, sleep_time=sleep_time, img_txt_block=self.img_txt_block)
+                crawl.crawl_contents(save_path=self.save_path, sleep_time=sleep_time, img_txt_block=self.img_txt_block)
 
     def start_all(
         self,
@@ -205,7 +202,6 @@ class Pipeline:
         type: str = None,
         async_: bool = True,
         start_page: Optional[int] = 0,
-        start_idx: Optional[int] = 0,
         sleep_time: Optional[int] = None,
         save_dir: Optional[str] = None
     ):
@@ -248,8 +244,6 @@ class Pipeline:
                 If True, crawling website in the asynchronous fashion.
             start_page (`int`, *optional*, default=0):
                 From which page to start crawling urls. 0 is first page, 1 is second page, and so forth.
-            start_idx (`int`,  default=0):
-                From which idx in link.json to start crawling articles.
             sleep_time (`int`, *optional*):
                 Sleep time to prevent ban from website.
             save_dir (`str`, *optional*):
@@ -300,7 +294,6 @@ class Pipeline:
         try:
             self.start_by_idx(
                 start_page = start_page,
-                start_idx = start_idx,
                 idx = new_website_idx,
                 sleep_time = sleep_time,
                 save_dir = save_dir

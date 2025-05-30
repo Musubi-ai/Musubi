@@ -19,13 +19,13 @@ def get_command_parser(subparsers=None):
         "--url", type=str, default=None, help="URL of website page to extract container for musubi pipeline function.", required=True
     )
     parser.add_argument(
-        "--container", type=bool, default=None, help="URL of website page to extract text content."
+        "--container", type=bool, default=None, help="Type of blocks of website page to extract text content."
     )
     parser.add_argument(
-        "--type", type=bool, default=None, help="URL of website page to extract text content."
+        "--type", type=bool, default=None, help="Tyoe of website page to extract text content."
     )
     parser.add_argument(
-        "--text", type=bool, default=None, help="URL of website page to extract text content."
+        "--text", type=bool, default=None, help="Text content of website page."
     )
     if subparsers is not None:
         parser.set_defaults(func=get_command)

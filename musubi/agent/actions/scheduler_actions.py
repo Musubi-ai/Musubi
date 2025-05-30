@@ -1,6 +1,5 @@
 from typing import Optional
 from pathlib import Path
-from rich.console import Console
 from ...scheduler import Controller, Scheduler
 
 

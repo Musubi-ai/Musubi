@@ -50,7 +50,7 @@ class Crawl():
     """
     def __init__(
         self,
-        url_path: str = None,
+        url_path: str,
         crawl_type: str = "text"
     ):
         self.url_path = url_path

@@ -55,7 +55,7 @@ class AsyncCrawl():
     """
     def __init__(
         self,
-        url_path: str = None,
+        url_path: str,
         crawl_type: str = "text",
         max_concurrent_tasks: int = 10,
     ):

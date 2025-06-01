@@ -26,12 +26,16 @@ With Musubi, you can:
 🗂️ Manage crawling configurations for each websites conveniently.
 
 # Installation
+
 ## Python Package
+
 For installing Musubi with `pip`:
 ```bash
 pip install musubi
 ``` 
+
 ## From source
+
 You can also install musubi from source to instantly use the latest features before the official release.
 ```bash
 pip install git+https://github.com/blaze7451/Musubi.git

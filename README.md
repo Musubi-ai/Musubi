@@ -16,6 +16,7 @@ Musubi is a Python library designed for efficiently crawling and extracting webs
 
 # Features
 With Musubi, you can:
+
 🕸️ Extract text data from the most websites in common structures.
 
 🤖 Deploy AI agents to help your find out moderate parameters to crawl website and implement crawling automatically.
@@ -25,14 +26,23 @@ With Musubi, you can:
 🗂️ Manage crawling configurations for each websites conveniently.
 
 # Installation
-To install Musubi with pip, 
+## Python Package
+For installing Musubi with `pip`:
+```bash
+pip install musubi
+``` 
+## From source
+You can also install musubi from source to instantly use the latest features before the official release.
+```bash
+pip install git+https://github.com/blaze7451/Musubi.git
+``` 
 
 
 # Usage
 
 
 # Context
-*Musubi* (結び) is a japanese word of meaning “to tie something like a string”. In Shinto (神道) and traditional Japanese philosophy, musubi is also a metaphysical or cosmological concept, associated with life, birth, relationships, and the natural cycles of the world. 
+*Musubi* (結び) is a japanese word of meaning “to tie something like a string”. In Shinto (神道) and traditional Japanese philosophy, musubi also refers to life, birth, relationships, and the natural cycles of the world. 
 
 # Citation
 If you use Musubi in your research or project, please cite it with the following BibTeX entry:

@@ -25,6 +25,8 @@ With Musubi, you can:
 
 🗂️ Manage crawling configurations for each websites conveniently.
 
+We've also developed a CLI tool that lets you crawl and deploy agents without the need to write any code!
+
 # Installation
 
 ## Python Package
@@ -40,7 +42,6 @@ You can also install musubi from source to instantly use the latest features bef
 ```bash
 pip install git+https://github.com/blaze7451/Musubi.git
 ``` 
-
 
 # Usage
 

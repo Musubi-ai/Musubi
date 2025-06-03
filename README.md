@@ -45,6 +45,19 @@ pip install git+https://github.com/blaze7451/Musubi.git
 
 # Usage
 
+## Key usage
+To crawl website content, you can easily use `pipeline` function:
+```python
+from musubi import pipeline
+
+
+```
+
+## Agent
+
+## Scheduler
+
+## CLI Tools
 
 # Context
 *Musubi* (結び) is a japanese word of meaning “to tie something like a string”. In Shinto (神道) and traditional Japanese philosophy, musubi also refers to life, birth, relationships, and the natural cycles of the world. 

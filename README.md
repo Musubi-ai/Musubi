@@ -44,13 +44,31 @@ pip install git+https://github.com/blaze7451/Musubi.git
 ``` 
 
 # Usage
+In musubi, the overall crawling process can be generally splitted into two stages: link-crawling stage and content-crawling stage. In the link-crawling stage, musubi extracts all links in the specfied block in the website. For link-crawling stage, musubi furnishes four main crawling methods based on the format of website to extract the links of news, documents, and blogs: scan, scroll, click, and onepage.  Next, the corresponding text content of each links are crawled and transformed into markdown style. 
 
 ## Key usage
-To crawl website content, you can easily use `pipeline` function:
+To crawl website contents, you can easily use `pipeline` function:
 ```python
-from musubi import pipeline
+from musubi import Pipeline
 
 
+pipeline_kwargs = {
+    "dir": dir, # Name of directorys to store links and text contents
+    "name": name, # Name of saved file 
+    "class_": class_,  # The type of data in the website.
+    "prefix": prefix, # Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str((page_init_val + pages) * multiplier) + "suffix".
+    "suffix": suffix, 
+    "root_path": root_path, # Root of the url if urls in tags are presented in relative fashion.
+    "pages": max_pages, # Number of crawling pages if type is 'scan' or number of scrolling time if type is 'scroll'.
+    "page_init_val": page_init_val, # Initial value of page.
+    "multiplier": multiplier, # Multiplier of page.
+    "block1": block1, # List of html tag and its class. 
+    "block2": block2, # Second block if crawling nested structure
+    "type": website_type, # Type of crawling method to crawl urls on the website
+    "async_": async_ # crawling website in the asynchronous fashion or not
+}
+pipeline = Pipeline(website_config_path=website_config_path)
+pipeline.pipeline(**pipeline_kwargs)
 ```
 
 ## Agent

@@ -1,7 +1,7 @@
 """
 Example of scraping articles in 'Craft and Criticism' category of Literary Hub.
 """
-from musubi.pipeline import Pipeline
+from musubi import Pipeline
 from musubi.agent.actions import (
     google_search,
     analyze_website,

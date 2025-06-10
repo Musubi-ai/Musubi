@@ -70,7 +70,7 @@ pipeline_kwargs = {
 pipeline = Pipeline(website_config_path=website_config_path)
 pipeline.pipeline(**pipeline_kwargs)
 ```
-For real-world example, see [example](examples\scrape_website_articles.py).
+For real-world example, see [example](examples/scrape_website_articles.py).
 
 ## Scheduler
 
@@ -150,7 +150,7 @@ main_agent = MusubiAgent(candidates=[general_agent, pipeline_agent])
 prompt = "Check how many websites I have scraped already."
 main_agent.execute(prompt)
 ```
-Check [agent examples](examples\agents) to further know the details about how to use agents in Musubi.
+Check [agent examples](examples/agents) to further know the details about how to use agents in Musubi.
 
 ## CLI Tools
 

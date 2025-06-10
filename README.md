@@ -31,7 +31,7 @@ We've also developed a CLI tool that lets you crawl and deploy agents without th
 
 ## Python Package
 
-For installing Musubi with `pip`:
+For installing Musubi with `pip`: .
 ```bash
 pip install musubi
 ``` 
@@ -51,13 +51,12 @@ To crawl website contents, you can easily use `pipeline` function:
 ```python
 from musubi import Pipeline
 
-
 pipeline_kwargs = {
     "dir": dir, # Name of directorys to store links and text contents
     "name": name, # Name of saved file 
     "class_": class_,  # The type of data in the website.
-    "prefix": prefix, # Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str((page_init_val + pages) * multiplier) + "suffix".
-    "suffix": suffix, 
+    "prefix": prefix, # Main prefix of website. 
+    "suffix": suffix, # The url Musubi crawling will be formulaized as "prefix1" + str((page_init_val + pages) * multiplier) + "suffix".
     "root_path": root_path, # Root of the url if urls in tags are presented in relative fashion.
     "pages": max_pages, # Number of crawling pages if type is 'scan' or number of scrolling time if type is 'scroll'.
     "page_init_val": page_init_val, # Initial value of page.
@@ -67,13 +66,91 @@ pipeline_kwargs = {
     "type": website_type, # Type of crawling method to crawl urls on the website
     "async_": async_ # crawling website in the asynchronous fashion or not
 }
+
 pipeline = Pipeline(website_config_path=website_config_path)
 pipeline.pipeline(**pipeline_kwargs)
 ```
-
-## Agent
+For real-world example, see [example](examples\scrape_website_articles.py).
 
 ## Scheduler
+
+## Agent
+Musubi provides agents for users to crawl websites, set crawling scheduler, and analyze crawling configs with the help of several top-tier proprietary LLMs from corporations such as OpenAI, Anthropic, Google, and open source LLMs from Hugging Face. Set the api keys in `.env` file to leverage these LLMs:
+```bash
+OPENAI_API_KEY=
+GROQ_API_KEY=
+XAI_API_KEY=
+DEEPSEEK_API_KEY=
+ANTHROPIC_API_KEY=
+GEMINI_API_KEY=
+```
+Alternatively, you can instantiate agents with api key directly. The api key will be stored into `.env` file once the agent is instantiated by default. For example, to utilize GPT-4o to build pipeline agent in Musubi:
+```python
+from musubi.agent import PipelineAgent
+
+agent = PipelineAgent(
+    actions=[some-actions],
+    model_source="openai",
+    api_key="your-openai-apikey",
+    model_type="gpt-4o"
+)
+```
+Here is a basic example to use pipeline agent in Musubi to crawl text contents in the 'Fiction and Poetry' category on Literary Hub:
+```python
+from musubi.agent import PipelineAgent
+from musubi.agent.actions import (
+    google_search,
+    analyze_website,
+    get_container,
+    get_page_info,
+    final_answer
+)
+
+
+actions = [google_search, analyze_website, get_container, get_page_info, final_answer]
+pipeline_agent = PipelineAgent(
+    actions=actions,
+    model_source="openai"
+)
+
+prompt = "Help me scrape all pages of articles from the 'Fiction and Poetry' category on Literary Hub."
+pipeline_agent.execute(prompt)
+```
+
+Beyond instantiating a single agent to perform specific tasks, agents can be coordinated into a hierarchical multi-agent system to execute tasks with greater efficiency, scalability, and adaptability. For building a hierarchical multi-agent system in musubi, you can simply use `MusubiAgent`:
+```python
+from musubi.agent import PipelineAgent, GeneralAgent, SchedulerAgent, MusubiAgent
+from musubi.agent.actions import (
+    google_search,
+    analyze_website,
+    get_container,
+    get_page_info,
+    final_answer,
+    domain_analyze,
+    type_analyze,
+    update_all,
+    update_by_idx,
+    upload_data_folder,
+    del_web_config_by_idx
+)
+
+
+actions = [google_search, analyze_website, get_container, get_page_info, final_answer]
+pipeline_agent = PipelineAgent(
+    actions=actions
+)
+
+
+general_actions = [domain_analyze, type_analyze, update_all, update_by_idx, upload_data_folder, del_web_config_by_idx]
+general_agent = GeneralAgent(
+    actions=general_actions
+)
+
+main_agent = MusubiAgent(candidates=[general_agent, pipeline_agent])
+prompt = "Check how many websites I have scraped already."
+main_agent.execute(prompt)
+```
+Check [agent examples](examples\agents) to further know the details about how to use agents in Musubi.
 
 ## CLI Tools
 

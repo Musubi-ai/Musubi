@@ -1,6 +1,6 @@
 <p align="center">
     <br>
-    <img src="imgs\FullLogo.png" width="600"/>
+    <img src="assets\logo\FullLogo.png" width="600"/>
     <br>
 </p>
 
@@ -70,7 +70,7 @@ pipeline_kwargs = {
 pipeline = Pipeline(website_config_path=website_config_path)
 pipeline.pipeline(**pipeline_kwargs)
 ```
-For real-world example, see [example](examples/scrape_website_articles.py).
+For real-world example, see [here](examples/scrape_website_articles.py).
 
 ## Scheduler
 
@@ -150,11 +150,11 @@ main_agent = MusubiAgent(candidates=[general_agent, pipeline_agent])
 prompt = "Check how many websites I have scraped already."
 main_agent.execute(prompt)
 ```
-Check [agent examples](examples/agents) to further know the details about how to use agents in Musubi.
+Check [agent examples](examples/agents) to further view the details about how to use agents in Musubi.
 
 ## CLI Tools
 
-# Context
+# Background
 *Musubi* (結び) is a japanese word of meaning “to tie something like a string”. In Shinto (神道) and traditional Japanese philosophy, musubi also refers to life, birth, relationships, and the natural cycles of the world. 
 
 # Citation

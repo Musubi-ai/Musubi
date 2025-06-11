@@ -31,7 +31,8 @@ dependencies = [
 [project.optional-dependencies]
 test = ["pytest"]
 
-packages = [{ include = "musubi" }]
+[[tool.poetry.packages]]
+include = "musubi"
 
 [project.urls]
 repository = "https://github.com/blaze7451/Musubi"

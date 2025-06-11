@@ -14,6 +14,20 @@
 
 Musubi is a Python library designed for efficiently crawling and extracting website text, enabling users to construct scalable, domain-specific datasets from the ground up for training LLMs. 
 
+# Table of Contents
+- [Table of Contents](#table-of-contents)
+- [Features](#features)
+- [Installation](#installation)
+  - [Python Package](#python-package)
+  - [From source](#from-source)
+- [Usage](#usage)
+  - [Key usage](#key-usage)
+  - [Scheduler](#scheduler)
+  - [Agent](#agent)
+  - [CLI Tools](#cli-tools)
+- [Background](#background)
+- [Citation](#citation)
+
 # Features
 With Musubi, you can:
 
@@ -95,6 +109,12 @@ agent = PipelineAgent(
     model_type="gpt-4o"
 )
 ```
+In addition to the LLM apis for agents, google search api and google engine id are required to take `google_search` action when using `PipelineAgent`. Check [doc](https://developers.google.com/custom-search/v1/overview?source=post_page-----36e5298086e4--------------------------------&hl=zh-tw) for applying google search api and [website](https://cse.google.com/cse/all) to build search engine and retrieve engine id, and set them in `.env` file:
+```bash
+GOOGLE_SEARCH_API=
+GOOGLE_ENGINE_ID=
+```
+
 Here is a basic example to use pipeline agent in Musubi to crawl text contents in the 'Fiction and Poetry' category on Literary Hub:
 ```python
 from musubi.agent import PipelineAgent
@@ -153,6 +173,7 @@ main_agent.execute(prompt)
 Check [agent examples](examples/agents) to further view the details about how to use agents in Musubi.
 
 ## CLI Tools
+Musubi support users to execute the aforementioned functions by using command line interface (CLI).   
 
 # Background
 *Musubi* (結び) is a japanese word of meaning “to tie something like a string”. In Shinto (神道) and traditional Japanese philosophy, musubi also refers to life, birth, relationships, and the natural cycles of the world. 

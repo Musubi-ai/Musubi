@@ -22,7 +22,7 @@ def google_search(
     google_search_api: Optional[str] = None,
     google_engine_id: Optional[str] = None
 ):
-    """Searches Google using the provided query and returns the first result URL.
+    """Search Google using the provided query and returns the first result URL.
     
     This function performs a Google search using the Custom Search API. It requires
     valid Google Search API credentials and a Custom Search Engine ID. These can be

@@ -4,11 +4,11 @@ from rich.console import Console
 from ..utils.env import create_env_file
 
 
-def config_command_parser(subparsers=None):
+def env_command_parser(subparsers=None):
     if subparsers is not None:
-        parser = subparsers.add_parser("config")
+        parser = subparsers.add_parser("env")
     else:
-        parser = argparse.ArgumentParser("Musubi config command")
+        parser = argparse.ArgumentParser("Musubi env command")
 
     parser.add_argument(
         "--google_search_api", type=str, default=None, help="Google search api for searching."
@@ -41,11 +41,11 @@ def config_command_parser(subparsers=None):
         "--gemini", type=str, default=None, help="Gemini api token"
     )
     if subparsers is not None:
-        parser.set_defaults(func=config_command)
+        parser.set_defaults(func=env_command)
     return parser
 
 
-def config_command(args):
+def env_command(args):
     console = Console()
     env_path = create_env_file()
     if args.google_search_api is not None:

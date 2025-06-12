@@ -1,5 +1,6 @@
 import argparse
-from .config import config_command_parser
+from .analyze import analyze_command_parser
+from .env import env_command_parser
 from .get import get_command_parser
 from .agent import agent_command_parser
 from .pipeline import pipeline_command_parser
@@ -11,7 +12,8 @@ def build_parser():
     parser = argparse.ArgumentParser(description="Musubi CLI tool")
     subparsers = parser.add_subparsers(dest='command')
 
-    config_command_parser(subparsers)
+    analyze_command_parser(subparsers)
+    env_command_parser(subparsers)
     get_command_parser(subparsers)
     agent_command_parser(subparsers)
     pipeline_command_parser(subparsers)

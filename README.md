@@ -174,7 +174,11 @@ Check [agent examples](examples/agents) to further view the details about how to
 
 ## CLI Tools
 Musubi support users to execute the aforementioned functions by using command line interface (CLI).   
-
+The fundamental structure of Musubi cli tool is formed as:
+```bash
+musubi [COMMAND] [FLAGS] [ARGUMENTS]
+```
+For instance, 
 # Background
 *Musubi* (結び) is a japanese word of meaning “to tie something like a string”. In Shinto (神道) and traditional Japanese philosophy, musubi also refers to life, birth, relationships, and the natural cycles of the world. 
 

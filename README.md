@@ -33,7 +33,7 @@ With Musubi, you can:
 
 🕸️ Extract text data from the most websites in common structures.
 
-🤖 Deploy AI agents to help your find out moderate parameters to crawl website and implement crawling automatically.
+🤖 Deploy AI agents to help you find out moderate parameters to crawl website and implement crawling automatically.
 
 📆 Set schedulers to schedule your crawling tasks.
 
@@ -58,7 +58,7 @@ pip install git+https://github.com/blaze7451/Musubi.git
 ``` 
 
 # Usage
-In musubi, the overall crawling process can be generally splitted into two stages: link-crawling stage and content-crawling stage. In the link-crawling stage, musubi extracts all links in the specfied block in the website. For link-crawling stage, musubi furnishes four main crawling methods based on the format of website to extract the links of news, documents, and blogs: scan, scroll, click, and onepage.  Next, the corresponding text content of each links are crawled and transformed into markdown style. 
+In Musubi, the overall crawling process can be generally splitted into two stages: link-crawling stage and content-crawling stage. In the link-crawling stage, musubi extracts all links in the specfied block in the website. For link-crawling stage, musubi furnishes four main crawling methods based on the format of website to extract the links of news, documents, and blogs: scan, scroll, click, and onepage.  Next, the corresponding text content of each links are crawled and transformed into markdown style. 
 
 ## Key usage
 To crawl website contents, you can easily use `pipeline` function:
@@ -175,10 +175,40 @@ Check [agent examples](examples/agents) to further view the details about how to
 ## CLI Tools
 Musubi support users to execute the aforementioned functions by using command line interface (CLI).   
 The fundamental structure of Musubi cli tool is formed as:
+
 ```bash
 musubi [COMMAND] [FLAGS] [ARGUMENTS]
 ```
-For instance, 
+
+For instance, to add openai api key into `.env` file with Musubi cli, you can use:
+
+```bash
+musubi env --openai your-openai-api-key
+``` 
+
+Use `pipeline` to crawl website:
+
+```bash
+TODO
+```
+
+Use agent:
+
+```bash
+musubi agent \
+  --prompt "Help me crawl all pages of articles from the 'Fiction and Poetry' category on Literary Hub." \
+  --model_source anthropic \
+  --model_type claude-opus-4-20250514
+```
+
+Re-crawl all previously crawled websites according to the specified page numbers.
+
+```bash
+musubi strat-all \
+ --website_config_path config/websites.json \
+ --update-pages 80
+```
+
 # Background
 *Musubi* (結び) is a japanese word of meaning “to tie something like a string”. In Shinto (神道) and traditional Japanese philosophy, musubi also refers to life, birth, relationships, and the natural cycles of the world. 
 

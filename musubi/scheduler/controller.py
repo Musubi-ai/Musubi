@@ -15,7 +15,7 @@ class Controller:
         self,
         host: Optional[str] = None,
         port: Optional[int] = None,
-        debug: Optional[bool] = True,
+        debug: Optional[bool] = False,
         config_dir: Optional[str] = None,
         website_config_path: Optional[str] = None
     ):

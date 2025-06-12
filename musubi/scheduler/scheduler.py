@@ -34,7 +34,7 @@ class Scheduler:
         website_config_path: Optional[str] = None,
         host: Optional[str] = None,
         port: Optional[int] = None,
-        debug: Optional[bool] = True,
+        debug: Optional[bool] = False,
     ):
         self.host = host
         self.port = port

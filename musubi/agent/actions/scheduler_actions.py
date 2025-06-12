@@ -4,21 +4,24 @@ from ...scheduler import Controller, Scheduler
 
 
 def launch_scheduler(
+    config_dir: Optional[str] = "config",
+    website_config_path: Optional[str] = None,
     host: Optional[str] = "127.0.0.1",
-    port: Optional[int] = 5000,
-    config_dir: Optional[str] = "config"
+    port: Optional[int] = 5000
 ):
     """Launches the scheduler with the current configuration.
 
         Args:
+            config_dir (Optional[str]): The directory path for configurations. Defaults to "config".
+            website_config_path (Optional[str]): The json path for website configurations. Defaults to None.
             host (Optional[str]): The hostname or IP address. Defaults to "127.0.0.1".
             port (Optional[int]): The port number. Defaults to 5000.
-            config_dir (Optional[str]): The directory path for configurations. Defaults to "config".
     """
     config_dir = Path(config_dir)
     config_dir.mkdir(parents=True, exist_ok=True)
     scheduler = Scheduler(
         config_dir=config_dir,
+        website_config_path=website_config_path,
         host=host,
         port=port
     )
@@ -26,9 +29,10 @@ def launch_scheduler(
 
 
 def shutdown_scheduler(
+    config_dir: Optional[str] = "config",
+    website_config_path: Optional[str] = None,
     host: Optional[str] = "127.0.0.1",
-    port: Optional[int] = 5000,
-    config_dir: Optional[str] = "config"
+    port: Optional[int] = 5000
 ):
     """Shuts down the scheduler with the current configuration.
 
@@ -36,68 +40,76 @@ def shutdown_scheduler(
     to gracefully terminate the scheduler service.
 
     Args:
-        host: The hostname or IP address. Defaults to "127.0.0.1".
-        port: The port number. Defaults to 5000.
-        config_dir: The directory path for configurations. Defaults to "config".
+        config_dir (Optional[str]): The directory path for configurations. Defaults to "config".
+        website_config_path (Optional[str]): The json path for website configurations. Defaults to None.
+        host (Optional[str]): The hostname or IP address. Defaults to "127.0.0.1".
+        port (Optional[int]): The port number. Defaults to 5000.
 
     Returns:
         The response from the shutdown request, typically a status message
         indicating success or failure.
     """
     controller = Controller(
+        config_dir=config_dir,
+        website_config_path=website_config_path,
         host=host,
-        port=port,
-        config_dir=config_dir
+        port=port
     )
     res = controller.shutdown_scheduler()
     return res
 
 
 def check_status(
+    config_dir: Optional[str] = "config",
+    website_config_path: Optional[str] = None,
     host: Optional[str] = "127.0.0.1",
-    port: Optional[int] = 5000,
-    config_dir: Optional[str] = "config"
+    port: Optional[int] = 5000
 ):
     """Checks the status of the controller server.
 
     Args:
-        host: The hostname or IP address. Defaults to "127.0.0.1".
-        port: The port number. Defaults to 5000.
-        config_dir: The directory path for configurations. Defaults to "config".
+        config_dir (Optional[str]): The directory path for configurations. Defaults to "config".
+        website_config_path (Optional[str]): The json path for website configurations. Defaults to None.
+        host (Optional[str]): The hostname or IP address. Defaults to "127.0.0.1".
+        port (Optional[int]): The port number. Defaults to 5000.
     
     Returns:
         str: A message containing the status code and response text if the 
             request was successful, or an error message if the request failed.
     """
     controller = Controller(
+        config_dir=config_dir,
+        website_config_path=website_config_path,
         host=host,
-        port=port,
-        config_dir=config_dir
+        port=port
     )
     res = controller.check_status()
     return res
 
 
 def retrieve_task_list(
+    config_dir: Optional[str] = "config",
+    website_config_path: Optional[str] = None,
     host: Optional[str] = "127.0.0.1",
-    port: Optional[int] = 5000,
-    config_dir: Optional[str] = "config"
+    port: Optional[int] = 5000
 ):
     """Retrieves the list of tasks from the scheduler server.
 
     Args:
-        host: The hostname or IP address. Defaults to "127.0.0.1".
-        port: The port number. Defaults to 5000.
-        config_dir: The directory path for configurations. Defaults to "config".
+        config_dir (Optional[str]): The directory path for configurations. Defaults to "config".
+        website_config_path (Optional[str]): The json path for website configurations. Defaults to None.
+        host (Optional[str]): The hostname or IP address. Defaults to "127.0.0.1".
+        port (Optional[int]): The port number. Defaults to 5000.
     
     Returns:
         requests.Response: The response object from the API call if successful.
         str: An error message if the request fails.
     """
     controller = Controller(
+        config_dir=config_dir,
+        website_config_path=website_config_path,
         host=host,
-        port=port,
-        config_dir=config_dir
+        port=port
     )
     res = controller.retrieve_task_list()
     return res
@@ -108,6 +120,7 @@ def add_task(
     host: Optional[str] = "127.0.0.1",
     port: Optional[int] = 5000,
     config_dir: Optional[str] = "config",
+    website_config_path: Optional[str] = None,
     task_name: Optional[str] = None,
     update_pages: Optional[int] = None,
     save_dir: Optional[str] = None,
@@ -126,6 +139,7 @@ def add_task(
         host: Optional; the hostname or IP address. Defaults to "127.0.0.1".
         port: Optional; the port number. Defaults to 5000.
         config_dir: Optional; the directory path for configurations. Defaults to "config".
+        website_config_path (Optional[str]): The json path for website configurations. Defaults to None.
         task_name: Optional; a descriptive name for the task. If None, a default name based on
             task_type will be assigned.
         update_pages: Optional; integer specifying the number of pages to update. If None and
@@ -145,9 +159,10 @@ def add_task(
             Required if send_notification is True.
     """
     controller = Controller(
+        config_dir=config_dir,
+        website_config_path=website_config_path,
         host=host,
-        port=port,
-        config_dir=config_dir
+        port=port
     )
     controller.add_task(
         task_type=task_type,
@@ -162,85 +177,98 @@ def add_task(
 
 def start_task_from_config(
     task_id: str,
+    config_dir: Optional[str] = "config",
+    website_config_path: Optional[str] = None,
     host: Optional[str] = "127.0.0.1",
-    port: Optional[int] = 5000,
-    config_dir: Optional[str] = "config"
+    port: Optional[int] = 5000
 ):
     """Starts a task with the specified task_id from existing configuration.
     
     Args:
         task_id: The unique identifier of the task to pause.
-        host: The hostname or IP address. Defaults to "127.0.0.1".
-        port: The port number. Defaults to 5000.
-        config_dir: The directory path for configurations. Defaults to "config".
+        config_dir (Optional[str]): The directory path for configurations. Defaults to "config".
+        website_config_path (Optional[str]): The json path for website configurations. Defaults to None.
+        host (Optional[str]): The hostname or IP address. Defaults to "127.0.0.1".
+        port (Optional[int]): The port number. Defaults to 5000.
     """
     controller = Controller(
+        config_dir=config_dir,
+        website_config_path=website_config_path,
         host=host,
-        port=port,
-        config_dir=config_dir
+        port=port
     )
     controller.start_task_from_config(task_id=task_id)
 
+
 def pause_task(
     task_id: str,
+    config_dir: Optional[str] = "config",
+    website_config_path: Optional[str] = None,
     host: Optional[str] = "127.0.0.1",
-    port: Optional[int] = 5000,
-    config_dir: Optional[str] = "config"
+    port: Optional[int] = 5000
 ):
     """Pauses a task with the specified task_id.
     
     Args:
         task_id: The unique identifier of the task to pause.
-        host: The hostname or IP address. Defaults to "127.0.0.1".
-        port: The port number. Defaults to 5000.
-        config_dir: The directory path for configurations. Defaults to "config".
+        config_dir (Optional[str]): The directory path for configurations. Defaults to "config".
+        website_config_path (Optional[str]): The json path for website configurations. Defaults to None.
+        host (Optional[str]): The hostname or IP address. Defaults to "127.0.0.1".
+        port (Optional[int]): The port number. Defaults to 5000.
     """
     controller = Controller(
+        config_dir=config_dir,
+        website_config_path=website_config_path,
         host=host,
-        port=port,
-        config_dir=config_dir
+        port=port
     )
     controller.pause_task(task_id=task_id)
 
 
 def resume_task(
     task_id: str,
+    config_dir: Optional[str] = "config",
+    website_config_path: Optional[str] = None,
     host: Optional[str] = "127.0.0.1",
-    port: Optional[int] = 5000,
-    config_dir: Optional[str] = "config"
+    port: Optional[int] = 5000
 ):
     """Resumes a previously paused task with the specified task_id.
     
     Args:
         task_id: The unique identifier of the task to resume.
-        host: The hostname or IP address. Defaults to "127.0.0.1".
-        port: The port number. Defaults to 5000.
-        config_dir: The directory path for configurations. Defaults to "config".
+        config_dir (Optional[str]): The directory path for configurations. Defaults to "config".
+        website_config_path (Optional[str]): The json path for website configurations. Defaults to None.
+        host (Optional[str]): The hostname or IP address. Defaults to "127.0.0.1".
+        port (Optional[int]): The port number. Defaults to 5000.
     """
     controller = Controller(
+        config_dir=config_dir,
+        website_config_path=website_config_path,
         host=host,
-        port=port,
-        config_dir=config_dir
+        port=port
     )
     controller.resume_task(task_id=task_id)
 
 def remove_task(
     task_id: str,
+    config_dir: Optional[str] = "config",
+    website_config_path: Optional[str] = None,
     host: Optional[str] = "127.0.0.1",
-    port: Optional[int] = 5000,
-    config_dir: Optional[str] = "config"
+    port: Optional[int] = 5000
 ):
     """Removes a task with the specified task_id from the scheduler.
     
     Args:
         task_id: The unique identifier of the task to remove.
-        host: The hostname or IP address. Defaults to "127.0.0.1".
-        port: The port number. Defaults to 5000.
-        config_dir: The directory path for configurations. Defaults to "config".
+        config_dir (Optional[str]): The directory path for configurations. Defaults to "config".
+        website_config_path (Optional[str]): The json path for website configurations. Defaults to None.
+        host (Optional[str]): The hostname or IP address. Defaults to "127.0.0.1".
+        port (Optional[int]): The port number. Defaults to 5000.
     """
     controller = Controller(
+        config_dir=config_dir,
+        website_config_path=website_config_path,
         host=host,
-        port=port,
-        config_dir=config_dir
+        port=port
     )
     controller.remove_task(task_id=task_id)

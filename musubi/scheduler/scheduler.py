@@ -21,6 +21,7 @@ active_tasks = {}
 @dataclass
 class Info:
     config_dir: str = field(default="config")
+    website_config_path: str = field(default=None)
     active_tasks: dict = field(default_factory=dict)
 
 scheduler_info = Info(active_tasks={})
@@ -29,7 +30,8 @@ scheduler_info = Info(active_tasks={})
 class Scheduler:
     def __init__(
         self,
-        config_dir: str = None,
+        config_dir: Optional[str] = None,
+        website_config_path: Optional[str] = None,
         host: Optional[str] = None,
         port: Optional[int] = None,
         debug: Optional[bool] = True,
@@ -39,6 +41,8 @@ class Scheduler:
         self.debug = debug
         if config_dir is not None:
             scheduler_info.config_dir = config_dir
+        if website_config_path is not None:
+            scheduler_info.website_config_path = website_config_path
 
     def run(self):
         if self.host is None:
@@ -78,7 +82,11 @@ def start_task(
     assert len(task_config) != 0, "Cannot find the specified task with task_id: {}".format(task_id)
     assert len(task_config) == 1, "Detect multiple tasks sharing the same task id."
     task_data = task_config.iloc[0].to_dict()
-    task_init = Task(config_dir=scheduler_info.config_dir, **task_data["contact_params"])
+    task_init = Task(
+        config_dir=scheduler_info.config_dir,
+        website_config_path=scheduler_info.website_config_path,
+        **task_data["contact_params"]
+    )
     if task_data["task_type"] == "update_all":
         scheduler.add_job(
             task_init.update_all,

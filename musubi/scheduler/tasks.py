@@ -17,7 +17,8 @@ class Task:
         app_password: Optional[str] = None,
         sender_email: Optional[str] = None,
         recipient_email: Optional[str] = None,
-        config_dir: Optional[str] = None
+        config_dir: Optional[str] = None,
+        website_config_path: Optional[str] = None
     ):
         if send_notification:
             self.send_notification = send_notification
@@ -42,7 +43,10 @@ class Task:
             self.config_dir = Path("config")
         self.config_dir.mkdir(parents=True, exist_ok=True)
         self.config_path = self.config_dir / "tasks.json"
-        self.website_config_path = self.config_dir / "websites.json"
+        if website_config_path  is not None:
+            self.website_config_path = website_config_path
+        else:
+            self.website_config_path = self.config_dir / "websites.json"
         self.pipeline = Pipeline(website_config_path=self.website_config_path)
 
     def update_all(

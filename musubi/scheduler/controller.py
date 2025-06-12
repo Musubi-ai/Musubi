@@ -16,7 +16,8 @@ class Controller:
         host: Optional[str] = None,
         port: Optional[int] = None,
         debug: Optional[bool] = True,
-        config_dir: Optional[str] = None
+        config_dir: Optional[str] = None,
+        website_config_path: Optional[str] = None
     ):
         self.host = host
         self.port = port
@@ -30,13 +31,15 @@ class Controller:
             self.config_dir = Path("config")
         self.config_dir.mkdir(parents=True, exist_ok=True)
         self.task_config_path = self.config_dir / "tasks.json"
+        self.website_config_path = website_config_path
 
     def launch_scheduler(self):
         self.scheduler = Scheduler(
+            config_dir = str(self.config_dir),
+            website_config_path = self.website_config_path,
             host = self.host,
             port = self.port,
-            debug = self.debug,
-            config_dir = str(self.config_dir)
+            debug = self.debug
         )
         self.scheduler.run()
 

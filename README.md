@@ -186,10 +186,17 @@ For instance, to add openai api key into `.env` file with Musubi cli, you can us
 musubi env --openai your-openai-api-key
 ``` 
 
-Use `pipeline` to crawl website:
+Use `pipeline` to crawl website (Suppose we want to crawl articles present in the first 5 pages of the chinese website called '測試' with url https://www.test.com/category?&pages=n):
 
 ```bash
-TODO
+musubi pipeline \
+  --dir 測試 \
+  --name 測試文章 \
+  --class_ 中文 \
+  --prefix https://www.test.com/category?&pages= \
+  --pages 5 \
+  --block1 ["div", "entry-image"] \
+  --type scan \
 ```
 
 Use agent:

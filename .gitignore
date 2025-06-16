@@ -5,7 +5,6 @@ src/utils/__pycache__/
 a.py
 imgtxt_crawler/
 __pycache__
-test.py
 .env
 .pytest_cache
 use_agent.py
@@ -13,3 +12,7 @@ use_pipeline.py
 config
 scrape_journal.py
 b.py
+
+# For testing
+test.py
+test2.py

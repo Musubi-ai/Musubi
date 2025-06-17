@@ -34,10 +34,14 @@ We've also developed a CLI tool that lets you crawl and deploy agents without th
 - [Usage](#usage)
   - [Key usage](#key-usage)
   - [Scheduler](#scheduler)
+    - [Notification](#notification)
   - [Agent](#agent)
+    - [Multi-agent System](#multi-agent-system)
   - [CLI Tools](#cli-tools)
+- [License](#license)
 - [Background](#background)
 - [Citation](#citation)
+- [Acknowledgement](#acknowledgement)
 
 # Installation
 
@@ -117,8 +121,26 @@ def main():
         cron_params={"hour": 12, "second": 5, "minute": 5, "month": 5}
     )
 
-main()
-```   
+if __name__ == "__main__":
+    main()
+```
+For legal cron_params arguments, check [reference](https://apscheduler.readthedocs.io/en/3.x/modules/triggers/cron.html).
+
+### Notification
+User can set argument `send_notification=True` in `add_task` function so that the program will send gmail when scheduled task starts and finishes. Go to [website](https://myaccount.google.com/apppasswords) to apply app password and set the environment variable in `.env` file:
+
+```bash
+GOOGLE_APP_PASSWORD="your-app-password"
+```
+
+Then the notification can be used like:
+```python
+controller.add_task(
+    ...,
+    send_notification=True,
+    sender_email="youe-account@gmail.com"
+)
+```
 
 ## Agent
 Musubi provides agents for users to crawl websites, set crawling scheduler, and analyze crawling configs with the help of several top-tier proprietary LLMs from corporations such as OpenAI, Anthropic, Google, and open source LLMs from Hugging Face. Set the api keys in `.env` file to leverage these LLMs:
@@ -169,6 +191,7 @@ prompt = "Help me scrape all pages of articles from the 'Fiction and Poetry' cat
 pipeline_agent.execute(prompt)
 ```
 
+### Multi-agent System
 Beyond instantiating a single agent to perform specific tasks, agents can be coordinated into a hierarchical multi-agent system to execute tasks with greater efficiency, scalability, and adaptability. For building a hierarchical multi-agent system in musubi, you can simply use `MusubiAgent`:
 ```python
 from musubi.agent import PipelineAgent, GeneralAgent, SchedulerAgent, MusubiAgent
@@ -248,6 +271,10 @@ musubi strat-all \
  --update-pages 80
 ```
 
+# License
+This repository is licensed under the [Apache-2.0 License](LICENSE).
+
+
 # Background
 *Musubi* (結び) is a japanese word of meaning “to tie something like a string”. In Shinto (神道) and traditional Japanese philosophy, musubi also refers to life, birth, relationships, and the natural cycles of the world.
 
@@ -261,3 +288,6 @@ If you use Musubi in your research or project, please cite it with the following
   year =         {2025}
 }
 ```
+
+
+# Acknowledgement

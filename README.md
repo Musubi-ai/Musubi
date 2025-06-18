@@ -54,13 +54,13 @@ pip install musubi
 
 ## From source
 
-You can also install musubi from source to instantly use the latest features before the official release.
+You can also install Musubi from source to instantly use the latest features before the official release.
 ```bash
 pip install git+https://github.com/blaze7451/Musubi.git
 ``` 
 
 # Usage
-In Musubi, the overall crawling process can be generally splitted into two stages: link-crawling stage and content-crawling stage. In the link-crawling stage, musubi extracts all links in the specfied block in the website. For link-crawling stage, musubi furnishes four main crawling methods based on the format of website to extract the links of news, documents, and blogs: scan, scroll, click, and onepage.  Next, the corresponding text content of each links are crawled and transformed into markdown style. 
+In Musubi, the overall crawling process can be generally splitted into two stages: link-crawling stage and content-crawling stage. In the link-crawling stage, Musubi extracts all links in the specfied block in the website. For link-crawling stage, musubi furnishes four main crawling methods based on the format of website to extract the links of news, documents, and blogs: scan, scroll, click, and onepage.  Next, the corresponding text content of each links are crawled and transformed into markdown style. 
 
 ## Key usage
 To crawl website contents, you can easily use `pipeline` function:
@@ -192,7 +192,7 @@ pipeline_agent.execute(prompt)
 ```
 
 ### Multi-agent System
-Beyond instantiating a single agent to perform specific tasks, agents can be coordinated into a hierarchical multi-agent system to execute tasks with greater efficiency, scalability, and adaptability. For building a hierarchical multi-agent system in musubi, you can simply use `MusubiAgent`:
+Beyond instantiating a single agent to perform specific tasks, agents can be coordinated into a hierarchical multi-agent system to execute tasks with greater efficiency, scalability, and adaptability. For building a hierarchical multi-agent system in Musubi, you can simply use `MusubiAgent`:
 ```python
 from musubi.agent import PipelineAgent, GeneralAgent, SchedulerAgent, MusubiAgent
 from musubi.agent.actions import (
@@ -274,7 +274,6 @@ musubi strat-all \
 # License
 This repository is licensed under the [Apache-2.0 License](LICENSE).
 
-
 # Background
 *Musubi* (結び) is a japanese word of meaning “to tie something like a string”. In Shinto (神道) and traditional Japanese philosophy, musubi also refers to life, birth, relationships, and the natural cycles of the world.
 
@@ -289,5 +288,5 @@ If you use Musubi in your research or project, please cite it with the following
 }
 ```
 
-
 # Acknowledgement
+This repo benefits from [trafilatura](https://github.com/adbar/trafilatura) for extracting text contents from webpages and [PyMuPDF](https://github.com/pymupdf/PyMuPDF) for parsing online pdf documents.

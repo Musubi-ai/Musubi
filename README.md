@@ -37,6 +37,7 @@ We've also developed a CLI tool that lets you crawl and deploy agents without th
     - [Notification](#notification)
   - [Agent](#agent)
     - [Multi-agent System](#multi-agent-system)
+      - [Demo](#demo)
   - [CLI Tools](#cli-tools)
 - [License](#license)
 - [Background](#background)
@@ -225,6 +226,11 @@ main_agent = MusubiAgent(candidates=[general_agent, pipeline_agent])
 prompt = "Check how many websites I have scraped already."
 main_agent.execute(prompt)
 ```
+
+#### Demo
+Task: Crawl 5 pages of articles from the 'Fiction and Poetry' category on Literary Hub.
+
+
 Check [agent examples](examples/agents) to further view the details about how to use agents in Musubi.
 
 ## CLI Tools

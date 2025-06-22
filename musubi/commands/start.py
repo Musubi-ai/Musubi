@@ -11,7 +11,7 @@ def start_all_command_parser(subparsers=None):
     # arguments for config file
     parser.add_argument("--website_config_path", default=None, help="webiste config file", type=str)
     # arguments for add mode
-    parser.add_argument("--start_idx", default=None, help="From which idx to crawl.", type=int)
+    parser.add_argument("--start_idx", default=0, help="From which idx to crawl.", type=int)
     parser.add_argument("--update_pages", default=None, help="How many pages to crawl in update mode. If not None, fuction will switch to update mode and crawl specified number of pages.", type=int)
     parser.add_argument("--save_dir", default=None, help="Folder to save link.json and articles.", type=str)
     if subparsers is not None:

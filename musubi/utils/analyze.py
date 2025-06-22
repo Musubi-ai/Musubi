@@ -8,9 +8,9 @@ import time
 class ConfigAnalyzer:
     def __init__(
         self,
-        website_config_path = Path("config") / "websites.json"
+        website_config_path = None
     ):
-        self.website_config_path = website_config_path
+        self.website_config_path = website_config_path if website_config_path is not None else Path("config") / "websites.json"
         self.df = pd.read_json(self.website_config_path, lines=True)
 
     def domain_analyze(self):

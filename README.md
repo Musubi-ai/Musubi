@@ -279,6 +279,13 @@ musubi strat-all \
  --website_config_path config/websites.json \
  --update-pages 80
 ```
+### Demo
+Task: Crawl all websites whose configuration stored in `config\test_websites.json` again (update 5 pages). 
+
+
+https://github.com/user-attachments/assets/f7c17fa6-f2ab-48c9-aea1-f795cea362a0
+
+
 
 # License
 This repository is licensed under the [Apache-2.0 License](LICENSE).

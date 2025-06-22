@@ -88,7 +88,33 @@ pipeline_kwargs = {
 pipeline = Pipeline(website_config_path=website_config_path)
 pipeline.pipeline(**pipeline_kwargs)
 ```
-For real-world example, see [here](examples/scrape_website_articles.py).
+
+### Demo
+Task: Crawl 3 pages of articles from the 'Fiction and Poetry' category on Literary Hub.
+```python
+from musubi.pipeline import Pipeline
+
+
+pipe = Pipeline(website_config_path=r"config\test.json")
+
+pipe.pipeline(
+    dir = "Literary Hub",
+    name = "Fiction and Poetry",  
+    class_ = "English",
+    prefix = "https://lithub.com/category/fictionandpoetry/page/",
+    suffix = "/",
+    root_path = "https://lithub.com",
+    pages = 3,
+    page_init_val = 1,
+    multiplier = 1,
+    block1 = ["div", "post_header"],
+    block2 = None,
+    type = "scan",
+    )
+```
+
+https://github.com/user-attachments/assets/223a5d62-8364-4964-ade6-829306fec271
+
 
 ## Scheduler
 Musubi allows users to set up a scheduler to run crawling tasks at specified times. To launch a scheduler:

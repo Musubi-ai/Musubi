@@ -231,8 +231,7 @@ main_agent.execute(prompt)
 Task: Crawl 5 pages of articles from the 'Fiction and Poetry' category on Literary Hub.
 
 
-https://github.com/user-attachments/assets/f61f40fb-882b-4484-9a9d-0304a8967a9e
-
+![Crawl](https://github.com/user-attachments/assets/f61f40fb-882b-4484-9a9d-0304a8967a9e)
 
 
 Check [agent examples](examples/agents) to further view the details about how to use agents in Musubi.

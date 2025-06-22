@@ -39,6 +39,7 @@ We've also developed a CLI tool that lets you crawl and deploy agents without th
     - [Multi-agent System](#multi-agent-system)
       - [Demo](#demo)
   - [CLI Tools](#cli-tools)
+    - [Demo](#demo-1)
 - [License](#license)
 - [Background](#background)
 - [Citation](#citation)

@@ -39,7 +39,9 @@ class BaseAgent(ABC):
             raise ValueError("Could not find <action> tags in the text")
             
         # Extract the string including dictionary string
-        action_content = text[start_idx + len("<action>"):end_idx].strip()
+        action_content = text[(start_idx + len("<action>")):end_idx]
+        action_content = action_content.replace("\\n", "\n")
+        action_content = action_content.strip()
         
         # Parse the string into a Python dictionary
         try:
@@ -171,7 +173,7 @@ class PipelineAgent(BaseAgent):
     ):
         done = False
         step = 1
-        while not done or step <= self.max_turns:
+        while (not done) or (step <= self.max_turns):
             res, step_tokens = self.model(prompt, temperature=temperature, **generate_kwargs) 
             action_title = "Action {}".format(str(step))
             action_subtitle = "model_type: {}, step_token_use: {}".format(self.model_type, step_tokens)
@@ -197,6 +199,9 @@ class PipelineAgent(BaseAgent):
                     border_style="green1",
                     subtitle_align="left"
                 ))
+                print()
+                pipeline_tool(**chosen_action_arguments)
+                done = True
                 return chosen_action_arguments
             observation = self.actions_dict[chosen_action_name](**chosen_action_arguments)
             prompt = "\n<observation>\n" + str(observation) + "\n</observation>\n"
@@ -209,10 +214,6 @@ class PipelineAgent(BaseAgent):
                 border_style="green1",
                 subtitle_align="left"
             ))
-            if chosen_action_name == "final_answer":
-                pipeline_tool(**observation)
-                done = True
-                return observation
             step += 1
 
     def get_system_prompt(

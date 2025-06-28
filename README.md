@@ -16,13 +16,13 @@ Musubi is a Python library designed for efficiently crawling and extracting webs
 
 With Musubi, you can:
 
-🕸️ Extract text data from the most websites in common structures and transform them into markdown style.
+🕸️ Extract text data from most websites with common structures and transform them into markdown format.
 
-🤖 Deploy AI agents to help you find out moderate parameters to crawl website and implement crawling automatically.
+🤖 Deploy AI agents to help you find optimal parameters for website crawling and implement crawling automatically.
 
 📆 Set schedulers to schedule your crawling tasks.
 
-🗂️ Manage crawling configurations for each websites conveniently.
+🗂️ Manage crawling configurations for each website conveniently.
 
 We've also developed a CLI tool that lets you crawl and deploy agents without the need to write any code!
 
@@ -63,7 +63,7 @@ pip install git+https://github.com/blaze7451/Musubi.git
 ``` 
 
 # Usage
-In Musubi, the overall crawling process can be generally splitted into two stages: link-crawling stage and content-crawling stage. In the link-crawling stage, Musubi extracts all links in the specfied block in the website. For link-crawling stage, musubi furnishes four main crawling methods based on the format of website to extract the links of news, documents, and blogs: scan, scroll, click, and onepage.  Next, the corresponding text content of each links are crawled and transformed into markdown style. 
+In Musubi, the overall crawling process can be generally split into two stages: the link-crawling stage and the content-crawling stage. In the link-crawling stage, Musubi extracts all links in the specified block on the website. For the link-crawling stage, Musubi provides four main crawling methods based on the website format to extract links of news, documents, and blogs: scan, scroll, click, and onepage. Next, the corresponding text content of each link is crawled and transformed into markdown format. 
 
 ## Key usage
 To crawl website contents, you can easily use `pipeline` function:
@@ -71,19 +71,19 @@ To crawl website contents, you can easily use `pipeline` function:
 from musubi import Pipeline
 
 pipeline_kwargs = {
-    "dir": dir, # Name of directorys to store links and text contents
+    "dir": dir, # Name of directory to store links and text contents
     "name": name, # Name of saved file 
-    "class_": class_,  # The type of data in the website.
+    "class_": class_,  # The type of data on the website.
     "prefix": prefix, # Main prefix of website. 
-    "suffix": suffix, # The url Musubi crawling will be formulaized as "prefix1" + str((page_init_val + pages) * multiplier) + "suffix".
-    "root_path": root_path, # Root of the url if urls in tags are presented in relative fashion.
-    "pages": max_pages, # Number of crawling pages if type is 'scan' or number of scrolling time if type is 'scroll'.
+    "suffix": suffix, # The URL Musubi crawls will be formulated as "prefix" + str((page_init_val + pages) * multiplier) + "suffix".
+    "root_path": root_path, # Root of the URL if URLs in tags are presented in relative format.
+    "pages": max_pages, # Number of crawling pages if type is 'scan' or number of scrolling times if type is 'scroll'.
     "page_init_val": page_init_val, # Initial value of page.
     "multiplier": multiplier, # Multiplier of page.
-    "block1": block1, # List of html tag and its class. 
+    "block1": block1, # List of HTML tag and its class. 
     "block2": block2, # Second block if crawling nested structure
-    "type": website_type, # Type of crawling method to crawl urls on the website
-    "async_": async_ # crawling website in the asynchronous fashion or not
+    "type": website_type, # Type of crawling method to crawl URLs on the website
+    "async_": async_ # Whether to crawl website asynchronously or not
 }
 
 pipeline = Pipeline(website_config_path=website_config_path)
@@ -125,7 +125,7 @@ from musubi.scheduler import Controller
 controller = Controller()
 controller.launch_scheduler()
 ```
-By default, the scheduler leverages `tasks.json` in `config` folder as a task management configuration and leverages `websites.json` to implement crawling tasks. Users can customize these settings by arguments:
+By default, the scheduler uses `tasks.json` in the config folder as a task management configuration and uses `websites.json` to implement crawling tasks. Users can customize these settings using arguments:
 ```python
 from musubi.scheduler import Controller
 
@@ -134,7 +134,7 @@ controller = Controller(
         website_config_path="path-of-website.json" 
     )
 ```
-After launching scheduler, user can add tasks and set scheduler to implement tasks regularly. Until now, we support user to set task with task type `update_all` or `by_idx`. The `update_all` task crawls all websites store in website configuration file and the `by_idx` task crawls the certain website as specified by idx of it. Note that in Musubi scheduler, we follow the common cron format to condition when to implement the task. For instant, to set an regular update task to crawl all website stored in `websites.json` file at 12:05:05 on the 5th day of May each year:
+After launching the scheduler, users can add tasks and set the scheduler to implement tasks regularly. Currently, we support users to set tasks with task type `update_all` or `by_idx`. The `update_all` task crawls all websites stored in the website configuration file and the `by_idx` task crawls the specific website as specified by its index. Note that in the Musubi scheduler, we follow the common cron format to define when to implement the task. For instance, to set a regular update task to crawl all websites stored in the `websites.json` file at 12:05:05 on the 5th day of May each year:
 ```python
 from musubi.scheduler import Controller
 
@@ -153,10 +153,10 @@ def main():
 if __name__ == "__main__":
     main()
 ```
-For legal cron_params arguments, check [reference](https://apscheduler.readthedocs.io/en/3.x/modules/triggers/cron.html).
+For valid cron_params arguments, check [reference](https://apscheduler.readthedocs.io/en/3.x/modules/triggers/cron.html).
 
 ### Notification
-User can set argument `send_notification=True` in `add_task` function so that the program will send gmail when scheduled task starts and finishes. Go to [website](https://myaccount.google.com/apppasswords) to apply app password and set the environment variable in `.env` file:
+Users can set the argument `send_notification=True` in the `add_task` function so that the program will send Gmail notifications when scheduled tasks start and finish. Go to [this website](https://myaccount.google.com/apppasswords) to apply for an app password and set the environment variable in the `.env` file:
 
 ```bash
 GOOGLE_APP_PASSWORD="your-app-password"
@@ -172,7 +172,8 @@ controller.add_task(
 ```
 
 ## Agent
-Musubi provides agents for users to crawl websites, set crawling scheduler, and analyze crawling configs with the help of several top-tier proprietary LLMs from corporations such as OpenAI, Anthropic, Google, and open source LLMs from Hugging Face. Set the api keys in `.env` file to leverage these LLMs:
+Musubi provides agents for users to crawl websites, set crawling schedulers, and analyze crawling configurations with the help of several top-tier proprietary LLMs from corporations such as OpenAI, Anthropic, Google, and open-source LLMs from Hugging Face. Set the API keys in the `.env` file to use these LLMs:
+
 ```bash
 OPENAI_API_KEY=
 GROQ_API_KEY=
@@ -181,7 +182,9 @@ DEEPSEEK_API_KEY=
 ANTHROPIC_API_KEY=
 GEMINI_API_KEY=
 ```
-Alternatively, you can instantiate agents with api key directly. The api key will be stored into `.env` file once the agent is instantiated by default. For example, to utilize GPT-4o to build pipeline agent in Musubi:
+
+Alternatively, you can instantiate agents with an API key directly. The API key will be stored in the `.env` file once the agent is instantiated by default. For example, to utilize GPT-4o to build a pipeline agent in Musubi:
+
 ```python
 from musubi.agent import PipelineAgent
 
@@ -192,13 +195,16 @@ agent = PipelineAgent(
     model_type="gpt-4o"
 )
 ```
-In addition to the LLM apis for agents, google search api and google engine id are required to take `google_search` action when using `PipelineAgent`. Check [doc](https://developers.google.com/custom-search/v1/overview?source=post_page-----36e5298086e4--------------------------------&hl=zh-tw) for applying google search api and [website](https://cse.google.com/cse/all) to build search engine and retrieve engine id, and set them in `.env` file:
+
+In addition to the LLM APIs for agents, Google Search API and Google Engine ID are required to take the `google_search` action when using `PipelineAgent`. Check this [documentation](https://developers.google.com/custom-search/v1/overview?source=post_page-----36e5298086e4--------------------------------&hl=zh-tw) for applying for Google Search API and this [website](https://cse.google.com/cse/all) to build a search engine and retrieve the engine ID, then set them in the `.env` file:
+
 ```bash
 GOOGLE_SEARCH_API=
 GOOGLE_ENGINE_ID=
 ```
 
-Here is a basic example to use pipeline agent in Musubi to crawl text contents in the 'Fiction and Poetry' category on Literary Hub:
+Here is a basic example of using a pipeline agent in Musubi to crawl text contents in the 'Fiction and Poetry' category on Literary Hub:
+
 ```python
 from musubi.agent import PipelineAgent
 from musubi.agent.actions import (
@@ -221,7 +227,8 @@ pipeline_agent.execute(prompt)
 ```
 
 ### Multi-agent System
-Beyond instantiating a single agent to perform specific tasks, agents can be coordinated into a hierarchical multi-agent system to execute tasks with greater efficiency, scalability, and adaptability. For building a hierarchical multi-agent system in Musubi, you can simply use `MusubiAgent`:
+Beyond instantiating a single agent to perform specific tasks, agents can be coordinated into a hierarchical multi-agent system to execute tasks with greater efficiency, scalability, and adaptability. To build a hierarchical multi-agent system in Musubi, you can simply use `MusubiAgent`:
+
 ```python
 from musubi.agent import PipelineAgent, GeneralAgent, SchedulerAgent, MusubiAgent
 from musubi.agent.actions import (
@@ -265,8 +272,8 @@ https://github.com/user-attachments/assets/f61f40fb-882b-4484-9a9d-0304a8967a9e
 Check [agent examples](examples/agents) to further view the details about how to use agents in Musubi.
 
 ## CLI Tools
-Musubi support users to execute the aforementioned functions by using command line interface (CLI).   
-The fundamental structure of Musubi cli tool is formed as:
+Musubi supports users to execute the aforementioned functions using the command line interface (CLI).
+The fundamental structure of the Musubi CLI tool is formed as:
 
 ```bash
 musubi [COMMAND] [FLAGS] [ARGUMENTS]
@@ -278,7 +285,7 @@ For instance, to add openai api key into `.env` file with Musubi cli, you can us
 musubi env --openai your-openai-api-key
 ``` 
 
-Use `pipeline` to crawl website (Suppose that we want to crawl articles present in the first 5 pages of the chinese website called '測試' with url https://www.test.com/category?&pages=n):
+Use `pipeline` to crawl a website (Suppose that we want to crawl articles present in the first 5 pages of the Chinese website called '測試' with URL https://www.test.com/category?&pages=n):
 
 ```bash
 musubi pipeline \
@@ -287,7 +294,7 @@ musubi pipeline \
   --class_ 中文 \
   --prefix https://www.test.com/category?&pages= \
   --pages 5 \
-  --block1 ["div", "entry-image"] \ # 
+  --block1 ["div", "entry-image"] 
   --type scan \
 ```
 
@@ -300,7 +307,7 @@ musubi agent \
   --model_type claude-opus-4-20250514
 ```
 
-Re-crawl all previously crawled websites according to the specified page numbers.
+Re-crawl all previously crawled websites according to the specified page numbers:
 
 ```bash
 musubi strat-all \
@@ -310,10 +317,7 @@ musubi strat-all \
 ### Demo
 Task: Crawl all websites whose configurations stored in `config\test_websites.json` again (update 5 pages). 
 
-
 https://github.com/user-attachments/assets/f7c17fa6-f2ab-48c9-aea1-f795cea362a0
-
-
 
 # License
 This repository is licensed under the [Apache-2.0 License](LICENSE).
@@ -333,4 +337,4 @@ If you use Musubi in your research or project, please cite it with the following
 ```
 
 # Acknowledgement
-This repo benefits from [trafilatura](https://github.com/adbar/trafilatura) for extracting text contents from webpages and [PyMuPDF](https://github.com/pymupdf/PyMuPDF) for parsing online pdf documents.
+This repo benefits from [trafilatura](https://github.com/adbar/trafilatura) for extracting text contents from webpages and [PyMuPDF](https://github.com/pymupdf/PyMuPDF) for parsing online PDF documents.

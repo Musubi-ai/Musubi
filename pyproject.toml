@@ -1,6 +1,6 @@
 [project]
 name = "musubi"
-version = "0.1.0"
+version = "1.0.0"
 description = "A convenient crawling package for collecting web data."
 authors = [
     {name = "Lung-Chuan Chen",email = "blaze7451@gmail.com"}
@@ -35,7 +35,7 @@ test = ["pytest"]
 include = "musubi"
 
 [project.urls]
-repository = "https://github.com/blaze7451/Musubi"
+repository = "https://github.com/Musubi-ai/Musubi"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

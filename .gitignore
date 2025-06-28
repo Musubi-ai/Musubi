@@ -17,3 +17,6 @@ b.py
 test.py
 test2.py
 test_pipeline.py
+
+# For building
+dist

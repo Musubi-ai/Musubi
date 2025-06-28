@@ -7,7 +7,7 @@
 <h1 align="center">Weaving connection to the world.🪢</h1>
 
 <p align="center">
-    <a href="https://github.com/blaze7451/Musubi/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/badge/license-Apache_2.0-blue
+    <a href="https://github.com/Musubi-ai/Musubi/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/badge/license-Apache_2.0-blue
     "></a>
     <a href="https://github.com/Musubi-ai"><img alt="Team" src="https://img.shields.io/badge/Built%20by-Musubi%20Team-blue"></a>
 </p>
@@ -59,7 +59,7 @@ pip install musubi
 
 You can also install Musubi from source to instantly use the latest features before the official release.
 ```bash
-pip install git+https://github.com/blaze7451/Musubi.git
+pip install git+https://github.com/Musubi-ai/Musubi.git
 ``` 
 
 # Usage
@@ -331,7 +331,7 @@ If you use Musubi in your research or project, please cite it with the following
 @misc{musubi2025,
   title =        {Musubi: Weaving connection to the world.},
   author =       {Lung-Chuan Chen},
-  howpublished = {\url{https://github.com/blaze7451/Musubi}},
+  howpublished = {\url{https://github.com/Musubi-ai/Musubi}},
   year =         {2025}
 }
 ```

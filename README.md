@@ -52,7 +52,7 @@ We've also developed a CLI tool that lets you crawl and deploy agents without th
 
 For installing Musubi with `pip`: .
 ```bash
-pip install musubi
+pip install musubi-scrape
 ``` 
 
 ## From source

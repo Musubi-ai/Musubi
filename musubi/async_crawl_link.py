@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from bs4 import BeautifulSoup
 from typing import List, Optional
-import json
+import orjson
 import random
 import aiohttp
 import asyncio
@@ -128,8 +128,8 @@ class AsyncScan:
                         if url_list and link in url_list:
                             continue
                         dictt = {"link": link}
-                        with open(self.url_path, "a+", encoding="utf-8") as file:
-                            file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+                        with open(self.url_path, "ab") as file:
+                            file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
                     pbar.update(1)
 
 

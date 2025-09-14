@@ -1,10 +1,10 @@
 import asyncio
-import warnings
 import pandas as pd
 from pathlib import Path
 from collections import defaultdict
 from typing import List, Optional
-from rich.console import Console
+import sys
+from loguru import logger
 from .crawl_link import Scan, Scroll, OnePage, Click
 from .crawl_content import Crawl
 from .async_crawl_link import AsyncScan
@@ -12,7 +12,8 @@ from .async_crawl_content import AsyncCrawl
 from .utils import add_new_website, delete_website_config_by_idx, deduplicate_by_value
 
 
-console = Console()
+logger.add("logs/pipeline.log", level="INFO", encoding="utf-8", enqueue=True) 
+logger.add(sys.stderr, level="ERROR")
 
 
 class Pipeline:
@@ -120,7 +121,7 @@ class Pipeline:
         contents_folder_path.mkdir(parents=True, exist_ok=True)
 
         # start scanning the links
-        console.log("Getting urls from {}!".format(self.name))
+        logger.info("Getting urls from {}!".format(self.name))
         if self.type not in ["scan", "scroll", "onepage", "click"]:
             raise ValueError("The type can only be scan, scroll, onepage, or click but got {}.".format(self.type))
         elif self.type == "scan":
@@ -143,7 +144,7 @@ class Pipeline:
         deduplicate_by_value(self.args_dict["url_path"], key="link")
         
         # Start crawling the websites
-        console.log("Crawling contents in urls from {}!".format(self.name))
+        logger.info("Crawling contents in urls from {}!".format(self.name))
         if self.img_txt_block is not None:
             crawl = Crawl(self.args_dict["url_path"], crawl_type="img-text")
             crawl.crawl_contents(save_path=self.save_path, sleep_time=sleep_time, img_txt_block=self.img_txt_block)
@@ -176,13 +177,27 @@ class Pipeline:
         self.website_df = pd.read_json(self.website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         length = len(self.website_df)
         if update_pages:
+            logger.info("Start updating pipeline.")
             pages = self.website_df["pages"].to_list()
             pages = [page if page <= update_pages else update_pages for page in pages]
             for i in range(start_idx, length):
-                self.start_by_idx(idx=i, update_pages=pages[i], save_dir=save_dir)
+                try:
+                    self.start_by_idx(idx=i, update_pages=pages[i], save_dir=save_dir)
+                except KeyboardInterrupt:
+                    logger.info("Shutting down program manually.")
+                    break   
+                except Exception:
+                    logger.error("Failed to crawl website with idx {} in config {}".format(i, self.website_config_path))
         else:
             for i in range(start_idx, length):
-                self.start_by_idx(idx=i, save_dir=save_dir)
+                logger.info("Start crawling pipeline.")
+                try:
+                    self.start_by_idx(idx=i, save_dir=save_dir)
+                except KeyboardInterrupt:
+                    logger.info("Shutting down program manually.")
+                    break
+                except Exception:
+                    logger.error("Failed to crawl website with idx {} in config {}".format(i, self.website_config_path))
 
     def pipeline(
         self,
@@ -299,5 +314,5 @@ class Pipeline:
                 save_dir = save_dir
             )
         except Exception as e:
-            warnings.warn(f"Error : {e}, Failed to parse website, delete the idx from webiste config now.")
+            logger.error(f"Error : {e}\n, Failed to parse website, delete the idx from webiste config now.")
             delete_website_config_by_idx(idx=new_website_idx, website_config_path=self.website_config_path)

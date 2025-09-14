@@ -20,3 +20,6 @@ test_pipeline.py
 
 # For building
 dist
+
+# For log
+logs/

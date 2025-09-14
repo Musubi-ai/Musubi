@@ -1,4 +1,4 @@
-import json
+import orjson
 from typing import List, Optional, Union
 import warnings
 import pandas as pd
@@ -104,9 +104,8 @@ def add_new_website(
             "page_init_val": page_init_val,
             "multiplier": multiplier
         }
-
-    with open(website_config_path, "a+", encoding="utf-8") as file:
-        file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+    with open(website_config_path, "ab") as file:
+        file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
     return idx
 
@@ -143,18 +142,19 @@ def delete_website_config_by_idx(
     length = len(dictts)
 
     if length == 0:
+        # clear file if empty
         with open(website_config_path, "w", encoding="utf-8") as file:
             pass
+        return
 
     for i in range(length):
         if dictts[i]["idx"] >= idx:
             dictts[i]["idx"] -= 1
-        if i == 0:
-            with open(website_config_path, "w", encoding="utf-8") as file:
-                file.write(json.dumps(dictts[i], ensure_ascii=False) + "\n")
-        else:
-            with open(website_config_path, "a+", encoding="utf-8") as file:
-                file.write(json.dumps(dictts[i], ensure_ascii=False) + "\n")
+        mode = "w" if i == 0 else "a"
+        with open(website_config_path, mode, encoding="utf-8") as file:
+            file.write(
+                orjson.dumps(dictts[i], option=orjson.OPT_APPEND_NEWLINE).decode("utf-8")
+            )
 
 
 def recover_correct_url(
@@ -185,5 +185,3 @@ def recover_correct_url(
         content_df.iloc[i]["url"] = url_df.iloc[i]["link"]
     
     content_df.to_json(content_path, orient='records', lines=True, force_ascii=False)
-
-

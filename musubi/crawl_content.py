@@ -5,7 +5,7 @@ import pymupdf
 import pymupdf4llm
 import io
 from trafilatura import fetch_url, extract
-import json
+import orjson
 from tqdm import tqdm
 import pandas as pd
 import time
@@ -102,13 +102,13 @@ class Crawl():
             if self.crawl_type == "text":
                 result = get_content(url=link)
                 dictt = {"content": result, "url": link}
-                with open(save_path, "a+", encoding="utf-8") as file:
-                    file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+                with open(save_path, "ab") as file:
+                    file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
             elif self.crawl_type == "img-text":
                 result = get_image_text_pair(url=link, img_txt_block=img_txt_block)
                 for item in result:
-                    with open(save_path, "a+", encoding="utf-8") as file:
-                        file.write(json.dumps(item, ensure_ascii=False) + "\n")
+                    with open(save_path, "ab") as file:
+                        file.write(orjson.dumps(item, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
             if sleep_time is not None:
                 time.sleep(sleep_time)

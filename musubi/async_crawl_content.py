@@ -5,7 +5,7 @@ import pymupdf4llm
 import io
 from tqdm import tqdm
 from trafilatura import fetch_url, extract
-import json
+import orjson
 import pandas as pd
 import aiohttp
 import asyncio
@@ -106,12 +106,12 @@ class AsyncCrawl():
                 for task in asyncio.as_completed(tasks):
                     try:
                         res, url = await task
-                        with open(save_path, "a+", encoding="utf-8") as file:
+                        with open(save_path, "ab") as file:
                             if self.crawl_type == "text":
-                                file.write(json.dumps({"content": res, "url": url}, ensure_ascii=False) + "\n")
+                                file.write(orjson.dumps({"content": res, "url": url}, option=orjson.OPT_NON_STR_KEYS) + b"\n")
                             elif self.crawl_type == "img-text":
                                 for item in res:
-                                    file.write(json.dumps(item, ensure_ascii=False) + "\n")
+                                    file.write(orjson.dumps(item, option=orjson.OPT_NON_STR_KEYS) + b"\n")
                         if sleep_time is not None:
                             await asyncio.sleep(sleep_time)
                     except Exception as e:

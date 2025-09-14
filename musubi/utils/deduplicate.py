@@ -1,27 +1,26 @@
-import json
+import orjson
+import os
+import tempfile
 
 
-def deduplicate_by_value(
-    path: str,
-    key: str = None
-):
+def deduplicate_by_value(path: str, key: str):
     seen_values = set()
-    unique_data = []
 
-    with open(path, 'r', encoding='utf-8') as file:
-        for line in file:
-            json_data = json.loads(line.strip())
+    # 在相同目錄下建立暫存檔
+    dir_name = os.path.dirname(path)
+    fd, tmp_path = tempfile.mkstemp(dir=dir_name)
+    os.close(fd)
+
+    with open(path, 'r', encoding='utf-8') as infile, \
+         open(tmp_path, 'w', encoding='utf-8') as outfile:
+
+        for line in infile:
+            json_data = orjson.loads(line)
             value = json_data[key]
-            
+
             if value not in seen_values:
-                unique_data.append(json_data)
                 seen_values.add(value)
+                outfile.write(orjson.dumps(json_data).decode("utf-8"))
+                outfile.write("\n")
 
-    with open(path, 'w', encoding='utf-8') as file:
-        for data in unique_data:
-            json.dump(data, file, ensure_ascii=False)
-            file.write('\n')
-
-
-if __name__ == "__main__":
-    deduplicate_by_value(r"G:\Musubi\crawler\test_link.json", "link")
+    os.replace(tmp_path, path)

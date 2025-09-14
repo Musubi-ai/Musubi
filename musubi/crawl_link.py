@@ -8,7 +8,7 @@ from rich.console import Console
 import pandas as pd
 from bs4 import BeautifulSoup
 from typing import List, Optional
-import json
+import orjson
 import time
 from tqdm import tqdm
 
@@ -137,8 +137,8 @@ class Scan(BaseCrawl):
                 if url_list and link in url_list:
                     continue 
                 dictt = {"link": link}
-                with open(self.url_path, "a+", encoding="utf-8") as file:
-                    file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+                with open(self.url_path, "ab") as file:
+                    file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
     def check_link_result(self):
         page = self.pages_lst[0]
@@ -221,8 +221,8 @@ class Scroll(BaseCrawl):
                     continue 
                 dictt = {"link": url}
 
-                with open(self.url_path, "a+", encoding="utf-8") as file:
-                    file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+                with open(self.url_path, "ab") as file:
+                    file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
     def check_link_result(self):
         self.browse_website()
@@ -315,8 +315,8 @@ class OnePage(BaseCrawl):
             if url_list and link in url_list:
                 continue 
             dictt = {"link": link}
-            with open(self.url_path, "a+", encoding="utf-8") as file:
-                file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+            with open(self.url_path, "ab") as file:
+                file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
     def check_link_result(self):
         link_list = self.get_urls()
@@ -382,8 +382,8 @@ class Click(BaseCrawl):
                         continue 
                     dictt = {"link": url}
 
-                    with open(self.url_path, "a+", encoding="utf-8") as file:
-                        file.write(json.dumps(dictt, ensure_ascii=False) + "\n")
+                    with open(self.url_path, "ab") as file:
+                        file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
                 button = self.driver.find_element("xpath", self.block2[1])
                 try:

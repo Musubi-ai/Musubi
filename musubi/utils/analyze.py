@@ -1,8 +1,12 @@
 import pandas as pd
+import os
 from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
+
+
+os.environ["SE_DRIVER_MIRROR_URL"] = "https://msedgedriver.microsoft.com"
 
 
 class ConfigAnalyzer:

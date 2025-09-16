@@ -97,9 +97,9 @@ class AsyncCrawl():
                     continue
 
                 if self.crawl_type == "text":
-                    tasks.append(get_content(url=link))
+                    tasks.append(asyncio.create_task(get_content(url=link)))
                 elif self.crawl_type == "img-text":
-                    tasks.append(get_image_text_pair(url=link, img_txt_block=img_txt_block))
+                    tasks.append(asyncio.create_task(get_image_text_pair(url=link, img_txt_block=img_txt_block)))
 
             
             with tqdm(total=len(tasks), desc="Crawling contents") as pbar:

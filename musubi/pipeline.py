@@ -20,7 +20,10 @@ class Pipeline:
     Main class for Musubi service.
 
     Args:
-        website_config_path (`str`) websites.json or imgtxt_webs.json.
+        website_config_path (`str`):
+            websites.json or imgtxt_webs.json.
+        log_path (`str`, *optional*):
+            path of log file, default to None.
     """
     def __init__(
         self, 

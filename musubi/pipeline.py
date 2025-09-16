@@ -12,7 +12,6 @@ from .async_crawl_content import AsyncCrawl
 from .utils import add_new_website, delete_website_config_by_idx, deduplicate_by_value
 
 
-logger.add("logs/pipeline.log", level="INFO", encoding="utf-8", enqueue=True) 
 logger.add(sys.stderr, level="ERROR")
 
 
@@ -26,6 +25,7 @@ class Pipeline:
     def __init__(
         self, 
         website_config_path: str = None,
+        log_path: Optional[str] = None
     ):
         if not website_config_path:
             config_dir = Path("config")
@@ -33,6 +33,9 @@ class Pipeline:
             self.website_config_path = Path("config") / "websites.json"
         else:
             self.website_config_path = website_config_path
+
+        if log_path is not None:
+            logger.add(log_path, level="INFO", encoding="utf-8", enqueue=True) 
 
     def start_by_idx(
         self,

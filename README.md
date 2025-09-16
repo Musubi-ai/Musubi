@@ -4,7 +4,7 @@
     <br>
 </p>
 
-<h1 align="center">Weaving connection to the world.🪢</h1>
+<h1 align="center">Weaving connection to the world.</h1>
 
 <p align="center">
     <a href="https://github.com/Musubi-ai/Musubi/blob/main/LICENSE"><img alt="GitHub" src="https://img.shields.io/badge/license-Apache_2.0-blue"></a>

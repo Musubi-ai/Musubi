@@ -79,48 +79,56 @@ class AsyncCrawl():
         print(res)
 
     async def crawl_contents(
-        self, 
-        start_idx: int = 0, 
+        self,
+        start_idx: int = 0,
         save_path: str = None,
         sleep_time: int = None,
         img_txt_block: list = None
     ):
-        async with self.semaphore:
-            save_file = os.path.isfile(save_path)
-            content_list = pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["url"].to_list() if save_file else None
-            url_df = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
-            tasks = []
+        save_file = os.path.isfile(save_path)
+        content_list = (
+            pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["url"].to_list()
+            if save_file else []
+        )
 
-            for i in range(start_idx, len(url_df)):
-                link = url_df.iloc[i]["link"]
-                if content_list and (link in content_list):
-                    continue
+        url_df = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
 
-                if self.crawl_type == "text":
-                    tasks.append(asyncio.create_task(get_content(url=link)))
-                elif self.crawl_type == "img-text":
-                    tasks.append(asyncio.create_task(get_image_text_pair(url=link, img_txt_block=img_txt_block)))
+        async def worker(coro):
+            async with self.semaphore:
+                try:
+                    res, url = await coro
+                    with open(save_path, "ab") as file:
+                        if self.crawl_type == "text":
+                            file.write(orjson.dumps({"content": res, "url": url}, option=orjson.OPT_NON_STR_KEYS) + b"\n")
+                        elif self.crawl_type == "img-text":
+                            for item in res:
+                                file.write(orjson.dumps(item, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
-            
+                    if sleep_time is not None:
+                        await asyncio.sleep(sleep_time)
+
+                except Exception as e:
+                    print(f"Error during task execution: {e}")
+
+        tasks = []
+        for i in range(start_idx, len(url_df)):
+            link = url_df.iloc[i]["link"]
+            if content_list and (link in content_list):
+                continue
+
+            if self.crawl_type == "text":
+                tasks.append(asyncio.create_task(worker(get_content(url=link))))
+            elif self.crawl_type == "img-text":
+                tasks.append(asyncio.create_task(worker(get_image_text_pair(url=link, img_txt_block=img_txt_block))))
+
+        if tasks:
             with tqdm(total=len(tasks), desc="Crawling contents") as pbar:
                 for task in asyncio.as_completed(tasks):
-                    try:
-                        res, url = await task
-                        with open(save_path, "ab") as file:
-                            if self.crawl_type == "text":
-                                file.write(orjson.dumps({"content": res, "url": url}, option=orjson.OPT_NON_STR_KEYS) + b"\n")
-                            elif self.crawl_type == "img-text":
-                                for item in res:
-                                    file.write(orjson.dumps(item, option=orjson.OPT_NON_STR_KEYS) + b"\n")
-                        if sleep_time is not None:
-                            await asyncio.sleep(sleep_time)
-                    except Exception as e:
-                        print(f"Error during task execution: {e}")
+                    await task
                     pbar.update(1)
 
-        crawl_df = pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
-        if (len(crawl_df) == 0):
-            raise Exception("Wrong contents in saved content file.")
+        if os.stat(save_path).st_size == 0:
+            raise Exception("Saved content file is empty.")
 
 
 if __name__ == "__main__":

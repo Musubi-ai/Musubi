@@ -4,6 +4,7 @@ import warnings
 import pandas as pd
 from tqdm import tqdm
 from pathlib import Path
+from urllib.parse import urlparse
 import re
 
 
@@ -185,3 +186,15 @@ def recover_correct_url(
         content_df.iloc[i]["url"] = url_df.iloc[i]["link"]
     
     content_df.to_json(content_path, orient='records', lines=True, force_ascii=False)
+
+
+def get_root_path(url: str):
+    parse = urlparse(url)
+    root_path = parse.scheme + "://" + parse.netloc
+    return root_path
+
+
+if __name__ == "__main__":
+    url = "https://www.wsdiscuss.com/category/market-dynamics/world-economy/page/"
+    res = get_root_path(url)
+    print(res)

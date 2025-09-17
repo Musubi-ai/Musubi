@@ -11,6 +11,7 @@ from typing import List, Optional
 import orjson
 import time
 from tqdm import tqdm
+from .utils import get_root_path
 
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
@@ -115,9 +116,23 @@ class Scan(BaseCrawl):
                         link = block.a["href"]
             else:
                 if self.plural_a_tag:
-                    link = block["href"]
+                    if "http" in block["href"]:
+                        link = block["href"]
+                    else:
+                        root_path = get_root_path(page)
+                        if block["href"][0] == "/":
+                            link = root_path + block["href"]
+                        else:
+                            link = root_path + "/" + block["href"]
                 else:
-                    link = block.a["href"]
+                    if "http" in block.a["href"]:
+                        link = block.a["href"]
+                    else:
+                        root_path = get_root_path(page)
+                        if block["href"][0] == "/":
+                            link = root_path + block.a["href"]
+                        else:
+                            link = root_path + "/" + block.a["href"]
             link_list.append(link)
         return link_list
     
@@ -216,6 +231,13 @@ class Scroll(BaseCrawl):
                     elif ("http" in self.root_path) and ("http" in url):
                         self.root_path = ""
                     url = self.root_path + url
+                else:
+                    if "http" not in url:
+                        root_path = get_root_path(self.prefix)
+                        if url[0] == "/":
+                            url = root_path + url
+                        else:
+                            url = root_path + "/" + url
                 if url_list and (url in url_list):
                     continue 
                 dictt = {"link": url}
@@ -295,9 +317,23 @@ class OnePage(BaseCrawl):
                         link = block.a["href"]
             else:
                 if self.plural_a_tag:
-                    link = block["href"]
+                    if "http" in block["href"]:
+                        link = block["href"]
+                    else:
+                        root_path = get_root_path(self.prefix)
+                        if block["href"][0] == "/":
+                            link = root_path + block["href"]
+                        else:
+                            link = root_path + "/" + block["href"]
                 else:
-                    link = block.a["href"]
+                    if "http" in block.a["href"]:
+                        link = block.a["href"]
+                    else:
+                        root_path = get_root_path(self.prefix)
+                        if block["href"][0] == "/":
+                            link = root_path + block.a["href"]
+                        else:
+                            link = root_path + "/" + block.a["href"]
             link_list.append(link)
 
         return link_list
@@ -377,7 +413,14 @@ class Click(BaseCrawl):
                         elif ("http" in self.root_path) and ("http" in url):
                             self.root_path = ""
                         url = self.root_path + url
-                    if url_list and url in url_list:
+                    else:
+                        if "http" not in url:
+                            root_path = get_root_path(self.prefix)
+                            if url[0] == "/":
+                                url = root_path + url
+                            else:
+                                url = root_path + "/" + url
+                    if url_list and (url in url_list):
                         continue 
                     dictt = {"link": url}
 

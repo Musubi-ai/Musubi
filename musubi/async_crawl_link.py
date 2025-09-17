@@ -6,7 +6,9 @@ import orjson
 import random
 import aiohttp
 import asyncio
+from loguru import logger
 from tqdm import tqdm
+from .utils import get_root_path
 
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
@@ -96,13 +98,27 @@ class AsyncScan:
                                 link = block.a["href"]
                     else:
                         if self.plural_a_tag:
-                            link = block["href"]
+                            if "http" in block["href"]:
+                                link = block["href"]
+                            else:
+                                root_path = get_root_path(page)
+                                if block["href"][0] == "/":
+                                    link = root_path + block["href"]
+                                else:
+                                    link = root_path + "/" + block["href"]
                         else:
-                            link = block.a["href"]
+                            if "http" in block.a["href"]:
+                                link = block.a["href"]
+                            else:
+                                root_path = get_root_path(page)
+                                if block["href"][0] == "/":
+                                    link = root_path + block.a["href"]
+                                else:
+                                    link = root_path + "/" + block.a["href"]
                     link_list.append(link)
 
             except Exception as e:
-                print(f"Error fetching {page}: {e}")
+                logger.error(f"Error fetching {page}: {e}")
 
             await asyncio.sleep(random.uniform(0.5, 2.0))
             

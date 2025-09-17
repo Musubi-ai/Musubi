@@ -6,7 +6,6 @@ import tempfile
 def deduplicate_by_value(path: str, key: str):
     seen_values = set()
 
-    # 在相同目錄下建立暫存檔
     dir_name = os.path.dirname(path)
     fd, tmp_path = tempfile.mkstemp(dir=dir_name)
     os.close(fd)

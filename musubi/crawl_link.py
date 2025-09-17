@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from selenium.webdriver import Edge
 from selenium.webdriver.edge.options import Options
 from selenium.webdriver.common.by import By
-from rich.console import Console
+from loguru import logger
 import pandas as pd
 from bs4 import BeautifulSoup
 from typing import List, Optional
@@ -13,7 +13,6 @@ import time
 from tqdm import tqdm
 
 
-console = Console()
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
 
 
@@ -392,7 +391,7 @@ class Click(BaseCrawl):
                     try:
                         button.click()
                     except:
-                        console.log("Reach click limit or finish clicking.")
+                        logger.warning("Reach click limit or finish clicking.")
                 n += 1
                 if self.sleep_time:
                     time.sleep(self.sleep_time)
@@ -431,7 +430,7 @@ class Click(BaseCrawl):
                     try:
                         button.click()
                     except:
-                        console.log("Reach click limit or finish clicking.")
+                        logger.warning("Reach click limit or finish clicking.")
                 n += 1
                 if self.sleep_time:
                     time.sleep(self.sleep_time)

@@ -1,6 +1,6 @@
 import argparse
 from dotenv import set_key
-from rich.console import Console
+from loguru import logger
 from ..utils.env import create_env_file
 
 
@@ -46,7 +46,6 @@ def env_command_parser(subparsers=None):
 
 
 def env_command(args):
-    console = Console()
     env_path = create_env_file()
     if args.google_search_api is not None:
         set_key(env_path, key_to_set="GOOGLE_SEARCH_API", value_to_set=args.google_search_api)
@@ -69,4 +68,4 @@ def env_command(args):
     if args.gemini is not None:
         set_key(env_path, key_to_set="GEMINI_API_KEY", value_to_set=args.gemini)
     
-    console.log("Finished overwriting .env file.")
+    logger.info("Finished overwriting .env file.")

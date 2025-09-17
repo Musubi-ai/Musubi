@@ -1,5 +1,5 @@
 import argparse
-from rich.console import Console
+from loguru import logger
 from trafilatura import fetch_url, extract
 from ..agent.actions import analyze_website, get_container
 
@@ -33,20 +33,19 @@ def get_command_parser(subparsers=None):
 
 
 def get_command(args):
-    console = Console()
     if args.container is None and args.type is None and args.text is None:
         raise ValueError("At least one of flags '--container', '--type', and '--text' should be True.")
     if args.container is not None:
         block1, block2 = get_container(args.url)
         msg = f"block1: {block1}\nblock2: {block2}"
-        console.log(msg)
+        logger.info(msg)
     if args.type is not None:
         navigation_type = analyze_website(args.url)
         msg = f"navigation type: {navigation_type}"
-        console.log(msg)
+        logger.info(msg)
     if args.text is not None:
         text_content = get_content(args.url)
         msg = text_content
-        console.log(msg)
+        logger.info(msg)
     
     

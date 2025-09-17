@@ -10,6 +10,7 @@ import pandas as pd
 import aiohttp
 import asyncio
 from functools import partial
+from loguru import logger
 
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
@@ -108,7 +109,7 @@ class AsyncCrawl():
                         await asyncio.sleep(sleep_time)
 
                 except Exception as e:
-                    print(f"Error during task execution: {e}")
+                    logger.error(f"Error during task execution: {e}")
 
         tasks = []
         for i in range(start_idx, len(url_df)):

@@ -7,14 +7,17 @@ from bs4 import BeautifulSoup
 from collections import Counter
 import json
 import sys
-from rich.console import Console
+from loguru import logger
 from ...utils.analyze import WebsiteNavigationAnalyzer
 from ...pipeline import Pipeline
 from ...utils import is_valid_format, create_env_file
 
 
-headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36'}
-console = Console()
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/120.0.0.0 Safari/537.36"
+}
 
 
 def google_search(
@@ -139,7 +142,7 @@ def get_container(url: str):
     """
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        console.log(f"Failed to fetch the page: {response.status_code}")
+        logger.error(f"Failed to fetch the page: {response.status_code}")
         return ([], None)
     
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -264,7 +267,7 @@ def get_page_info(
     pagination_candidates = ["pg", "pagination", "page", "pag"]
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        console.log(f"Failed to fetch the page: {response.status_code}")
+        logger.error(f"Failed to fetch the page: {response.status_code}")
         return []
     
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -281,7 +284,7 @@ def get_page_info(
                 if any(item in href for item in pagination_candidates):
                     urls.append(href)
     except:
-        console.log("Cannot find nav tag.")
+        logger.error("Cannot find nav tag.")
 
     if len(urls) == 0:
         a_soup = soup.find_all("a", href=True)
@@ -362,7 +365,7 @@ def final_answer(text: str = None):
     try:
         data = json.loads(text.strip())
     except json.JSONDecodeError as e:
-        console.log("JSON parser error:", e)
+        logger.error("JSON parser error:", e)
         sys.exit(1)
     expected_keys = {
     "dir", "name", "class_", "prefix", "suffix",
@@ -373,8 +376,8 @@ def final_answer(text: str = None):
     missing_keys = expected_keys - actual_keys
     extra_keys = actual_keys - expected_keys
     if missing_keys or extra_keys:
-        console.log("missing keys:", missing_keys)
-        console.log("extra keys:", extra_keys)
+        logger.error("missing keys:", missing_keys)
+        logger.error("extra keys:", extra_keys)
         raise ValueError("Parsed dictionary doesn't match with necessray format for implementing `pipeline_tool` function.")
 
     return data

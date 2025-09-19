@@ -66,7 +66,7 @@ class OpenAIModel(BaseModel):
             self.messages.append({"role": "system", "content": self.system_prompt})
         self.model_type = model_type
         if self.model_type is None:
-            self.model_type = "gpt-4o"
+            self.model_type = "gpt-5"
         self.client = openai.OpenAI(api_key=self.api_key)
     
     def execute(self, **generate_kwargs):
@@ -101,7 +101,7 @@ class GroqModel(BaseModel):
             self.messages.append({"role": "system", "content": self.system_prompt})
         self.model_type = model_type
         if self.model_type is None:
-            self.model_type = "llama-3.3-70b-versatile"
+            self.model_type = "openai/gpt-oss-120b"
         self.client = groq.Groq(api_key=self.api_key)
     
     def execute(self, **generate_kwargs):
@@ -136,7 +136,7 @@ class GrokModel(BaseModel):
             self.messages.append({"role": "system", "content": self.system_prompt})
         self.model_type = model_type
         if self.model_type is None:
-            self.model_type = "grok-2-latest"
+            self.model_type = "grok-4"
         self.client = openai.OpenAI(
             api_key=self.api_key,
             base_url="https://api.x.ai/v1",
@@ -212,7 +212,7 @@ class ClaudeModel(BaseModel):
             self.messages.append({"role": "system", "content": self.system_prompt})
         self.model_type = model_type
         if self.model_type is None:
-            self.model_type = "claude-3-5-sonnet-20241022"
+            self.model_type = "claude-opus-4-1-20250805"
         self.client = anthropic.Anthropic(
             api_key=self.api_key,
         )
@@ -249,7 +249,7 @@ class GeminiModel(BaseModel):
             self.messages.append({"role": "system", "content": self.system_prompt})
         self.model_type = model_type
         if self.model_type is None:
-            self.model_type = "gemini-2.0-flash"
+            self.model_type = "gemini-2.5-pro"
         self.client = openai.OpenAI(api_key=self.api_key)
     
     def execute(self, **generate_kwargs):

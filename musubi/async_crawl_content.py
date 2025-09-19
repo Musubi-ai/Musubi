@@ -58,7 +58,7 @@ class AsyncCrawl():
         self,
         url_path: str,
         crawl_type: str = "text",
-        max_concurrent_tasks: int = 10,
+        max_concurrent_tasks: int = 30,
     ):
         self.url_path = url_path
         self.crawl_type = crawl_type     

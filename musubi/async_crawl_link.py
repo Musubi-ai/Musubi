@@ -26,7 +26,7 @@ class AsyncScan:
         url_path: Optional[str] = None,
         page_init_val: Optional[int] = 1,
         multiplier: Optional[int] = 1,
-        max_concurrent_tasks: int = 10,
+        max_concurrent_tasks: int = 30,
         **kwargs
     ):
         self.prefix = prefix
@@ -111,7 +111,7 @@ class AsyncScan:
                                 link = block.a["href"]
                             else:
                                 root_path = get_root_path(page)
-                                if block["href"][0] == "/":
+                                if block.a["href"][0] == "/":
                                     link = root_path + block.a["href"]
                                 else:
                                     link = root_path + "/" + block.a["href"]

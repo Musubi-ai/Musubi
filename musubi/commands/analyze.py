@@ -1,5 +1,5 @@
 import argparse
-from rich.console import Console
+from loguru import logger
 from ..utils import ConfigAnalyzer
 
 
@@ -21,14 +21,13 @@ def analyze_command_parser(subparsers=None):
 
 
 def analyze_command(args):
-    console = Console()
     analyzer = ConfigAnalyzer(website_config_path=args.website_config_path)
     if args.target == "domain":
         res = analyzer.domain_analyze()
-        console.print(res)
+        logger.info(res)
     elif args.target == "type":
         res = analyzer.type_analyze()
-        console.print(res)
+        logger.info(res)
     else:
         raise ValueError("The argument of flag '--target' should be one of 'domain' and 'type' but got {}".format(args.target))
 

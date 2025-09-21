@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 from pathlib import Path
+from loguru import logger
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
@@ -78,7 +79,7 @@ class WebsiteNavigationAnalyzer:
             if pagination_elements:
                 return True
         except:
-            print("Error happens when checking pagination.")
+            logger.error("Error happens when checking pagination.")
         return False
     
     def check_buttons(self):
@@ -122,7 +123,7 @@ class WebsiteNavigationAnalyzer:
                             continue
             
             except Exception as e:
-                print(f"Error raised when checking button pattern: {str(e)}")
+                logger.error(f"Error raised when checking button pattern: {str(e)}")
         
         return False
     

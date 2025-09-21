@@ -5,11 +5,8 @@ from typing import Optional
 from flask import Flask
 import pandas as pd
 from dataclasses import dataclass, field
-from rich.console import Console
+from loguru import logger
 from .tasks import Task
-
-
-console = Console()
 
 
 app = Flask(__name__)
@@ -67,7 +64,7 @@ def retrieve_task_list():
         msg = "No scheduled task."
         return msg
     for item in task_list:
-        console.log(f"  - ID: {item["ID"]}, Name: {item["Name"]}, Status: {item["Status"]}", style="green1")
+        logger.info(f"  - ID: {item["ID"]}, Name: {item["Name"]}, Status: {item["Status"]}")
     return task_list
 
 @app.route("/task/<string:task_id>", methods=["POST"])

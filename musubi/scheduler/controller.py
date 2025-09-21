@@ -3,11 +3,8 @@ import uuid
 from pathlib import Path
 import json
 from typing import Optional
-from rich.console import Console
+from loguru import logger
 from .scheduler import Scheduler
-
-
-console = Console()
 
 
 class Controller:
@@ -48,7 +45,7 @@ class Controller:
         try:
             requests.post(api)
         except requests.exceptions.ConnectionError as e:
-            console.log("The scheduler has been shut down.", style="red1")
+            logger.info("The scheduler has been shut down.")
 
     def check_status(self):
         api = self.root_path
@@ -63,7 +60,7 @@ class Controller:
         api = self.root_path + "/tasks"
         try:
             res = requests.get(api)
-            console.log(res.content, style="green1")
+            logger.info(res.content, style="green1")
             return res
         except:
             return "Something went wromg when retreiving the task list."
@@ -87,7 +84,7 @@ class Controller:
         if task_type == "update_all":
             task_name = task_name if task_name is not None else "update_all_task"
             if update_pages is None:
-                console.log("Scheduling updating task but update_pages argument is not assigned. Specifying it to 10 by default.", style="yellow1")
+                logger.warning("Scheduling updating task but update_pages argument is not assigned. Specifying it to 10 by default.")
             update_pages = update_pages if update_pages is not None else 10
             task_params["task_name"] = task_name
             task_params["start_idx"] = start_idx
@@ -128,9 +125,9 @@ class Controller:
         api = self.root_path + "/task/{}".format(task_id)
         try:
             requests.post(api)
-            console.log("Task with task_id '{}' has been added into config file and started.".format(task_id), style="green1")
+            logger.info("Task with task_id '{}' has been added into config file and started.".format(task_id))
         except:
-            console.log("Failed to add task into scheduler.", style="red1")
+            logger.error("Failed to add task into scheduler.")
 
     def start_task_from_config(
         self,
@@ -139,9 +136,9 @@ class Controller:
         api = self.root_path + "/task/{}".format(task_id)
         try:
             requests.post(api)
-            console.log("Task with task_id '{}' has started".format(task_id), style="green1")
+            logger.info("Task with task_id '{}' has started".format(task_id))
         except:
-            console.log("Failed to add task with task_id {} into scheduler.".format(task_id), style="red1")
+            logger.error("Failed to add task with task_id {} into scheduler.".format(task_id))
 
     def pause_task(
         self,
@@ -150,9 +147,9 @@ class Controller:
         api = self.root_path + "/pause/{}".format(task_id)
         try:
             requests.post(api)
-            console.log("Task with task_id '{}' has been paused".format(task_id), style="green1")
+            logger.info("Task with task_id '{}' has been paused".format(task_id))
         except:
-            console.log("Failed to pause task with task_id: {}".format(task_id), style="red1")
+            logger.error("Failed to pause task with task_id: {}".format(task_id))
 
     def resume_task(
         self,
@@ -161,9 +158,9 @@ class Controller:
         api = self.root_path + "/resume/{}".format(task_id)
         try:
             requests.post(api)
-            console.log("Task with task_id '{}' has been resumed".format(task_id), style="green1")
+            logger.info("Task with task_id '{}' has been resumed".format(task_id))
         except:
-            console.log("Failed to resume task with task_id: {}".format(task_id), style="red1")
+            logger.error("Failed to resume task with task_id: {}".format(task_id))
 
     def remove_task(
         self,
@@ -172,6 +169,6 @@ class Controller:
         api = self.root_path + "/remove/{}".format(task_id)
         try:
             requests.post(api)
-            console.log("Task with task_id '{}' has been removed".format(task_id), style="green1")
+            logger.info("Task with task_id '{}' has been removed".format(task_id))
         except:
-            console.log("Failed to remove task with task_id: {}".format(task_id), style="red1")
+            logger.error("Failed to remove task with task_id: {}".format(task_id))

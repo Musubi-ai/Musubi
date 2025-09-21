@@ -1,6 +1,6 @@
 import orjson
 from typing import List, Optional, Union
-import warnings
+from loguru import logger
 import pandas as pd
 from tqdm import tqdm
 from pathlib import Path
@@ -58,14 +58,14 @@ def add_new_website(
             idx = max(exist_idx_list) + 1
 
         if idx in exist_idx_list:
-            warnings.warn("The index of new website is not assigned or exists alraedy, the index will be automatically assigned to avoid error.")
+            logger.warning("The index of new website is not assigned or exists alraedy, the index will be automatically assigned to avoid error.")
             idx = max(exist_idx_list) + 1
                 
         if (dir in dir_list) and (name in name_list):
-            warnings.warn("The dir and name of new website exists alraedy.")
+            logger.warning("The dir and name of new website exists alraedy.")
 
     except:
-        warnings.warn("The argument 'website_config_path' is None or json file is empty. Direct to default path and create new config file.")
+        logger.warning("The argument 'website_config_path' is None or json file is empty. Direct to default path and create new config file.")
         default_folder = Path("config")
         default_folder.mkdir(parents=True, exist_ok=True)
         idx = 0

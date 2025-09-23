@@ -4,7 +4,6 @@ Example of scraping articles in 'Craft and Criticism' category of Literary Hub.
 from musubi import Pipeline
 from musubi.agent.actions import (
     google_search,
-    analyze_website,
     get_container,
     get_page_info
 )
@@ -17,8 +16,10 @@ def main(
     name: str,
     class_: str
 ):
-    url, root_path = google_search(query)
-    website_type = analyze_website(url)
+    try:
+        url, root_path = google_search(query) # Might cause error if don't have Google search engine
+    except Exception:
+        url, root_path = ("https://lithub.com/category/craftandcriticism/", None)
     block1, block2 = get_container(url)
     prefix, suffix, max_pages, page_init_val, multiplier = get_page_info(url=url, root_path=root_path)
     pipeline_kwargs = {
@@ -28,12 +29,12 @@ def main(
         "prefix": prefix, 
         "suffix": suffix, 
         "root_path": root_path, 
-        "pages": max_pages,
+        "pages": 3, # crawl 3 pages for example
         "page_init_val": page_init_val,
         "multiplier": multiplier,
         "block1": block1, 
         "block2": block2, 
-        "implementation": website_type,
+        "implementation": "scan",
     }
     pipeline = Pipeline(website_config_path=website_config_path)
     pipeline.pipeline(**pipeline_kwargs)
@@ -42,7 +43,7 @@ def main(
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--website_config_path", default=r"config\websites.json", help="webiste config file", type=str)
+    parser.add_argument("--website_config_path", default="config/websites.json", help="webiste config file", type=str)
     parser.add_argument("--query", default="Literary Hub Craft and Criticism", help="Query to search website on google", type=str)
     parser.add_argument("--dir_", default="Literary_Hub", help="The name of website and its corresponding directory", type=str)
     parser.add_argument("--name", default="Craft and Criticism", help="Category of articels in the website", type=str)

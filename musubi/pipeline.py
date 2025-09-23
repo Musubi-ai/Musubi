@@ -208,9 +208,9 @@ class Pipeline:
     def pipeline(
         self,
         idx: Optional[int] = None,
-        dir_: str = None,
-        name: str = None,
-        class_: str = None,
+        dir_: Optional[str] = None,
+        name: Optional[str] = None,
+        class_: Optional[str] = None,
         prefix: str = None,
         suffix: Optional[int] = None,
         root_path: Optional[int] = None,
@@ -221,7 +221,7 @@ class Pipeline:
         block2: Optional[List[str]] = None,
         img_txt_block: Optional[List[str]] = None,
         implementation: str = None,
-        async_: bool = True,
+        async_: Optional[bool] = True,
         start_page: Optional[int] = 0,
         sleep_time: Optional[int] = None,
         save_dir: Optional[str] = None
@@ -233,11 +233,11 @@ class Pipeline:
             idx (`int`, *optional*):
                 Specify the index of new website in config json file. If none, the index of new 
                 website will be the next number of max existing index.
-            dir_ (`str`):
+            dir_ (`str`, *optional*):
                 Folder name of new website.
-            name (`str`):
+            name (`str`, *optional*):
                 Subfolder name under the website.
-            class_ (`str`):
+            class_ (`str`, *optional*):
                 The type of data in the website. The most general case to use this argument is using the main language of website name, e.g., English, 中文,...
             prefix (`str`):
                 Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str((page_init_val + pages) * multiplier) + "suffix".

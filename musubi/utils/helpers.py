@@ -43,7 +43,7 @@ def add_new_website(
     idx: int = None,
     dir_: Optional[str] = None,
     name: Optional[str] = None,
-    class_: Optional[str] = None,
+    class_: Optional[str] = None, 
     prefix: str = None,
     suffix: str = None,
     root_path: Optional[str] = None,
@@ -80,11 +80,11 @@ def add_new_website(
         default_folder.mkdir(parents=True, exist_ok=True)
         idx = 0
 
-    if not (class_ and prefix and pages and block1 and type) and idx is not None:
+    if not (prefix and pages and block1 and implementation) and idx is not None:
         raise ValueError("Essential information for crawling website is not complete, please check carefully before changing config json file.")
     
     if dir_ is None or name is None:
-        if type in ["onepage", "click", "scroll"]:
+        if implementation in ["onepage", "click", "scroll"]:
             try:
                 response = requests.get(prefix)
                 soup = BeautifulSoup(response.text, "html.parser")
@@ -92,7 +92,7 @@ def add_new_website(
             except Exception:
                 logger.error("Failed to parse title. Please input 'dir_' and 'name' arguments.")
                 raise ValueError()
-        elif type == "scan":
+        elif implementation == "scan":
             if suffix is not None:
                 url = prefix + str((page_init_val + 1) * multiplier) + suffix
             else:
@@ -115,8 +115,8 @@ def add_new_website(
                 dir_ = splitted_title[0]
                 name = splitted_title[0]
 
-        if class_ is None:
-            class_ = "Musubi" # Crawl with Musubi!
+    if class_ is None:
+        class_ = "Musubi_data" # Crawl with Musubi!
 
     if img_txt_block is not None:
         dictt = {

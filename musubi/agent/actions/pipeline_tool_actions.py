@@ -403,11 +403,11 @@ def pipeline_tool(
     Main function to add new website into config json file and scrape website articles.
 
     Args:
-        dir_ (`str`):
+        dir_ (`str`, *optional*):
             Folder name of new website.
-        name (`str`):
+        name (`str`, *optional*):
             Subfolder name under the website.
-        class_ (`str`):
+        class_ (`str`, *optional*):
                 The type of data in the website. The most general case to use this argument is using the main language of website name, e.g., English, 中文,...
         prefix (`str`):
             Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str((page_inint_val + pages) * multiplier) + "suffix".

@@ -43,7 +43,7 @@ def add_new_website(
     idx: int = None,
     dir_: Optional[str] = None,
     name: Optional[str] = None,
-    class_: str = None,
+    class_: Optional[str] = None,
     prefix: str = None,
     suffix: str = None,
     root_path: Optional[str] = None,
@@ -115,6 +115,8 @@ def add_new_website(
                 dir_ = splitted_title[0]
                 name = splitted_title[0]
 
+        if class_ is None:
+            class_ = "Musubi" # Crawl with Musubi!
 
     if img_txt_block is not None:
         dictt = {

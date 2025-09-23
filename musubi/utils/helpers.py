@@ -6,6 +6,8 @@ from tqdm import tqdm
 from pathlib import Path
 from urllib.parse import urlparse
 import re
+import requests
+from bs4 import BeautifulSoup
 
 
 def is_valid_format(
@@ -29,30 +31,39 @@ def is_valid_format(
     return bool(pattern.match(s))
 
 
+def split_title(title: str):
+    separators = r"[-|:]"
+    parts = re.split(separators, title)
+    parts = [p.strip() for p in parts if p.strip()]
+    return parts
+
+
 def add_new_website(
     website_config_path: Optional[str] = None,
     idx: int = None,
-    dir: str = None,
-    name: str = None,
+    dir_: Optional[str] = None,
+    name: Optional[str] = None,
     class_: str = None,
     prefix: str = None,
     suffix: str = None,
-    root_path: str = None,
+    root_path: Optional[str] = None,
     pages: int = None,
     block1: list = None,
     block2: Optional[List] = None,
     img_txt_block: Optional[List] = None,
-    type: str = None,
+    implementation: str = None,
     async_: bool = False,
     page_init_val: int = 1,
     multiplier: int = 1,
 ):
     if not website_config_path:
         website_config_path = Path("config") / "websites.json"
+
     try:
-        exist_idx_list = pd.read_json(website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["idx"].to_list()
-        dir_list = pd.read_json(website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["dir"].to_list()
-        name_list = pd.read_json(website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["name"].to_list()
+        df = pd.read_json(website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
+        exist_idx_list = df["idx"].to_list()
+        dir_list = df["dir_"].to_list()
+        name_list = df["name"].to_list()
 
         if not idx:
             idx = max(exist_idx_list) + 1
@@ -61,22 +72,54 @@ def add_new_website(
             logger.warning("The index of new website is not assigned or exists alraedy, the index will be automatically assigned to avoid error.")
             idx = max(exist_idx_list) + 1
                 
-        if (dir in dir_list) and (name in name_list):
-            logger.warning("The dir and name of new website exists alraedy.")
-
-    except:
+        if (dir_ in dir_list) and (name in name_list):
+            logger.warning("The dir_ and name of new website exists alraedy.")
+    except Exception:
         logger.warning("The argument 'website_config_path' is None or json file is empty. Direct to default path and create new config file.")
         default_folder = Path("config")
         default_folder.mkdir(parents=True, exist_ok=True)
         idx = 0
 
-    if not (dir and name and class_ and prefix and pages and block1 and type) and idx is not None:
+    if not (class_ and prefix and pages and block1 and type) and idx is not None:
         raise ValueError("Essential information for crawling website is not complete, please check carefully before changing config json file.")
+    
+    if dir_ is None or name is None:
+        if type in ["onepage", "click", "scroll"]:
+            try:
+                response = requests.get(prefix)
+                soup = BeautifulSoup(response.text, "html.parser")
+                title_text = soup.title.string
+            except Exception:
+                logger.error("Failed to parse title. Please input 'dir_' and 'name' arguments.")
+                raise ValueError()
+        elif type == "scan":
+            if suffix is not None:
+                url = prefix + str((page_init_val + 1) * multiplier) + suffix
+            else:
+                url = prefix + str((page_init_val + 1) * multiplier)
+            try:
+                response = requests.get(url)
+                soup = BeautifulSoup(response.text, "html.parser")
+                title_text = soup.title.string
+            except Exception:
+                logger.error("Failed to parse title. Please input 'dir_' and 'name' arguments.")
+                raise ValueError()
+        
+        if title_text:
+            splitted_title = split_title(title_text)
+
+            if len(splitted_title) > 1:
+                dir_ = splitted_title[-1]
+                name = splitted_title[-1] + "-" + splitted_title[0]
+            elif len(splitted_title) == 1:
+                dir_ = splitted_title[0]
+                name = splitted_title[0]
+
 
     if img_txt_block is not None:
         dictt = {
             "idx": idx,
-            "dir": dir,
+            "dir_": dir_,
             "name": name,
             "class_": class_,
             "prefix": prefix,
@@ -86,12 +129,12 @@ def add_new_website(
             "block1": block1,
             "block2": block2,
             "img_txt_block": img_txt_block,
-            "type": type
+            "implementation": implementation
         }
     else:
         dictt = {
             "idx": idx,
-            "dir": dir,
+            "dir_": dir_,
             "name": name,
             "class_": class_,
             "prefix": prefix,
@@ -100,7 +143,7 @@ def add_new_website(
             "pages": pages,
             "block1": block1,
             "block2": block2,
-            "type": type,
+            "implementation": implementation,
             "async_": async_,
             "page_init_val": page_init_val,
             "multiplier": multiplier
@@ -165,17 +208,17 @@ def recover_correct_url(
 ):
     config = pd.read_json(website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow").iloc[idx].to_dict()
     if save_dir is not None:
-        urls_dir = Path(save_dir) / "crawler" / config["dir"]
+        urls_dir = Path(save_dir) / "crawler" / config["dir_"]
         url_path = Path(urls_dir) / "{}_link.json".format(config["name"])
     else:
-        urls_dir = Path("crawler") / config["dir"]
+        urls_dir = Path("crawler") / config["dir_"]
         url_path = Path(urls_dir) / "{}_link.json".format(config["name"])
 
     if save_dir is not None:
-        content_dir = Path(save_dir) / "data" / config["class_"] / config["dir"]
+        content_dir = Path(save_dir) / "data" / config["class_"] / config["dir_"]
         content_path = Path(save_dir) / "{}.json".format(config["name"])
     else:
-        content_dir = Path("data") / config["class_"] / config["dir"]
+        content_dir = Path("data") / config["class_"] / config["dir_"]
         content_path = Path(content_dir) / "{}.json".format(config["name"])
     url_df = pd.read_json(url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
     content_df = pd.read_json(content_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")

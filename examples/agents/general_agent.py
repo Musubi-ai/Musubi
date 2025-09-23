@@ -1,7 +1,7 @@
 from musubi.agent import GeneralAgent
 from musubi.agent.actions import (
     domain_analyze,
-    type_analyze,
+    implementation_analyze,
     update_all,
     update_by_idx,
     upload_data_folder,
@@ -9,7 +9,7 @@ from musubi.agent.actions import (
 )
 
 
-general_actions = [domain_analyze, type_analyze, update_all, update_by_idx, upload_data_folder, del_web_config_by_idx]
+general_actions = [domain_analyze, implementation_analyze, update_all, update_by_idx, upload_data_folder, del_web_config_by_idx]
 general_agent = GeneralAgent(
     actions=general_actions,
     model_source="openai"

@@ -33,7 +33,7 @@ To provide the final answer to the task, use an action blob with "action_name": 
 <action>
 {
   "action_name": "final_answer",
-  "action_arguments": {"dir": "test", "name": "test", "class_": "中文", "prefix": "...", "suffix": None, "root_path": None, ...}
+  "action_arguments": {"dir_": "test", "name": "test", "class_": "中文", "prefix": "...", "suffix": None, "root_path": None, ...}
 }
 </action>
 
@@ -44,7 +44,7 @@ Task: "Scrape articles from the 'Fiction and Poetry' category on Literary Hub, f
 <thought>
 Alright, the user has requested me to scrape the article contents from the 'Fiction and Poetry' category on Literary Hub, from page 1 to page 5.
 By using pipeline_tool to slove this task, I have to determine the values of function arguments first. By analyzing the user's request, I can easily identify part of them: 
-{"dir": "Literary Hub", "name": "Fiction and Poetry", "class_": "English", "page": 5, "start_page": 0}. 
+{"dir_": "Literary Hub", "name": "Fiction and Poetry", "class_": "English", "page": 5, "start_page": 0}. 
 Now I need to take more actions to get other arguments. Let's get the corresponding URL of 'Fiction and Poetry' category on Literary Hub and the root path of website first.
 </thought>
 
@@ -75,7 +75,7 @@ Now I get the URL of the website and root path of the website already, I can the
 </observation>
 
 <thought>
-Since the optimal crawling method is `scan`, I know that the `type` argument in pipeline_tool should be scan. Now I should take action `get_container` to determine the block1 and block2 arguments.
+Since the optimal crawling method is `scan`, I know that the `implementation` argument in pipeline_tool should be scan. Now I should take action `get_container` to determine the block1 and block2 arguments.
 </thought>
 
 <action>
@@ -113,7 +113,7 @@ Now I can just give user the arguments by action `final_answer`.
 {
   "action_name": "final_answer",
   "action_arguments": {
-  "dir": "Literary Hub",
+  "dir_": "Literary Hub",
   "name": "Fiction and Poetry",
   "class_": "English",
   "prefix": "https://lithub.com/category/fictionandpoetry/page/",
@@ -124,7 +124,7 @@ Now I can just give user the arguments by action `final_answer`.
   "multiplier": 1,
   "block1": ['div', 'post_header'],
   "block2": None,
-  "type": "scan",
+  "implementation": "scan",
   "start_page": 0
   }
 }
@@ -141,7 +141,7 @@ Here are the rules you should always follow to finish your task:
 3. Do not call the google_search if you do not need information, try to solve the task yourself.
 If no action call is needed, take `final_answer` action to return your answer.
 4. Never re-do a action call that you previously did with the exact same parameters.
-5. ALWAYS decide the arguments of "dir", "name", "class_", "start_page" in the first thought tag.
+5. ALWAYS decide the arguments of "dir_", "name", "class_", "start_page" in the first thought tag.
 6. ALWAYS GENERATE ACTION WRAPPED BY ACTION TAGS IN YOUR OUTPUT.
 
 Now Begin! If you complete the task correctly, you will receive a reward of $1,000,000.

@@ -11,7 +11,7 @@ def pipeline_command_parser(subparsers=None):
     # arguments for config file
     parser.add_argument("--website_config_path", default=None, help="webiste config file", type=str)
     # arguments for add mode
-    parser.add_argument("--dir", default=None, help="webiste name and its corresponding directory", type=str, required=True)
+    parser.add_argument("--dir_", default=None, help="webiste name and its corresponding directory", type=str, required=True)
     parser.add_argument("--name", default=None, help="category of articels in the website", type=str, required=True)
     parser.add_argument("--class_", default=None, help="main class of the website", type=str, required=True)
     parser.add_argument("--prefix", default=None, help="prefix of url", type=str, required=True)
@@ -23,7 +23,7 @@ def pipeline_command_parser(subparsers=None):
     parser.add_argument("--block1", default=None, help="main list of tag and class", type=list, required=True)
     parser.add_argument("--block2", default=None, help="sub list of tag and class", type=list)
     parser.add_argument("--img_txt_block", default=None, help="main list of tag and class for crawling image-text pair", type=list)
-    parser.add_argument("--type", default=None, help="way of crawling websites", type=str, choices=["scan", "scroll", "onepage", "click"], required=True)
+    parser.add_argument("--implementation", default=None, help="way of crawling websites", type=str, choices=["scan", "scroll", "onepage", "click"], required=True)
     parser.add_argument("--async_", default=True, help="asynchronous crawling or not", type=bool, required=True)
     parser.add_argument("--start_page", default=1, help="From which page to start crawling urls. 0 is first page, 1 is second page, and so forth.", type=int)
     parser.add_argument("--sleep_time", default=1, help="Sleep time to prevent ban from website.", type=int)
@@ -36,7 +36,7 @@ def pipeline_command_parser(subparsers=None):
 def pipeline_command(args):
     pipe = Pipeline(website_config_path=args.website_config_path)
     pipe.pipeline(
-        dir = args.dir,
+        dir_ = args.dir_,
         name = args.name,  
         class_ = args.class_,
         prefix = args.prefix,
@@ -47,7 +47,7 @@ def pipeline_command(args):
         multiplier = args.multiplier,
         block1 = args.block1,
         block2 = args.block2,
-        type = args.type,
+        implementation = args.implementation,
         img_txt_block = args.img_txt_block,
         async_ = args.async_,
         start_page=args.start_page,

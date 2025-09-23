@@ -27,8 +27,8 @@ def domain_analyze(website_config_path = Path("config") / "websites.json"):
     return report
 
 
-def type_analyze(website_config_path = Path("config") / "websites.json"):
-    """Analyzes a JSON file containing website configurations and counts the occurrences of different website types.
+def implementation_analyze(website_config_path = Path("config") / "websites.json"):
+    """Analyzes a JSON file containing website configurations and counts the occurrences of different implementations.
 
     Args:
         website_config_path (Path or str, optional): The path to the `websites.json` file containing website data. 
@@ -43,7 +43,7 @@ def type_analyze(website_config_path = Path("config") / "websites.json"):
             - `click` (int): The count of websites classified as "click".
     """
     analyzer = ConfigAnalyzer(website_config_path)
-    report = analyzer.type_analyze()
+    report = analyzer.implementation_analyze()
     return report
 
 

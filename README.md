@@ -70,18 +70,18 @@ To crawl website contents, you can easily use `pipeline` function:
 from musubi import Pipeline
 
 pipeline_kwargs = {
-    "dir": dir, # Name of directory to store links and text contents
+    "dir_": dir_, # Name of directory to store links and text contents
     "name": name, # Name of saved file 
     "class_": class_,  # The type of data on the website.
     "prefix": prefix, # Main prefix of website. 
     "suffix": suffix, # The URL Musubi crawls will be formulated as "prefix" + str((page_init_val + pages) * multiplier) + "suffix".
     "root_path": root_path, # Root of the URL if URLs in tags are presented in relative format.
-    "pages": max_pages, # Number of crawling pages if type is 'scan' or number of scrolling times if type is 'scroll'.
+    "pages": max_pages, # Number of crawling pages if 'implementation' is 'scan' or number of scrolling times if 'implementation' is 'scroll'.
     "page_init_val": page_init_val, # Initial value of page.
     "multiplier": multiplier, # Multiplier of page.
     "block1": block1, # List of HTML tag and its class. 
     "block2": block2, # Second block if crawling nested structure
-    "type": website_type, # Type of crawling method to crawl URLs on the website
+    "implementation": crawling_implementation, # Type of crawling method to crawl URLs on the website
     "async_": async_ # Whether to crawl website asynchronously or not
 }
 
@@ -98,7 +98,7 @@ from musubi.pipeline import Pipeline
 pipe = Pipeline(website_config_path=r"config\test.json")
 
 pipe.pipeline(
-    dir = "Literary Hub",
+    dir_ = "Literary Hub",
     name = "Fiction and Poetry",  
     class_ = "English",
     prefix = "https://lithub.com/category/fictionandpoetry/page/",
@@ -109,7 +109,7 @@ pipe.pipeline(
     multiplier = 1,
     block1 = ["div", "post_header"],
     block2 = None,
-    type = "scan",
+    implementation = "scan",
     )
 ```
 
@@ -237,7 +237,7 @@ from musubi.agent.actions import (
     get_page_info,
     final_answer,
     domain_analyze,
-    type_analyze,
+    implementation_analyze,
     update_all,
     update_by_idx,
     upload_data_folder,
@@ -251,7 +251,7 @@ pipeline_agent = PipelineAgent(
 )
 
 
-general_actions = [domain_analyze, type_analyze, update_all, update_by_idx, upload_data_folder, del_web_config_by_idx]
+general_actions = [domain_analyze, implementation_analyze, update_all, update_by_idx, upload_data_folder, del_web_config_by_idx]
 general_agent = GeneralAgent(
     actions=general_actions
 )
@@ -286,13 +286,13 @@ Use `pipeline` to crawl a website (Suppose that we want to crawl articles presen
 
 ```bash
 musubi pipeline \
-  --dir 測試 \
+  --dir_ 測試 \
   --name 測試文章 \
   --class_ 中文 \
   --prefix https://www.test.com/category?&pages= \
   --pages 5 \
   --block1 ["div", "entry-image"] 
-  --type scan \
+  --implementation scan \
 ```
 
 Use agent:

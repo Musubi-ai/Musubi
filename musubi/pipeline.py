@@ -83,7 +83,7 @@ class Pipeline:
         if not self.is_nan.iloc[idx]["block2"].all():
             self.args_dict["block2"] = self.website_df.iloc[idx]["block2"]
 
-        self.dir = self.website_df.iloc[idx]["dir"]
+        self.dir_ = self.website_df.iloc[idx]["dir_"]
         self.class_ = self.website_df.iloc[idx]["class_"]
         if "img_txt_block" in self.website_df.columns:
             self.img_txt_block = self.website_df.iloc[idx]["img_txt_block"]
@@ -91,28 +91,28 @@ class Pipeline:
             self.img_txt_block = None
 
         if save_dir is not None:
-            self.save_dir = Path(save_dir) / "data" / self.class_ / self.dir
+            self.save_dir = Path(save_dir) / "data" / self.class_ / self.dir_
             self.save_path = Path(self.save_dir) / "{}.json".format(self.name)
         else:
-            self.save_dir = Path("data") / self.class_ / self.dir
+            self.save_dir = Path("data") / self.class_ / self.dir_
             self.save_path = Path(self.save_dir) / "{}.json".format(self.name)
 
         if self.img_txt_block is not None:
             if save_dir is not None:
-                self.urls_dir = Path(save_dir) / "imgtxt_crawler" / self.dir
+                self.urls_dir = Path(save_dir) / "imgtxt_crawler" / self.dir_
                 url_path = Path(self.urls_dir) / "{}_imgtxt_link.json".format(self.name)
             else:
-                self.urls_dir = Path("imgtxt_crawler") / self.dir
+                self.urls_dir = Path("imgtxt_crawler") / self.dir_
                 url_path = Path(self.urls_dir) / "{}_imgtxt_link.json".format(self.name)
         else:
             if save_dir is not None:
-                self.urls_dir = Path(save_dir) / "crawler" / self.dir
+                self.urls_dir = Path(save_dir) / "crawler" / self.dir_
                 url_path = Path(self.urls_dir) / "{}_link.json".format(self.name)
             else:
-                self.urls_dir = Path("crawler") / self.dir
+                self.urls_dir = Path("crawler") / self.dir_
                 url_path = Path(self.urls_dir) / "{}_link.json".format(self.name)
         self.args_dict["url_path"] = url_path
-        self.type = self.website_df.iloc[idx]["type"]
+        self.implementation = self.website_df.iloc[idx]["implementation"]
         self.async_ = self.website_df.iloc[idx]["async_"]
 
         if update_pages:
@@ -128,22 +128,22 @@ class Pipeline:
 
         # start scanning the links
         logger.info("Getting urls from {}!".format(self.name))
-        if self.type not in ["scan", "scroll", "onepage", "click"]:
-            raise ValueError("The type can only be scan, scroll, onepage, or click but got {}.".format(self.type))
-        elif self.type == "scan":
+        if self.implementation not in ["scan", "scroll", "onepage", "click"]:
+            raise ValueError("The implementation can only be scan, scroll, onepage, or click but got {}.".format(self.implementation))
+        elif self.implementation == "scan":
             if self.async_:
                 scan = AsyncScan(**self.args_dict)
                 asyncio.run(scan.crawl_link())
             else:
                 scan = Scan(**self.args_dict)
                 scan.crawl_link(start_page=start_page)
-        elif self.type == "scroll":
+        elif self.implementation == "scroll":
             scroll = Scroll(**self.args_dict)
             scroll.crawl_link()
-        elif self.type == "onepage":
+        elif self.implementation == "onepage":
             onepage = OnePage(**self.args_dict)
             onepage.crawl_link()
-        elif self.type == "click":
+        elif self.implementation == "click":
             click = Click(**self.args_dict)
             click.crawl_link()
 
@@ -208,7 +208,7 @@ class Pipeline:
     def pipeline(
         self,
         idx: Optional[int] = None,
-        dir: str = None,
+        dir_: str = None,
         name: str = None,
         class_: str = None,
         prefix: str = None,
@@ -220,7 +220,7 @@ class Pipeline:
         block1: List[str] = None,
         block2: Optional[List[str]] = None,
         img_txt_block: Optional[List[str]] = None,
-        type: str = None,
+        implementation: str = None,
         async_: bool = True,
         start_page: Optional[int] = 0,
         sleep_time: Optional[int] = None,
@@ -233,7 +233,7 @@ class Pipeline:
             idx (`int`, *optional*):
                 Specify the index of new website in config json file. If none, the index of new 
                 website will be the next number of max existing index.
-            dir (`str`):
+            dir_ (`str`):
                 Folder name of new website.
             name (`str`):
                 Subfolder name under the website.
@@ -258,8 +258,8 @@ class Pipeline:
                 Second block if crawling nested structure.
             img_txt_block (`list`, *optional*):
                 Block for crawling img-text pair on the website.
-            type (`str`):
-                Type of crawling method to crawl urls on the website. The type should be one of the `scan`, `scroll`, `onepage`, or `click`,
+            implementation (`str`):
+                Type of crawling method to crawl urls on the website. The implementation should be one of the `scan`, `scroll`, `onepage`, or `click`,
                 otherwise it will raise an error.
             async_ (`bool`, , *optional*, default=False):
                 If True, crawling website in the asynchronous fashion.
@@ -276,7 +276,7 @@ class Pipeline:
         >>> from musubi import Pipeline
 
         >>> pipeline = Pipeline()
-        >>> config_dict = {"dir": "test", 
+        >>> config_dict = {"dir_": "test", 
             "name": "test", 
             "class_": "中文", 
             "prefix": "https://www.wazaiii.com/category?tag=17&ntype=&pages=", 
@@ -287,7 +287,7 @@ class Pipeline:
             "multiplier": 1,
             "block1": ["div", "entry-image"], 
             "block2": None, 
-            "type": "scan", 
+            "implementation": "scan", 
             "async_": True}
 
         >>> # Start crawling
@@ -295,7 +295,7 @@ class Pipeline:
         """
         new_website_idx = add_new_website(
             idx = idx,
-            dir = dir,
+            dir_ = dir_,
             name = name,
             class_ = class_,
             prefix = prefix,
@@ -305,7 +305,7 @@ class Pipeline:
             block1 = block1,
             block2 = block2,
             img_txt_block = img_txt_block,
-            type = type,
+            implementation = implementation,
             async_ = async_,
             website_config_path = self.website_config_path,
             page_init_val = page_init_val,

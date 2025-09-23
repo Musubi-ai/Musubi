@@ -6,7 +6,7 @@ from musubi.agent.actions import (
     get_page_info,
     final_answer,
     domain_analyze,
-    type_analyze,
+    implementation_analyze,
     update_all,
     update_by_idx,
     upload_data_folder,
@@ -30,7 +30,7 @@ pipeline_agent = PipelineAgent(
 )
 
 
-general_actions = [domain_analyze, type_analyze, update_all, update_by_idx, upload_data_folder, del_web_config_by_idx]
+general_actions = [domain_analyze, implementation_analyze, update_all, update_by_idx, upload_data_folder, del_web_config_by_idx]
 general_agent = GeneralAgent(
     actions=general_actions,
     model_source="openai"

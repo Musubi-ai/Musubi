@@ -368,9 +368,9 @@ def final_answer(text: str = None):
         logger.error("JSON parser error:", e)
         sys.exit(1)
     expected_keys = {
-    "dir", "name", "class_", "prefix", "suffix",
+    "dir_", "name", "class_", "prefix", "suffix",
     "root_path", "pages", "block1", "block2",
-    "type", "start_page"
+    "implementation", "start_page"
     }
     actual_keys = set(data.keys())
     missing_keys = expected_keys - actual_keys
@@ -385,7 +385,7 @@ def final_answer(text: str = None):
 
 # Wrapper function with cleaner doxstring
 def pipeline_tool(
-    dir: str = None,
+    dir_: str = None,
     name: str = None,
     class_: str = None,
     prefix: str = None,
@@ -396,14 +396,14 @@ def pipeline_tool(
     multiplier: Optional[int] = 1,
     block1: List[str] = None,
     block2: Optional[List[str]] = None,
-    type: str = None,
+    implementation: str = None,
     start_page: Optional[int] = 0
 ):
     """
     Main function to add new website into config json file and scrape website articles.
 
     Args:
-        dir (`str`):
+        dir_ (`str`):
             Folder name of new website.
         name (`str`):
             Subfolder name under the website.
@@ -426,15 +426,15 @@ def pipeline_tool(
             second element in the list should be the class of the tag.
         block2 (`list`, *optional*):
             Second block if crawling nested structure.
-        type (`str`):
-            Type of crawling method to crawl urls on the website. The type should be one of the `scan`, `scroll`, `onepage`, or `click`,
+        implementation (`str`):
+            Type of crawling method to crawl urls on the website. The implementation should be one of the `scan`, `scroll`, `onepage`, or `click`,
             otherwise it will raise an error.
         start_page (`int`, *optional*, default=0):
             From which page to start crawling urls. 0 is first page, 1 is second page, and so forth.
     """
     pipeline = Pipeline()
     config_dict = {
-        "dir": dir, 
+        "dir_": dir_, 
         "name": name, 
         "class_": class_, 
         "prefix": prefix, 
@@ -445,7 +445,7 @@ def pipeline_tool(
         "multiplier": multiplier,
         "block1": block1, 
         "block2": block2, 
-        "type": type,
+        "implementation": implementation,
         "start_page": start_page
     }
     pipeline.pipeline(**config_dict)

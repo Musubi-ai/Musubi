@@ -8,7 +8,7 @@ from .pipeline_tool_actions import (
 
 from .general_tool_actions import (
     domain_analyze,
-    type_analyze,
+    implementation_analyze,
     update_all,
     update_by_idx,
     upload_data_folder,

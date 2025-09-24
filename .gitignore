@@ -9,6 +9,7 @@ __pycache__
 .pytest_cache
 use_agent.py
 use_pipeline.py
+use_pipeline2.py
 config
 scrape_journal.py
 b.py

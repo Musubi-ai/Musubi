@@ -1,7 +1,7 @@
 import requests
 import uuid
 from pathlib import Path
-import json
+import orjson
 from typing import Optional
 from loguru import logger
 from .scheduler import Scheduler
@@ -12,20 +12,22 @@ class Controller:
         self,
         host: Optional[str] = None,
         port: Optional[int] = None,
-        debug: Optional[bool] = False,
         config_dir: Optional[str] = None,
-        website_config_path: Optional[str] = None
+        website_config_path: Optional[str] = None,
+        log_path: Optional[str] = None
     ):
         self.host = host
         self.port = port
-        self.debug = debug
         self.host = host if host is not None else "127.0.0.1"
         self.port = port if port is not None else 5000
+        self.log_path = log_path
         self.root_path = "http://{}:{}".format(self.host, str(self.port))
         if config_dir is not None:
             self.config_dir = Path(config_dir)
         else:
             self.config_dir = Path("config")
+        if log_path is not None:
+            logger.add(log_path, level="INFO", encoding="utf-8", enqueue=True)
         self.config_dir.mkdir(parents=True, exist_ok=True)
         self.task_config_path = self.config_dir / "tasks.json"
         self.website_config_path = website_config_path
@@ -36,22 +38,23 @@ class Controller:
             website_config_path = self.website_config_path,
             host = self.host,
             port = self.port,
-            debug = self.debug
+            log_path=self.log_path
         )
         self.scheduler.run()
 
     def shutdown_scheduler(self):
         api = self.root_path + "/shutdown"
         try:
-            requests.post(api)
+            res = requests.post(api)
+            return (res.status_code, res.text)
         except requests.exceptions.ConnectionError as e:
-            logger.info("The scheduler has been shut down.")
+            logger.info("The scheduler has been shut down due to connection error.")
 
     def check_status(self):
         api = self.root_path
         try:
             res = requests.get(api)
-            msg = "status code: {}, message: {}".format(res.status_code, res.text)
+            msg = "message: {}".format(res.text)
             return (res.status_code, msg)
         except:
             return "Failed to retrieve the status of the scheduler server."
@@ -60,10 +63,11 @@ class Controller:
         api = self.root_path + "/tasks"
         try:
             res = requests.get(api)
-            logger.info(res.content, style="green1")
-            return res
+            return (res.status_code, res.json())
         except:
-            return "Something went wromg when retreiving the task list."
+            message = "Something went wromg when retreiving the task list."
+            logger.error(message)
+            return message
 
     def add_task(
         self,
@@ -118,14 +122,14 @@ class Controller:
             "cron_params": cron_params,
             "contact_params": contact_params
         }
-        
-        with open(self.task_config_path, "a+", encoding="utf-8") as file:
-            file.write(json.dumps(task_config, ensure_ascii=False) + "\n")
+        with open(self.task_config_path, "ab") as f:
+            f.write(orjson.dumps(task_config, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
-        api = self.root_path + "/task/{}".format(task_id)
+        api = self.root_path + "/start_task"
+        data = {"task_id": task_id}
         try:
-            requests.post(api)
-            logger.info("Task with task_id '{}' has been added into config file and started.".format(task_id))
+            res = requests.post(api, json=data)
+            return (res.status_code, res.json())
         except:
             logger.error("Failed to add task into scheduler.")
 
@@ -133,10 +137,11 @@ class Controller:
         self,
         task_id: str
     ):
-        api = self.root_path + "/task/{}".format(task_id)
+        api = self.root_path + "/start_task"
+        data = {"task_id": task_id}
         try:
-            requests.post(api)
-            logger.info("Task with task_id '{}' has started".format(task_id))
+            res = requests.post(api, json=data)
+            return (res.status_code, res.json())
         except:
             logger.error("Failed to add task with task_id {} into scheduler.".format(task_id))
 
@@ -144,10 +149,11 @@ class Controller:
         self,
         task_id: str
     ):
-        api = self.root_path + "/pause/{}".format(task_id)
+        api = self.root_path + "/pause"
+        data = {"task_id": task_id}
         try:
-            requests.post(api)
-            logger.info("Task with task_id '{}' has been paused".format(task_id))
+            res = requests.post(api, json=data)
+            return (res.status_code, res.json())
         except:
             logger.error("Failed to pause task with task_id: {}".format(task_id))
 
@@ -155,10 +161,11 @@ class Controller:
         self,
         task_id: str
     ):
-        api = self.root_path + "/resume/{}".format(task_id)
+        api = self.root_path + "/resume"
+        data = {"task_id": task_id}
         try:
-            requests.post(api)
-            logger.info("Task with task_id '{}' has been resumed".format(task_id))
+            res = requests.post(api, json=data)
+            return (res.status_code, res.json())
         except:
             logger.error("Failed to resume task with task_id: {}".format(task_id))
 
@@ -166,9 +173,10 @@ class Controller:
         self,
         task_id: str
     ):
-        api = self.root_path + "/remove/{}".format(task_id)
+        api = self.root_path + "/remove"
+        data = {"task_id": task_id}
         try:
-            requests.post(api)
-            logger.info("Task with task_id '{}' has been removed".format(task_id))
+            res = requests.post(api, json=data)
+            return (res.status_code, res.json())
         except:
             logger.error("Failed to remove task with task_id: {}".format(task_id))

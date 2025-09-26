@@ -11,12 +11,6 @@ def env_command_parser(subparsers=None):
         parser = argparse.ArgumentParser("Musubi env command")
 
     parser.add_argument(
-        "--google_search_api", type=str, default=None, help="Google search api for searching."
-    )
-    parser.add_argument(
-        "--google_engine_id", type=str, default=None, help="Google engine id for searching."
-    )
-    parser.add_argument(
         "--google_app_password", type=str, default=None, help="Google app password to let musubi send gmail notification."
     )
     parser.add_argument(
@@ -47,10 +41,6 @@ def env_command_parser(subparsers=None):
 
 def env_command(args):
     env_path = create_env_file()
-    if args.google_search_api is not None:
-        set_key(env_path, key_to_set="GOOGLE_SEARCH_API", value_to_set=args.google_search_api)
-    if args.google_engine_id is not None:
-        set_key(env_path, key_to_set="GOOGLE_ENGINE_ID", value_to_set=args.google_engine_id)
     if args.google_app_password is not None:
         set_key(env_path, key_to_set="GOOGLE_APP_PASSWORD", value_to_set=args.google_app_password)
     if args.hf_token is not None:

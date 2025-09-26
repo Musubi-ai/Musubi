@@ -1,13 +1,13 @@
 import argparse
 from ..agent import PipelineAgent, GeneralAgent, SchedulerAgent, MusubiAgent
 from ..agent.actions import (
-    google_search,
+    search_url,
     analyze_website,
     get_container,
     get_page_info,
     final_answer,
     domain_analyze,
-    type_analyze,
+    implementation_analyze,
     update_all,
     update_by_idx,
     upload_data_folder,
@@ -48,7 +48,7 @@ def agent_command_parser(subparsers=None):
 
 
 def agent_command(args):
-    actions = [google_search, analyze_website, get_container, get_page_info, final_answer]
+    actions = [search_url, analyze_website, get_container, get_page_info, final_answer]
     pipeline_agent = PipelineAgent(
         actions=actions,
         model_source=args.model_source,
@@ -56,7 +56,7 @@ def agent_command(args):
         model_type=args.model_type
     )
 
-    general_actions = [domain_analyze, type_analyze, update_all, update_by_idx, upload_data_folder, del_web_config_by_idx]
+    general_actions = [domain_analyze, implementation_analyze, update_all, update_by_idx, upload_data_folder, del_web_config_by_idx]
     general_agent = GeneralAgent(
         actions=general_actions,
         model_source=args.model_source,

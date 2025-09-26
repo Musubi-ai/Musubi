@@ -1,7 +1,8 @@
-from typing import Optional, List
+from typing import Optional, List, Dict
 import requests
 import os
 from dotenv import load_dotenv, set_key
+import urllib.parse
 from urllib.parse import quote_plus, urlparse
 from bs4 import BeautifulSoup
 from collections import Counter
@@ -20,6 +21,216 @@ headers = {
 }
 
 
+class SearchCrawler:
+    def __init__(self):
+        """
+        Initialize Yahoo Search Crawler with proper headers to simulate real browser
+        """
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+        }
+        self.session = requests.Session()
+        self.session.headers.update(self.headers)
+    
+    def _is_valid_result(self, title: str, url: str) -> bool:
+        """
+        Filter out irrelevant search results like ads, navigation elements, etc.
+        
+        Args:
+            title: Result title
+            url: Result URL  
+            description: Result description
+            
+        Returns:
+            True if result is valid, False otherwise
+        """
+        # List of patterns to filter out
+        invalid_patterns = [
+            '圖片', 'Images', 'image', 'img',
+            '過去一天', '過去一週', '過去一個月', 'Past 24 hours', 'Past week', 'Past month',
+            '繁體中文', '简体中文', '中文', 'Traditional Chinese', 'Simplified Chinese',
+            '廣告', 'Ad', 'Advertisement', 'Sponsored',
+            'All', 'More', 'Tools', 'Settings', 
+            'Privacy', 'Terms', 'Safe Search', 'Advanced Search'
+        ]
+        
+        # Check if title contains invalid patterns
+        title_lower = title.lower()
+        for pattern in invalid_patterns:
+            if pattern.lower() in title_lower:
+                return False
+        
+        # Filter out results with very short titles (likely navigation elements)
+        if len(title.strip()) < 3:
+            return False
+            
+        # Filter out results without proper URLs
+        if not url or url.startswith('#') or 'javascript:' in url:
+            return False
+            
+        return True
+    
+    def _extract_real_url(self, yahoo_url: str) -> str:
+        """
+        Extract the real URL from Yahoo's wrapped URL
+        
+        Args:
+            yahoo_url: Yahoo wrapped URL
+            
+        Returns:
+            Real destination URL
+        """
+        if not yahoo_url:
+            return yahoo_url
+            
+        try:
+            # Yahoo wraps URLs in different formats:
+            # Format 1: /RU=https%3a%2f%2fwww.example.com%2f/RK=2/RS=...
+            # Format 2: https://r.search.yahoo.com/...RU=https%3a%2f%2fwww.example.com%2f/RK=2/RS=...
+            
+            if '/RU=' in yahoo_url:
+                # Extract the part after /RU=
+                ru_part = yahoo_url.split('/RU=')[1]
+                # Get the part before /RK= (if it exists)
+                if '/RK=' in ru_part:
+                    encoded_url = ru_part.split('/RK=')[0]
+                else:
+                    encoded_url = ru_part
+                
+                # URL decode the extracted part
+                real_url = urllib.parse.unquote(encoded_url)
+                
+                # Sometimes there are multiple levels of encoding
+                # Try to decode again if it still looks encoded
+                if '%' in real_url:
+                    real_url = urllib.parse.unquote(real_url)
+                
+                return real_url
+            
+            # If it's not a wrapped URL, return as is
+            return yahoo_url
+
+        except Exception as e:
+            logger.error(f"Error extracting real URL from {yahoo_url}: {e}")
+            return yahoo_url
+
+    def search(self, query: str, num_results: int = 10) -> List[Dict[str, str]]:
+        """
+        Search Yahoo and return results
+        
+        Args:
+            query: Search keyword
+            num_results: Number of results to retrieve
+            
+        Returns:
+            List containing search results, each result includes title, url, description
+        """
+        results = []
+        
+        # Build search URL for Yahoo
+        encoded_query = urllib.parse.quote(query)
+        search_url = f"https://tw.search.yahoo.com/search?p={encoded_query}"
+        
+        try:
+            logger.info(f"Searching: {query}")
+            logger.info(f"URL: {search_url}")
+
+            response = self.session.get(search_url, timeout=10)
+            response.raise_for_status()
+
+            soup = BeautifulSoup(response.text, 'html.parser')
+            search_results = soup.find_all('div', {'class': ['dd', 'algo']})
+            
+            # Try alternative selectors if first attempt fails
+            if not search_results:
+                search_results = soup.find_all('div', {'class': 'compDlink'})
+            if not search_results:
+                search_results = soup.find_all('div', {'class': 'Sr'})
+            if not search_results:
+                # Try more generic approach for Yahoo
+                search_results = soup.find_all('div', attrs={'data-bkt': True})
+            
+            valid_count = 0
+            for i, result in enumerate(search_results):
+                if valid_count >= num_results:
+                    break
+                    
+                try:
+                    # Extract title and link
+                    title_link = result.find('h3')
+                    if title_link:
+                        title_link = title_link.find('a')
+                    else:
+                        title_link = result.find('a')
+                    
+                    if title_link:
+                        title = title_link.get_text(strip=True)
+                        url = title_link.get('href', '')
+                        
+                        # Extract real URL from Yahoo's wrapped URL
+                        real_url = self._extract_real_url(url)
+                        parse = urlparse(real_url)
+                        root_path = parse.scheme + "://" + parse.netloc
+                        
+                        # Filter out invalid results
+                        if self._is_valid_result(title, real_url):
+                            valid_count += 1
+                            results.append({
+                                'title': title,
+                                'url': real_url,  # Use the extracted real URL
+                                'root_path': root_path,
+                                'yahoo_url': url,  # Keep original Yahoo URL as reference
+                                'rank': valid_count
+                            })
+                            
+                            logger.info(f"Valid result {valid_count}: {title[:50]}...")
+                        else:
+                            logger.info(f"Filtered out: {title[:30]}...")
+                    
+                except Exception as e:
+                    logger.error(f"Error parsing result {i+1}: {e}")
+                    continue
+            
+            logger.info(f"Total valid results: {len(results)}")
+            
+        except requests.RequestException as e:
+            logger.error(f"Request error: {e}")
+        except Exception as e:
+            logger.error(f"Other error: {e}")
+        
+        return results
+    
+
+def search_url(query: str):
+    """Search URL using the provided query and returns the first result URL.
+    This function performs a url search using the Custom Search API.
+    
+    Args:
+        query: The search query string to be sent to Google.
+    
+    Returns:
+        A tuple containing:
+            - The URL of the first search result.
+            - The root domain of that URL (scheme + domain).
+    
+    Examples:
+        >>> url, root_path = search("The New York Times")
+        >>> print(url)
+        'https://www.nytimes.com/international/'
+        >>> print(root_path)
+        'https://www.nytimes.com'
+    """
+    search_engine = SearchCrawler()
+    result = search_engine.search(query, num_results=1)[0]    
+    return (result["url"], result["root_path"])
+
+
+# legacy function
 def google_search(
     query: str,
     google_search_api: Optional[str] = None,

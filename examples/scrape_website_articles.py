@@ -3,7 +3,7 @@ Example of scraping articles in 'Craft and Criticism' category of Literary Hub.
 """
 from musubi import Pipeline
 from musubi.agent.actions import (
-    google_search,
+    search_url,
     get_container,
     get_page_info
 )
@@ -17,7 +17,7 @@ def main(
     class_: str
 ):
     try:
-        url, root_path = google_search(query) # Might cause error if don't have Google search engine
+        url, root_path = search_url(query)
     except Exception:
         url, root_path = ("https://lithub.com/category/craftandcriticism/", None)
     block1, block2 = get_container(url)

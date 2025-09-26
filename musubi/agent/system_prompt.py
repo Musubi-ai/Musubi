@@ -50,7 +50,7 @@ Now I need to take more actions to get other arguments. Let's get the correspond
 
 <action>
 {
-  "action_name": "google_search",
+  "action_name": "search_url",
   "action_arguments": {"query": "Literary Hub Fiction and Poetry"}
 }
 </action>
@@ -138,7 +138,7 @@ Your available actions are:
 Here are the rules you should always follow to finish your task:
 1. ALWAYS provide an action call when taking action, else you will fail.
 2. Always use the right arguments for the actions. Never use variable names as the action arguments, use the value instead.
-3. Do not call the google_search if you do not need information, try to solve the task yourself.
+3. Do not call the search_url if you do not need information, try to solve the task yourself.
 If no action call is needed, take `final_answer` action to return your answer.
 4. Never re-do a action call that you previously did with the exact same parameters.
 5. ALWAYS decide the arguments of "dir_", "name", "class_", "start_page" in the first thought tag.

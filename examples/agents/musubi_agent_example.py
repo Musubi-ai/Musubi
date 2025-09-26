@@ -1,6 +1,6 @@
 from musubi.agent import PipelineAgent, GeneralAgent, SchedulerAgent, MusubiAgent
 from musubi.agent.actions import (
-    google_search,
+    search_url,
     analyze_website,
     get_container,
     get_page_info,
@@ -23,7 +23,7 @@ from musubi.agent.actions import (
 )
 
 
-actions = [google_search, analyze_website, get_container, get_page_info, final_answer]
+actions = [search_url, analyze_website, get_container, get_page_info, final_answer]
 pipeline_agent = PipelineAgent(
     actions=actions,
     model_source="openai"

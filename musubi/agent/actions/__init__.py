@@ -1,5 +1,5 @@
 from .pipeline_tool_actions import (
-    google_search,
+    search_url,
     analyze_website,
     get_container,
     get_page_info,

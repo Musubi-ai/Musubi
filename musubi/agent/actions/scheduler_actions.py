@@ -7,7 +7,8 @@ def launch_scheduler(
     config_dir: Optional[str] = "config",
     website_config_path: Optional[str] = None,
     host: Optional[str] = "127.0.0.1",
-    port: Optional[int] = 5000
+    port: Optional[int] = 5000,
+    log_path: Optional[str] = None
 ):
     """Launches the scheduler with the current configuration.
 
@@ -16,6 +17,7 @@ def launch_scheduler(
             website_config_path (Optional[str]): The json path for website configurations. Defaults to None.
             host (Optional[str]): The hostname or IP address. Defaults to "127.0.0.1".
             port (Optional[int]): The port number. Defaults to 5000.
+            log_path (Optional[str], default to None): If have, save the log into specified json file.
     """
     config_dir = Path(config_dir)
     config_dir.mkdir(parents=True, exist_ok=True)
@@ -23,7 +25,8 @@ def launch_scheduler(
         config_dir=config_dir,
         website_config_path=website_config_path,
         host=host,
-        port=port
+        port=port,
+        log_path=log_path
     )
     scheduler.run()
 

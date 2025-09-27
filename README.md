@@ -248,7 +248,7 @@ musubi pipeline \
   --class_ 中文 \
   --prefix https://www.test.com/category?&pages= \
   --pages 5 \
-  --block1 ["div", "entry-image"] 
+  --block1 ["div", "entry-image"] \
   --implementation scan \
 ```
 

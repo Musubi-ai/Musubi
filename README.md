@@ -32,14 +32,11 @@ We've also developed a CLI tool that lets you crawl and deploy agents without th
   - [From source](#from-source)
 - [Usage](#usage)
   - [Key usage](#key-usage)
-    - [Demo](#demo)
   - [Scheduler](#scheduler)
     - [Notification](#notification)
   - [Agent](#agent)
     - [Multi-agent System](#multi-agent-system)
-      - [Demo](#demo-1)
   - [CLI Tools](#cli-tools)
-    - [Demo](#demo-2)
 - [License](#license)
 - [Background](#background)
 - [Citation](#citation)
@@ -88,32 +85,6 @@ pipeline_kwargs = {
 pipeline = Pipeline(website_config_path=website_config_path)
 pipeline.pipeline(**pipeline_kwargs)
 ```
-
-### Demo
-Task: Crawl 3 pages of articles from the 'Fiction and Poetry' category on Literary Hub.
-```python
-from musubi.pipeline import Pipeline
-
-
-pipe = Pipeline(website_config_path=r"config\test.json")
-
-pipe.pipeline(
-    dir_ = "Literary Hub",
-    name = "Fiction and Poetry",  
-    class_ = "English",
-    prefix = "https://lithub.com/category/fictionandpoetry/page/",
-    suffix = "/",
-    root_path = "https://lithub.com",
-    pages = 3,
-    page_init_val = 1,
-    multiplier = 1,
-    block1 = ["div", "post_header"],
-    block2 = None,
-    implementation = "scan",
-    )
-```
-
-https://github.com/user-attachments/assets/223a5d62-8364-4964-ade6-829306fec271
 
 
 ## Scheduler
@@ -254,13 +225,6 @@ prompt = "Check how many websites I have scraped already."
 main_agent.execute(prompt)
 ```
 
-#### Demo
-Task: Crawl 5 pages of articles from the 'Fiction and Poetry' category on Literary Hub.
-
-https://github.com/user-attachments/assets/f61f40fb-882b-4484-9a9d-0304a8967a9e
-
-Check [agent examples](examples/agents) to further view the details about how to use agents in Musubi.
-
 ## CLI Tools
 Musubi supports users to execute the aforementioned functions using the command line interface (CLI).
 The fundamental structure of the Musubi CLI tool is formed as:
@@ -304,10 +268,6 @@ musubi strat-all \
  --website_config_path config/websites.json \
  --update-pages 80
 ```
-### Demo
-Task: Crawl all websites whose configurations stored in `config\test_websites.json` again (update 5 pages). 
-
-https://github.com/user-attachments/assets/f7c17fa6-f2ab-48c9-aea1-f795cea362a0
 
 # License
 This repository is licensed under the [Apache-2.0 License](LICENSE).

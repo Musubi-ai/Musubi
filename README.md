@@ -195,19 +195,12 @@ agent = PipelineAgent(
 )
 ```
 
-In addition to the LLM APIs for agents, Google Search API and Google Engine ID are required to take the `google_search` action when using `PipelineAgent`. Check this [documentation](https://developers.google.com/custom-search/v1/overview?source=post_page-----36e5298086e4--------------------------------&hl=zh-tw) for applying for Google Search API and this [website](https://cse.google.com/cse/all) to build a search engine and retrieve the engine ID, then set them in the `.env` file:
-
-```bash
-GOOGLE_SEARCH_API=
-GOOGLE_ENGINE_ID=
-```
-
 Here is a basic example of using a pipeline agent in Musubi to crawl text contents in the 'Fiction and Poetry' category on Literary Hub:
 
 ```python
 from musubi.agent import PipelineAgent
 from musubi.agent.actions import (
-    google_search,
+    search_url,
     analyze_website,
     get_container,
     get_page_info,
@@ -215,7 +208,7 @@ from musubi.agent.actions import (
 )
 
 
-actions = [google_search, analyze_website, get_container, get_page_info, final_answer]
+actions = [search_url, analyze_website, get_container, get_page_info, final_answer]
 pipeline_agent = PipelineAgent(
     actions=actions,
     model_source="openai"
@@ -231,7 +224,7 @@ Beyond instantiating a single agent to perform specific tasks, agents can be coo
 ```python
 from musubi.agent import PipelineAgent, GeneralAgent, SchedulerAgent, MusubiAgent
 from musubi.agent.actions import (
-    google_search,
+    search_url,
     analyze_website,
     get_container,
     get_page_info,
@@ -245,7 +238,7 @@ from musubi.agent.actions import (
 )
 
 
-actions = [google_search, analyze_website, get_container, get_page_info, final_answer]
+actions = [search_url, analyze_website, get_container, get_page_info, final_answer]
 pipeline_agent = PipelineAgent(
     actions=actions
 )

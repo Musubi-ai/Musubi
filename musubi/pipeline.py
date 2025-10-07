@@ -4,12 +4,19 @@ from pathlib import Path
 from collections import defaultdict
 from typing import List, Optional
 import sys
+import os
 from loguru import logger
 from .crawl_link import Scan, Scroll, OnePage, Click
 from .crawl_content import Crawl
 from .async_crawl_link import AsyncScan
 from .async_crawl_content import AsyncCrawl
-from .utils import add_new_website, delete_website_config_by_idx, deduplicate_by_value, get_root_path
+from .utils import (
+    add_new_website, 
+    delete_website_config_by_idx, 
+    deduplicate_by_value, 
+    get_root_path,
+    filter_null_data
+)
 
 
 logger.add(sys.stderr, level="ERROR")
@@ -97,6 +104,9 @@ class Pipeline:
             self.save_dir = Path("data") / self.class_ / self.dir_
             self.save_path = Path(self.save_dir) / "{}.json".format(self.name)
 
+        if os.path.isfile(self.save_path):
+            filter_null_data(self.save_path)
+
         if self.img_txt_block is not None:
             if save_dir is not None:
                 self.urls_dir = Path(save_dir) / "imgtxt_crawler" / self.dir_
@@ -129,7 +139,7 @@ class Pipeline:
         # start scanning the links
         logger.info("Getting urls from {}!".format(self.name))
         if self.implementation not in ["scan", "scroll", "onepage", "click"]:
-            raise ValueError("The implementation can only be scan, scroll, onepage, or click but got {}.".format(self.implementation))
+            raise ValueError("The implementation can only be `scan`, `scroll`, `onepage`, or `click` but got `{}`.".format(self.implementation))
         elif self.implementation == "scan":
             if self.async_:
                 scan = AsyncScan(**self.args_dict)

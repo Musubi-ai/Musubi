@@ -203,7 +203,7 @@ class Pipeline:
                     self.start_by_idx(idx=i, update_pages=pages[i], save_dir=save_dir)
                 except KeyboardInterrupt:
                     logger.info("Shutting down program manually.")
-                    break   
+                    break
                 except Exception:
                     logger.error("Failed to crawl website with idx {} in config {}".format(i, self.website_config_path))
         else:

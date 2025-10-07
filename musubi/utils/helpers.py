@@ -55,6 +55,7 @@ def add_new_website(
     async_: bool = False,
     page_init_val: int = 1,
     multiplier: int = 1,
+    update: Optional[bool] = True
 ):
     if not website_config_path:
         website_config_path = Path("config") / "websites.json"
@@ -131,7 +132,8 @@ def add_new_website(
             "block1": block1,
             "block2": block2,
             "img_txt_block": img_txt_block,
-            "implementation": implementation
+            "implementation": implementation,
+            "update": update
         }
     else:
         dictt = {
@@ -148,7 +150,8 @@ def add_new_website(
             "implementation": implementation,
             "async_": async_,
             "page_init_val": page_init_val,
-            "multiplier": multiplier
+            "multiplier": multiplier,
+            "update": update
         }
     with open(website_config_path, "ab") as file:
         file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")

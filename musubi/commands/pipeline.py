@@ -28,6 +28,7 @@ def pipeline_command_parser(subparsers=None):
     parser.add_argument("--start_page", default=1, help="From which page to start crawling urls. 0 is first page, 1 is second page, and so forth.", type=int)
     parser.add_argument("--sleep_time", default=1, help="Sleep time to prevent ban from website.", type=int)
     parser.add_argument("--save_dir", default=None, help="Folder to save link.json and articles.", type=str)
+    parser.add_argument("--update", default=True, help="Update or not during updating mode.", type=bool)
     if subparsers is not None:
         parser.set_defaults(func=pipeline_command)
     return parser
@@ -52,5 +53,6 @@ def pipeline_command(args):
         async_ = args.async_,
         start_page=args.start_page,
         sleep_time=args.sleep_time,
-        save_dir=args.save_dir
+        save_dir=args.save_dir,
+        update=args.update
         )

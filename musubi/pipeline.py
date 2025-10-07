@@ -197,6 +197,8 @@ class Pipeline:
             pages = self.website_df["pages"].to_list()
             pages = [page if page <= update_pages else update_pages for page in pages]
             for i in range(start_idx, length):
+                if not self.website_df.iloc[i]["update"]:
+                    continue
                 try:
                     self.start_by_idx(idx=i, update_pages=pages[i], save_dir=save_dir)
                 except KeyboardInterrupt:
@@ -234,7 +236,8 @@ class Pipeline:
         async_: Optional[bool] = True,
         start_page: Optional[int] = 0,
         sleep_time: Optional[int] = None,
-        save_dir: Optional[str] = None
+        save_dir: Optional[str] = None,
+        update: Optional[bool] = True
     ):
         """
         Add new website into config json file and crawl website.
@@ -279,6 +282,8 @@ class Pipeline:
                 Sleep time to prevent ban from website.
             save_dir (`str`, *optional*):
                 Folder to save link.json and articles.
+            update (`bool`, , *optional*, default=True):
+                Update or not during updating mode.
 
         Example:
 
@@ -319,7 +324,8 @@ class Pipeline:
             async_ = async_,
             website_config_path = self.website_config_path,
             page_init_val = page_init_val,
-            multiplier = multiplier
+            multiplier = multiplier,
+            update=update
         )
 
         try:

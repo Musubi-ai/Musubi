@@ -27,3 +27,6 @@ logs/
 
 # Environment
 .venv/
+
+# build html
+docs/_build

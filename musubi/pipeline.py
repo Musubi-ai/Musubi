@@ -274,7 +274,7 @@ class Pipeline:
             implementation (`str`):
                 Type of crawling method to crawl urls on the website. The implementation should be one of the `scan`, `scroll`, `onepage`, or `click`,
                 otherwise it will raise an error.
-            async_ (`bool`, , *optional*, default=False):
+            async_ (`bool`, *optional*, default=False):
                 If True, crawling website in the asynchronous fashion.
             start_page (`int`, *optional*, default=0):
                 From which page to start crawling urls. 0 is first page, 1 is second page, and so forth.
@@ -282,31 +282,35 @@ class Pipeline:
                 Sleep time to prevent ban from website.
             save_dir (`str`, *optional*):
                 Folder to save link.json and articles.
-            update (`bool`, , *optional*, default=True):
+            update (`bool`, *optional*, default=True):
                 Update or not during updating mode.
 
-        Example:
+        Example
+        -------
 
-        ```python
-        >>> from musubi import Pipeline
+        .. code-block:: python
 
-        >>> pipeline = Pipeline()
-        >>> config_dict = {"dir_": "test", 
-            "name": "test", 
-            "class_": "中文", 
-            "prefix": "https://www.wazaiii.com/category?tag=17&ntype=&pages=", 
-            "suffix": None, 
-            "root_path": None, 
-            "pages": 5,
-            "page_init_val": 1,
-            "multiplier": 1,
-            "block1": ["div", "entry-image"], 
-            "block2": None, 
-            "implementation": "scan", 
-            "async_": True}
+            from musubi import Pipeline
 
-        >>> # Start crawling
-        >>> pipeline.pipeline(**config_dict)
+            pipeline = Pipeline()
+            config_dict = {
+                "dir_": "test",
+                "name": "test",
+                "class_": "中文",
+                "prefix": "https://www.wazaiii.com/category?tag=17&ntype=&pages=",
+                "suffix": None,
+                "root_path": None,
+                "pages": 5,
+                "page_init_val": 1,
+                "multiplier": 1,
+                "block1": ["div", "entry-image"],
+                "block2": None,
+                "implementation": "scan",
+                "async_": True
+            }
+
+            # Start crawling
+            pipeline.pipeline(**config_dict)
         """
         new_website_idx = add_new_website(
             idx = idx,

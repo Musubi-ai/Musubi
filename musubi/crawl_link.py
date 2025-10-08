@@ -431,9 +431,9 @@ class Click(BaseCrawl):
                     with open(self.url_path, "ab") as file:
                         file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
-                button = self.driver.find_element("xpath", self.block2[1])
+                button = self.driver.find_element(By.CLASS_NAME, self.block2[1])
                 try:
-                    self.driver.execute_script("$(arguments[0]).click()", button)
+                    self.driver.execute_script("arguments[0].click();", button)
                 except:
                     try:
                         button.click()
@@ -443,6 +443,8 @@ class Click(BaseCrawl):
                 if self.sleep_time:
                     time.sleep(self.sleep_time)
                 pbar.update(1)
+
+        self.driver.quit()
 
     def check_link_result(
         self,
@@ -470,9 +472,9 @@ class Click(BaseCrawl):
                         url = self.root_path + url
                     link_list.append(url)
 
-                button = self.driver.find_element("xpath", self.block2[1])
+                button = self.driver.find_element(By.CLASS_NAME, self.block2[1])
                 try:
-                    self.driver.execute_script("$(arguments[0]).click()", button)
+                    self.driver.execute_script("arguments[0].click();", button)
                 except:
                     try:
                         button.click()

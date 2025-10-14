@@ -29,19 +29,7 @@ We've also developed a CLI tool that lets you crawl and deploy agents without th
 
 🚀 Getting Started
 ^^^
-5 分鐘快速了解 Musubi-scrape 的核心功能和基本用法
-:::
-
-:::{grid-item-card}
-:link: guide/guide
-:link-type: doc
-:shadow: lg
-:class-card: sd-rounded-3
-:class-header: sd-bg-success sd-bg-gradient sd-text-white sd-font-weight-bold sd-fs-5 sd-text-center sd-py-2
-
-📚 Guides
-^^^
-深入學習網站爬取、AI 代理和排程器的使用方法
+Start here to explore Musubi-scrape’s main features and learn how to efficiently crawl website articles!
 :::
 
 :::{grid-item-card} 
@@ -49,11 +37,23 @@ We've also developed a CLI tool that lets you crawl and deploy agents without th
 :link-type: doc
 :shadow: lg
 :class-card: sd-rounded-3
-:class-header: sd-bg-danger sd-bg-gradient sd-text-white sd-font-weight-bold sd-fs-5 sd-text-center sd-py-2
+:class-header: sd-bg-success sd-bg-gradient sd-text-white sd-font-weight-bold sd-fs-5 sd-text-center sd-py-2
 
 🎯 Tutorials
 ^^^
-跟隨實戰教學，從零開始建立你的爬蟲專案
+We provide several practical examples showing how to use Musubi-scrape to crawl articles in various scenarios.
+:::
+
+:::{grid-item-card}
+:link: guide/guide
+:link-type: doc
+:shadow: lg
+:class-card: sd-rounded-3
+:class-header: sd-bg-danger sd-bg-gradient sd-text-white sd-font-weight-bold sd-fs-5 sd-text-center sd-py-2
+
+📚 Guides
+^^^
+Dive deep into the detailed usages of the pipeline function, configuration settings, crawling agents, schedulers, and CLI tools.
 :::
 
 :::{grid-item-card}
@@ -65,7 +65,7 @@ We've also developed a CLI tool that lets you crawl and deploy agents without th
 
 🔧 API Reference
 ^^^
-查看完整的 Python API 文檔和函數說明
+Explore the complete API documentation and learn about each function in detail.
 :::
 
 ::::
@@ -83,17 +83,17 @@ getting-started/installation
 ```{toctree}
 :maxdepth: 2
 :hidden:
-:caption: Guides
+:caption: Tutorials
 
-guide/guide
+tutorial/tutorials
 ```
 
 ```{toctree}
 :maxdepth: 2
 :hidden:
-:caption: Tutorials
+:caption: Guides
 
-tutorial/tutorials
+guide/guide
 ```
 
 ```{toctree}

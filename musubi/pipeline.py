@@ -244,20 +244,22 @@ class Pipeline:
 
         Args:
             idx (`int`, *optional*):
-                Specify the index of new website in config json file. If none, the index of new 
+                Specify the index of new website in config json file. If none, the index of new
                 website will be the next number of max existing index.
             dir_ (`str`, *optional*):
                 Folder name of new website.
             name (`str`, *optional*):
                 Subfolder name under the website.
             class_ (`str`, *optional*):
-                The type of data in the website. The most general case to use this argument is using the main language of website name, e.g., English, 中文,...
+                The type of data in the website. The most general case is using the main language
+                of the website name, e.g., English, 中文, ...
             prefix (`str`):
-                Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str((page_init_val + pages) * multiplier) + "suffix".
+                Main prefix of website. The URL Musubi crawling will be formulaized as:
+                "prefix1" + str((page_init_val + pages) * multiplier) + "suffix".
             suffix (`str`, *optional*):
-                Suffix of the url if exist.
+                Suffix of the URL if exists.
             root_path (`str`, *optional*):
-                Root of the url if urls in tags are presented in relative fashion.
+                Root of the URL if URLs in tags are presented in relative fashion.
             pages (`int`):
                 Number of crawling pages.
             page_init_val (`int`, default=1):
@@ -265,19 +267,20 @@ class Pipeline:
             multiplier (`int`, default=1):
                 Multiplier of page.
             block1 (`list`):
-                List of html tag and its class. The first element in the list should be the name of tag, e.g., "div" or "article", and the 
-                second element in the list should be the class of the tag.
+                List of HTML tag and its class. The first element should be the name of tag,
+                e.g., "div" or "article", and the second element should be the class of the tag.
             block2 (`list`, *optional*):
                 Second block if crawling nested structure.
             img_txt_block (`list`, *optional*):
                 Block for crawling img-text pair on the website.
             implementation (`str`):
-                Type of crawling method to crawl urls on the website. The implementation should be one of the `scan`, `scroll`, `onepage`, or `click`,
-                otherwise it will raise an error.
+                Type of crawling method to crawl URLs on the website. The implementation should
+                be one of ``scan``, ``scroll``, ``onepage``, or ``click``, otherwise it will
+                raise an error.
             async_ (`bool`, *optional*, default=False):
-                If True, crawling website in the asynchronous fashion.
-            start_page (`int`, *optional*, default=0):
-                From which page to start crawling urls. 0 is first page, 1 is second page, and so forth.
+                If True, crawling website in an asynchronous fashion.
+            start_page (int, *optional*, default=0):
+                From which page to start crawling URLs. 0 is first page, 1 is second page, etc.
             sleep_time (`int`, *optional*):
                 Sleep time to prevent ban from website.
             save_dir (`str`, *optional*):
@@ -285,32 +288,30 @@ class Pipeline:
             update (`bool`, *optional*, default=True):
                 Update or not during updating mode.
 
-        Example
-        -------
+        Example:
+            ::
 
-        .. code-block:: python
+                from musubi import Pipeline
 
-            from musubi import Pipeline
+                pipeline = Pipeline()
+                config_dict = {
+                    "dir_": "test",
+                    "name": "test",
+                    "class_": "中文",
+                    "prefix": "https://www.wazaiii.com/category?tag=17&ntype=&pages=",
+                    "suffix": None,
+                    "root_path": None,
+                    "pages": 5,
+                    "page_init_val": 1,
+                    "multiplier": 1,
+                    "block1": ["div", "entry-image"],
+                    "block2": None,
+                    "implementation": "scan",
+                    "async_": True
+                }
 
-            pipeline = Pipeline()
-            config_dict = {
-                "dir_": "test",
-                "name": "test",
-                "class_": "中文",
-                "prefix": "https://www.wazaiii.com/category?tag=17&ntype=&pages=",
-                "suffix": None,
-                "root_path": None,
-                "pages": 5,
-                "page_init_val": 1,
-                "multiplier": 1,
-                "block1": ["div", "entry-image"],
-                "block2": None,
-                "implementation": "scan",
-                "async_": True
-            }
-
-            # Start crawling
-            pipeline.pipeline(**config_dict)
+                # Start crawling
+                pipeline.pipeline(**config_dict)
         """
         new_website_idx = add_new_website(
             idx = idx,

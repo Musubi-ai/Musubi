@@ -57,7 +57,7 @@ Dive deep into the detailed usages of the pipeline function, configuration setti
 :::
 
 :::{grid-item-card}
-:link: api/pipeline
+:link: api/index
 :link-type: doc
 :shadow: lg
 :class-card: sd-rounded-3
@@ -74,7 +74,7 @@ Explore the complete API documentation and learn about each function in detail.
 ```{toctree}
 :maxdepth: 2
 :hidden:
-:caption: Getting Started
+:caption: GETTING STARTED
 
 getting-started/quicktour
 getting-started/installation
@@ -83,7 +83,7 @@ getting-started/installation
 ```{toctree}
 :maxdepth: 2
 :hidden:
-:caption: Tutorials
+:caption: TUTORIALS
 
 tutorial/tutorials
 ```
@@ -91,15 +91,15 @@ tutorial/tutorials
 ```{toctree}
 :maxdepth: 2
 :hidden:
-:caption: Guides
+:caption: GUIDES
 
 guide/guide
 ```
 
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 3
 :hidden:
-:caption: API References
+:caption: API REFERENCES
 
-api/pipeline
+api/index
 ```

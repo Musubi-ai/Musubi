@@ -28,7 +28,6 @@ extensions = [
     'sphinx.ext.autodoc',          
     'sphinx.ext.napoleon',         
     'sphinx.ext.viewcode',
-    "sphinx.ext.autosummary",
     'myst_parser',
     "sphinx_design"
 ]
@@ -43,11 +42,20 @@ myst_enable_extensions = [
     "colon_fence",
     "dollarmath",
     "amsmath",
-    # "linkify",
+    "linkify",
     "replacements",
     "substitution",
     "tasklist"
 ]
+
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+}
+
+napoleon_google_docstring = True
+napoleon_include_init_with_doc = True
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

@@ -57,7 +57,7 @@ Dive deep into the detailed usages of the pipeline function, configuration setti
 :::
 
 :::{grid-item-card}
-:link: api/index
+:link: api/Pipeline
 :link-type: doc
 :shadow: lg
 :class-card: sd-rounded-3
@@ -97,9 +97,13 @@ guide/guide
 ```
 
 ```{toctree}
-:maxdepth: 3
+:maxdepth: 2
 :hidden:
 :caption: API REFERENCES
 
-api/index
+api/Pipeline
+api/Crawl link
+api/Crawl content
+api/Utils
+api/Agent
 ```

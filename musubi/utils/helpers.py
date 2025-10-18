@@ -57,6 +57,61 @@ def add_new_website(
     multiplier: int = 1,
     update: Optional[bool] = True
 ):
+    """Add a new website configuration to the website configuration file.
+
+    This function creates a new website entry with the specified crawling parameters
+    and appends it to the configuration file in JSONL format. It automatically
+    handles index assignment, duplicate detection, and optional automatic naming
+    by parsing the website's title.
+
+    Args:
+        website_config_path (str, optional): Path to the website configuration JSON
+            file. If None, defaults to 'config/websites.json'. Defaults to None.
+        idx (int, optional): Unique identifier for the website. If None or already
+            exists, automatically assigns the next available index. Defaults to None.
+        dir_ (str, optional): Main directory name for the website. If None, attempts
+            to extract from the website's title. Defaults to None.
+        name (str, optional): Full name identifier for the website. If None, attempts
+            to generate from the website's title. Defaults to None.
+        class_ (str, optional): Classification or category for the website. If None,
+            defaults to 'Musubi_data'. Defaults to None.
+        prefix (str): Base URL or prefix for generating page URLs. Required parameter.
+        suffix (str, optional): Suffix to append after page numbers in URLs.
+            Defaults to None.
+        root_path (str, optional): Root domain path for constructing absolute URLs
+            from relative links. Defaults to None.
+        pages (int): Number of pages to crawl or scroll/click times. Required parameter.
+        block1 (list): List containing [tag_name, class_name] for the primary HTML
+            block selector. Required parameter.
+        block2 (list, optional): List containing [tag_name, class_name] for a nested
+            HTML block selector or clickable button. Defaults to None.
+        img_txt_block (list, optional): List of selectors for extracting image-text
+            pairs. If provided, only this and common parameters are saved.
+            Defaults to None.
+        implementation (str): Crawler type to use. Must be one of 'scan', 'scroll',
+            'onepage', or 'click'. Required parameter.
+        async_ (bool, optional): Whether to use asynchronous crawling. Only saved
+            when img_txt_block is None. Defaults to False.
+        page_init_val (int, optional): Initial value for page numbering. Only saved
+            when img_txt_block is None. Defaults to 1.
+        multiplier (int, optional): Multiplier for page numbers in URL generation.
+            Only saved when img_txt_block is None. Defaults to 1.
+        update (bool, optional): Flag indicating whether this configuration should
+            be updated. Defaults to True.
+
+    Returns:
+        int: The index (idx) assigned to the newly added website configuration.
+
+    Note:
+        - The function automatically creates the config directory if it doesn't exist.
+        - If idx already exists or is None, a new unique index is automatically assigned.
+        - If `dir_` and `name` are not provided, the function attempts to extract them
+          by parsing the website's <title> tag.
+        - For 'scan' implementation, uses the second page URL for title parsing.
+        - The configuration is saved in JSONL format with one entry per line.
+        - Two different configuration formats are used depending on whether
+          img_txt_block is provided.
+    """
     if not website_config_path:
         website_config_path = Path("config") / "websites.json"
 
@@ -180,11 +235,12 @@ def delete_website_config_by_idx(
         - If the file becomes empty, it will be cleared rather than containing empty lines
 
     Examples:
-        >>> delete_website_config_by_idx(2)  # Deletes configuration at index 2
-        >>> delete_website_config_by_idx(
-        ...     idx=1,
-        ...     website_config_path=Path("custom/config/websites.json")
-        ... )
+        ::
+            delete_website_config_by_idx(2)  # Deletes configuration at index 2
+            delete_website_config_by_idx(
+            idx=1,
+            website_config_path=Path("custom/config/websites.json")
+            )
     """
     website_df = pd.read_json(website_config_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
     dictts = website_df[website_df["idx"] != idx].to_dict("records")

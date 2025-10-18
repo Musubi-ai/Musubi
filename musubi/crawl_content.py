@@ -48,9 +48,16 @@ def get_image_text_pair(
 
 
 class Crawl():
-    """
+    """A web crawler for extracting text or image-text content from URLs.
+
+    This class provides functionality to crawl websites and extract content based
+    on the specified crawl type. It supports both text-only and image-text pair
+    extraction modes.
+
     Args:
-        crawl_type (`str`) should be one of 'text' or 'img-text' 
+        url_path (str): Path to the JSON file containing URLs to crawl.
+        crawl_type (str, optional): Type of crawling operation. Should be one of 
+            'text' or 'img-text'. Defaults to 'text'.
     """
     def __init__(
         self,
@@ -64,8 +71,18 @@ class Crawl():
         self,
         img_txt_block: list = None
     ):
-        """
-        Check the content of the first website in url_path.
+        """Check and print the content of the first website in url_path.
+
+        This method reads the first URL from the url_path file and extracts its
+        content based on the crawl_type setting. The result is printed to stdout.
+
+        Args:
+            img_txt_block (list, optional): List of CSS selectors or identifiers 
+                for image-text blocks. Only used when crawl_type is 'img-text'. 
+                Defaults to None.
+
+        Returns:
+            None: Prints the extracted content to stdout.
         """
         df = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         url = df.iloc[0]["link"]
@@ -82,8 +99,34 @@ class Crawl():
         sleep_time: int = None,
         img_txt_block: list = None
         ):
-        """
-        Crawl all the contents of websites in url_path.
+        """Crawl and save content from all websites in url_path.
+
+        This method iterates through all URLs in the url_path file, extracts
+        content based on the crawl_type, and saves results to a JSONL file.
+        It supports resuming from a specific index and skips already crawled URLs.
+
+        Args:
+            start_idx (int, optional): Index to start crawling from. Useful for
+                resuming interrupted crawls. Defaults to 0.
+            save_path (str, optional): Path to save the crawled content as JSONL.
+                Defaults to None.
+            sleep_time (int, optional): Number of seconds to sleep between requests
+                to avoid rate limiting. Defaults to None.
+            img_txt_block (list, optional): List of CSS selectors or identifiers
+                for image-text blocks. Only used when crawl_type is 'img-text'.
+                Defaults to None.
+
+        Returns:
+            None: Results are saved to the file specified by save_path.
+
+        Raises:
+            Exception: If the saved content file is empty after crawling.
+
+        Note:
+            - For 'text' crawl_type, each URL produces one entry with 'content' 
+              and 'url' fields.
+            - For 'img-text' crawl_type, each URL may produce multiple entries,
+              one for each image-text pair found.
         """
         save_file = os.path.isfile(save_path)
 

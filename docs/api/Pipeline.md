@@ -1,4 +1,4 @@
-# API Reference
+# Pipeline
 
 ```{eval-rst}
 .. automodule:: musubi.pipeline

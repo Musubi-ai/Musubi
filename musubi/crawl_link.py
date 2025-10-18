@@ -56,6 +56,39 @@ class BaseCrawl(ABC):
 
 
 class Scan(BaseCrawl):
+    """A web scraper for extracting URLs from paginated websites.
+
+    This class extends BaseCrawl to scan through multiple pages of a website
+    and extract URLs based on specified HTML block selectors. It supports
+    various pagination patterns and can handle both absolute and relative URLs.
+
+    Args:
+        prefix (str): The base URL or prefix for generating page URLs.
+        suffix (str, optional): The suffix to append after the page number in URLs.
+            Defaults to None.
+        root_path (str, optional): The root domain path for constructing absolute
+            URLs from relative links. Defaults to None.
+        pages (int, optional): Number of pages to scan. If set to 1, only the
+            prefix URL is scanned. Defaults to None.
+        block1 (list): List containing [tag_name, class_name] for the primary
+            HTML block selector.
+        block2 (list, optional): List containing [tag_name, class_name] for a
+            nested HTML block selector. Defaults to None.
+        url_path (str, optional): Path to save extracted URLs as JSONL.
+            Defaults to None.
+        sleep_time (int, optional): Number of seconds to sleep between requests.
+            Defaults to None.
+        page_init_val (int, optional): Initial value for page numbering.
+            Defaults to 1.
+        multiplier (int, optional): Multiplier for page numbers in URL generation.
+            Defaults to 1.
+        **kwargs: Additional keyword arguments passed to BaseCrawl.
+
+    Note:
+        - Page URLs are generated as: prefix + (page_init_val + i) * multiplier + suffix
+        - If pages is 1, only the prefix URL is used without pagination.
+        - The class automatically handles relative and absolute URL conversion.
+    """
     def __init__(
         self, 
         prefix: str,
@@ -83,6 +116,30 @@ class Scan(BaseCrawl):
         self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")
 
     def get_urls(self, page):
+        """Extract URLs from a single page based on HTML block selectors.
+
+        This method fetches a page, parses its HTML content, and extracts URLs
+        from elements matching the specified block selectors. It handles both
+        absolute and relative URLs, converting relative URLs to absolute ones
+        when necessary.
+
+        Args:
+            page (str): The URL of the page to scrape.
+
+        Returns:
+            list: A list of extracted URLs (as strings) from the page.
+
+        Raises:
+            ValueError: If root_path is provided but does not contain 'http'.
+
+        Note:
+            - If block2 is specified, the method first finds elements matching
+              block1, then searches for block2 elements within them.
+            - The method automatically handles URL path concatenation, ensuring
+              proper '/' separators between root_path and relative URLs.
+            - If root_path is not provided, it is automatically extracted from
+              the page URL.
+        """
         link_list = []
         r = requests.get(page, headers=headers)
         soup = BeautifulSoup(r.text, features="html.parser")
@@ -141,6 +198,15 @@ class Scan(BaseCrawl):
         return link_list
     
     def crawl_link(self, start_page: int=0):
+        """Check and print the first extracted URL from the first page.
+
+        This method extracts URLs from the first page in pages_lst and prints
+        the first URL to stdout. Useful for testing and verifying that the
+        URL extraction is working correctly.
+
+        Returns:
+            None: Prints the first extracted URL to stdout.
+        """
         is_url_path = os.path.isfile(self.url_path)
         if is_url_path:
             url_list = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["link"].to_list()
@@ -165,6 +231,36 @@ class Scan(BaseCrawl):
 
 
 class Scroll(BaseCrawl):
+    """A web scraper for extracting URLs from infinite-scroll or dynamically loaded websites.
+
+    This class extends BaseCrawl to handle websites that load content dynamically
+    through scrolling. It uses Selenium WebDriver to simulate scrolling behavior
+    and extract URLs from elements that appear after scrolling.
+
+    Args:
+        prefix (str): The URL of the page to scrape.
+        suffix (str, optional): Not used in this class but kept for compatibility
+            with BaseCrawl. Defaults to None.
+        root_path (str, optional): The root domain path for constructing absolute
+            URLs from relative links. Defaults to None.
+        pages (int, optional): Number of times to scroll down the page to load
+            more content. Defaults to None.
+        block1 (list): List containing [tag_name, class_name] for the HTML block
+            selector containing target URLs.
+        block2 (list, optional): Not used in this class but kept for compatibility
+            with BaseCrawl. Defaults to None.
+        url_path (str, optional): Path to save extracted URLs as JSONL.
+            Defaults to None.
+        sleep_time (int, optional): Number of seconds to wait between scroll actions
+            to allow content to load. Defaults to 5.
+        **kwargs: Additional keyword arguments passed to BaseCrawl.
+
+    Note:
+        - This class requires Microsoft Edge WebDriver to be installed.
+        - The browser runs in headless mode by default.
+        - Scrolling stops automatically if the page height doesn't change,
+          indicating no more content to load.
+    """
     def __init__(
         self, 
         prefix: str,
@@ -181,6 +277,21 @@ class Scroll(BaseCrawl):
         self.scroll_time = pages
 
     def browse_website(self):
+        """Initialize and navigate to the target website using Edge WebDriver.
+
+        This method creates a headless Edge browser instance with optimized
+        settings and navigates to the URL specified in prefix. It waits for
+        the initial page load before returning.
+
+        Returns:
+            None: Sets self.driver with the initialized WebDriver instance.
+
+        Note:
+            - The browser runs in headless mode (no visible window).
+            - Window size is set to 1920x1080 for consistent rendering.
+            - GPU acceleration is disabled for better compatibility in headless mode.
+            - Waits for sleep_time seconds after loading the page.
+        """
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--disable-gpu")
@@ -193,6 +304,26 @@ class Scroll(BaseCrawl):
         self,
         scroll_time: int = None
     ):
+        """Scroll down the page multiple times to load dynamic content.
+
+        This method simulates user scrolling by repeatedly scrolling to the bottom
+        of the page. It stops early if the page height stops increasing, indicating
+        no more content is loading.
+
+        Args:
+            scroll_time (int, optional): Number of times to scroll down. If None,
+                uses self.scroll_time. Defaults to None.
+
+        Returns:
+            None: The page is scrolled and content is loaded in the WebDriver.
+
+        Note:
+            - Each scroll action scrolls to the absolute bottom of the page.
+            - Waits sleep_time seconds between scrolls for content to load.
+            - A progress bar displays the scrolling progress.
+            - Automatically stops if page height remains unchanged, even if
+              scroll_time hasn't been reached.
+        """
         n = 0
         scroll_time = scroll_time if scroll_time is not None else self.scroll_time
         
@@ -210,6 +341,24 @@ class Scroll(BaseCrawl):
                 last_height = new_height
 
     def crawl_link(self):
+        """Crawl and save URLs from the scrollable page.
+
+        This method opens the website, scrolls to load all content, extracts URLs
+        from elements matching the specified block selector, and saves them to a
+        JSONL file. Already extracted URLs are automatically skipped.
+
+        Returns:
+            None: URLs are saved to the file specified by url_path.
+
+        Note:
+            - Initializes the browser and performs full scrolling automatically.
+            - Handles both absolute and relative URLs, converting relative URLs
+              to absolute ones when necessary.
+            - If the target block is not an anchor tag, searches for anchor tags
+              within the block.
+            - Skips duplicate URLs if url_path already exists.
+            - Each URL is saved as a JSON object with a 'link' field.
+        """
         is_url_path = os.path.isfile(self.url_path)
         if is_url_path:
             url_list = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["link"].to_list()
@@ -250,6 +399,20 @@ class Scroll(BaseCrawl):
                     file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
     def check_link_result(self):
+        """Check and print extracted URLs from a single scroll action.
+
+        This method opens the website, performs a single scroll, extracts URLs
+        from the specified block, and prints them to stdout. Useful for testing
+        and verifying that URL extraction is working correctly.
+
+        Returns:
+            None: Prints a list of dictionaries containing extracted URLs to stdout.
+
+        Note:
+            - Only scrolls once (scroll_time=1) for quick testing.
+            - Finds all anchor tags within elements matching the block selector.
+            - Does not check for duplicates or save to file.
+        """
         self.browse_website()
         self.scroll(scroll_time = 1)
         element = self.driver.find_element(By.CLASS_NAME, self.block1[1])
@@ -267,6 +430,36 @@ class Scroll(BaseCrawl):
 
 
 class OnePage(BaseCrawl):
+    """A web scraper for extracting URLs from a single static page.
+
+    This class extends BaseCrawl to handle simple cases where all target URLs
+    are located on a single page without pagination or dynamic loading. It parses
+    the HTML content and extracts URLs based on specified block selectors.
+
+    Args:
+        prefix (str): The URL of the page to scrape.
+        suffix (str, optional): Not used in this class but kept for compatibility
+            with BaseCrawl. Defaults to None.
+        root_path (str, optional): The root domain path for constructing absolute
+            URLs from relative links. Defaults to None.
+        pages (int, optional): Not used in this class but kept for compatibility
+            with BaseCrawl. Defaults to None.
+        block1 (list): List containing [tag_name, class_name] for the primary
+            HTML block selector.
+        block2 (list, optional): List containing [tag_name, class_name] for a
+            nested HTML block selector. Defaults to None.
+        url_path (str, optional): Path to save extracted URLs as JSONL.
+            Defaults to None.
+        sleep_time (int, optional): Not used in this class but kept for
+            compatibility with BaseCrawl. Defaults to None.
+        **kwargs: Additional keyword arguments passed to BaseCrawl.
+
+    Note:
+        - This class is optimized for single-page URL extraction without the
+          overhead of pagination or browser automation.
+        - Use Scan class for multi-page scraping or Scroll class for dynamic
+          content loading.
+    """
     def __init__(
         self, 
         prefix: str,
@@ -283,6 +476,27 @@ class OnePage(BaseCrawl):
         self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")
 
     def get_urls(self):
+        """Extract all URLs from the page based on HTML block selectors.
+
+        This method fetches the page specified in prefix, parses its HTML content,
+        and extracts URLs from elements matching the specified block selectors.
+        It handles both absolute and relative URLs, converting relative URLs to
+        absolute ones when necessary.
+
+        Returns:
+            list: A list of extracted URLs (as strings) from the page.
+
+        Raises:
+            ValueError: If root_path is provided but does not contain 'http'.
+
+        Note:
+            - If block2 is specified, the method first finds the element matching
+              block1, then searches for all block2 elements within it.
+            - The method automatically handles URL path concatenation, ensuring
+              proper '/' separators between root_path and relative URLs.
+            - If root_path is not provided, it is automatically extracted from
+              the prefix URL.
+        """
         link_list = []
         r = requests.get(self.prefix, headers=headers)
         soup = BeautifulSoup(r.text, features="html.parser")
@@ -343,6 +557,22 @@ class OnePage(BaseCrawl):
         return link_list
     
     def crawl_link(self):
+        """Crawl and save URLs from the single page.
+
+        This method extracts all URLs from the page using get_urls() and saves
+        them to a JSONL file. Already extracted URLs are automatically skipped
+        to avoid duplicates.
+
+        Returns:
+            None: URLs are saved to the file specified by url_path.
+
+        Note:
+            - Each URL is saved as a JSON object with a 'link' field.
+            - If url_path already exists, the method checks for existing URLs
+              and skips them to prevent duplicates.
+            - Unlike Scan class, this method does not iterate through multiple
+              pages or show a progress bar.
+        """
         is_url_path = os.path.isfile(self.url_path)
         if is_url_path:
             url_list = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["link"].to_list()
@@ -358,11 +588,56 @@ class OnePage(BaseCrawl):
                 file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
     def check_link_result(self):
+        """Check and print all extracted URLs from the page.
+
+        This method extracts all URLs from the page using get_urls() and prints
+        the complete list to stdout. Useful for testing and verifying that the
+        URL extraction is working correctly.
+
+        Returns:
+            None: Prints a list of all extracted URLs to stdout.
+
+        Note:
+            - Unlike the Scan class check method which only prints the first URL,
+              this method prints all extracted URLs.
+            - Does not save URLs to file.
+        """
         link_list = self.get_urls()
         print(link_list)
 
 
 class Click(BaseCrawl):
+    """A web scraper for extracting URLs from pages with 'Load More' or pagination buttons.
+
+    This class extends BaseCrawl to handle websites that require clicking a button
+    (e.g., "Load More", "Next Page") to reveal additional content. It uses Selenium
+    WebDriver to simulate button clicks and extract URLs from newly loaded elements.
+
+    Args:
+        prefix (str): The URL of the page to scrape.
+        suffix (str, optional): Not used in this class but kept for compatibility
+            with BaseCrawl. Defaults to None.
+        root_path (str, optional): The root domain path for constructing absolute
+            URLs from relative links. Defaults to None.
+        pages (int, optional): Number of times to click the load button to reveal
+            more content. Defaults to None.
+        block1 (list): List containing [tag_name, class_name] for the HTML block
+            selector containing target URLs.
+        block2 (list, optional): List containing [tag_name, class_name] for the
+            button element to click. Required for this class. Defaults to None.
+        url_path (str, optional): Path to save extracted URLs as JSONL.
+            Defaults to None.
+        sleep_time (int, optional): Number of seconds to wait after each click
+            to allow content to load. Defaults to 5.
+        **kwargs: Additional keyword arguments passed to BaseCrawl.
+
+    Note:
+        - This class requires Microsoft Edge WebDriver to be installed.
+        - The browser runs in headless mode by default.
+        - block2 must be specified to identify the clickable button element.
+        - The method attempts JavaScript click first, then falls back to standard
+          click if that fails.
+    """
     def __init__(
         self, 
         prefix: str,
@@ -379,6 +654,22 @@ class Click(BaseCrawl):
         self.click_time = pages
 
     def browse_website(self):
+        """Initialize and navigate to the target website using Edge WebDriver.
+
+        This method creates a headless Edge browser instance with optimized
+        settings and navigates to the URL specified in prefix. It waits for
+        the initial page load before returning.
+
+        Returns:
+            None: Sets self.driver with the initialized WebDriver instance.
+
+        Note:
+            - The browser runs in headless mode (no visible window).
+            - Window size is set to 1920x1080 for consistent rendering.
+            - GPU acceleration is disabled for better compatibility in headless mode.
+            - Waits for sleep_time seconds after loading the page if sleep_time
+              is specified.
+        """
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--disable-gpu")
@@ -392,6 +683,34 @@ class Click(BaseCrawl):
         self,
         click_time: int = None,
     ):
+        """Crawl and save URLs by repeatedly clicking the load button.
+
+        This method opens the website, clicks the specified button multiple times
+        to load more content, extracts URLs from newly appeared elements after each
+        click, and saves them to a JSONL file. Already extracted URLs are
+        automatically skipped.
+
+        Args:
+            click_time (int, optional): Number of times to click the load button.
+                If None, uses self.click_time. Defaults to None.
+
+        Returns:
+            None: URLs are saved to the file specified by url_path, and the
+                WebDriver is closed after completion.
+
+        Note:
+            - After each click, extracts URLs from all currently visible elements
+              matching block1.
+            - Uses JavaScript click (execute_script) as primary method, with
+              standard click as fallback.
+            - If clicking fails (button disabled, disappeared, or limit reached),
+              logs a warning and continues to the next iteration.
+            - Waits sleep_time seconds after each click for content to load.
+            - A progress bar displays the clicking progress.
+            - Automatically closes the browser driver when finished.
+            - Handles both absolute and relative URLs, converting relative URLs
+              to absolute ones when necessary.
+        """
         self.browse_website()
         n = 0
         click_time = click_time if click_time is not None else self.click_time
@@ -450,6 +769,29 @@ class Click(BaseCrawl):
         self,
         click_time: int = 5,
     ):
+        """Check and print extracted URLs from multiple button clicks.
+
+        This method opens the website, clicks the button multiple times to load
+        more content, extracts all URLs that appear after each click, and prints
+        the complete list to stdout. Useful for testing and verifying that URL
+        extraction is working correctly.
+
+        Args:
+            click_time (int, optional): Number of times to click the load button
+                for testing. Defaults to 5.
+
+        Returns:
+            None: Prints a list of all extracted URLs to stdout.
+
+        Note:
+            - Performs the clicking and extraction process but does not save
+              URLs to file.
+            - Does not check for or skip duplicate URLs.
+            - Uses the same click mechanism as crawl_link (JavaScript click
+              with standard click fallback).
+            - Waits sleep_time seconds after each click.
+            - A progress bar displays the clicking progress.
+        """
         link_list = []
         self.browse_website()
         n = 0

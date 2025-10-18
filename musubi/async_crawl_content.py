@@ -54,9 +54,18 @@ async def get_image_text_pair(
 
 
 class AsyncCrawl():
-    """
+    """An asynchronous web crawler for extracting text or image-text content from URLs.
+
+    This class provides asynchronous functionality to crawl websites and extract 
+    content based on the specified crawl type. It supports concurrent crawling with
+    configurable task limits to avoid overwhelming the server or hitting rate limits.
+
     Args:
-        crawl_type (`str`) should be one of 'text' or 'img-text' 
+        url_path (str): Path to the JSON file containing URLs to crawl.
+        crawl_type (str, optional): Type of crawling operation. Should be one of 
+            'text' or 'img-text'. Defaults to 'text'.
+        max_concurrent_tasks (int, optional): Maximum number of concurrent crawling
+            tasks allowed. Defaults to 30.
     """
     def __init__(
         self,
@@ -72,8 +81,19 @@ class AsyncCrawl():
         self,
         img_txt_block: list = None
     ):
-        """
-        Check the content of the first website in urls_path.
+        """Check and print the content of the first website in url_path asynchronously.
+
+        This method reads the first URL from the url_path file and extracts its
+        content based on the crawl_type setting. The result is printed to stdout.
+        This is an asynchronous operation.
+
+        Args:
+            img_txt_block (list, optional): List of CSS selectors or identifiers 
+                for image-text blocks. Only used when crawl_type is 'img-text'. 
+                Defaults to None.
+
+        Returns:
+            None: Prints the extracted content to stdout.
         """
         df = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")
         url = df.iloc[0]["link"]
@@ -90,6 +110,41 @@ class AsyncCrawl():
         sleep_time: int = None,
         img_txt_block: list = None
     ):
+        """Crawl and save content from all websites in url_path asynchronously.
+
+        This method concurrently crawls all URLs in the url_path file, extracts
+        content based on the crawl_type, and saves results to a JSONL file. It uses
+        a semaphore to limit concurrent tasks and supports resuming from a specific
+        index. Already crawled URLs are automatically skipped.
+
+        Args:
+            start_idx (int, optional): Index to start crawling from. Useful for
+                resuming interrupted crawls. Defaults to 0.
+            save_path (str, optional): Path to save the crawled content as JSONL.
+                Defaults to None.
+            sleep_time (int, optional): Number of seconds to sleep between completed
+                requests to avoid rate limiting. Defaults to None.
+            img_txt_block (list, optional): List of CSS selectors or identifiers
+                for image-text blocks. Only used when crawl_type is 'img-text'.
+                Defaults to None.
+
+        Returns:
+            None: Results are saved to the file specified by save_path.
+
+        Raises:
+            Exception: If the saved content file is empty after crawling.
+
+        Note:
+            - Concurrent tasks are limited by the max_concurrent_tasks parameter
+              set during initialization.
+            - For 'text' crawl_type, each URL produces one entry with 'content' 
+              and 'url' fields.
+            - For 'img-text' crawl_type, each URL may produce multiple entries,
+              one for each image-text pair found.
+            - Errors during individual task execution are logged but do not stop
+              the overall crawling process.
+            - A progress bar is displayed showing the number of completed tasks.
+        """
         save_file = os.path.isfile(save_path)
         content_list = (
             pd.read_json(save_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["url"].to_list()

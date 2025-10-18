@@ -23,16 +23,13 @@ headers = {
 
 class SearchCrawler:
     def __init__(self):
-        """
-        Initialize Yahoo Search Crawler with proper headers to simulate real browser
-        """
+        """Initialize Yahoo Search Crawler with proper headers to simulate real browser"""
         self.headers = headers
         self.session = requests.Session()
         self.session.headers.update(self.headers)
     
     def _is_valid_result(self, title: str, url: str) -> bool:
-        """
-        Filter out irrelevant search results like ads, navigation elements, etc.
+        """Filter out irrelevant search results like ads, navigation elements, etc.
         
         Args:
             title: Result title
@@ -69,8 +66,7 @@ class SearchCrawler:
         return True
     
     def _extract_real_url(self, yahoo_url: str) -> str:
-        """
-        Extract the real URL from Yahoo's wrapped URL
+        """Extract the real URL from Yahoo's wrapped URL
         
         Args:
             yahoo_url: Yahoo wrapped URL
@@ -113,8 +109,7 @@ class SearchCrawler:
             return yahoo_url
 
     def search(self, query: str, num_results: int = 10) -> List[Dict[str, str]]:
-        """
-        Search Yahoo and return results
+        """Search Yahoo and return results
         
         Args:
             query: Search keyword
@@ -212,11 +207,13 @@ def search_url(query: str):
             - The root domain of that URL (scheme + domain).
     
     Examples:
-        >>> url, root_path = search("The New York Times")
-        >>> print(url)
-        'https://www.nytimes.com/international/'
-        >>> print(root_path)
-        'https://www.nytimes.com'
+        ::
+
+            url, root_path = search("The New York Times")
+            print(url)
+                'https://www.nytimes.com/international/'
+            print(root_path)
+                'https://www.nytimes.com'
     """
     search_engine = SearchCrawler()
     result = search_engine.search(query, num_results=1)[0]    
@@ -248,11 +245,13 @@ def google_search(
             - The root domain of that URL (scheme + domain).
     
     Examples:
-        >>> url, root_path = google_search("The New York Times")
-        >>> print(url)
-        'https://www.nytimes.com/international/'
-        >>> print(root_path)
-        'https://www.nytimes.com'
+        ::
+
+            url, root_path = google_search("The New York Times")
+            print(url)
+            'https://www.nytimes.com/international/'
+            print(root_path)
+            'https://www.nytimes.com'
     """
     query = quote_plus(query)
     env_path = create_env_file()
@@ -297,8 +296,7 @@ def google_search(
 
 
 def analyze_website(url: str) -> str:
-    """
-    Analyzes a website's navigation mechanism to determine the optimal crawling method.
+    """Analyzes a website's navigation mechanism to determine the optimal crawling method.
     
     This function examines the website structure and navigation patterns to suggest
     the most appropriate crawling strategy from the following options:
@@ -315,10 +313,12 @@ def analyze_website(url: str) -> str:
             'scan', 'click', 'scroll', or 'onepage'
             
     Examples:
-        >>> url = "https://takao.tw/page/2/"
-        >>> method = analyze_website(url)
-        >>> print(method)
-        'scan'
+        ::
+
+            url = "https://takao.tw/page/2/"
+            method = analyze_website(url)
+            print(method)
+            'scan'
     """
     analyzer = WebsiteNavigationAnalyzer(url)
     navigation_type = analyzer.analyze_navigation_type()
@@ -326,8 +326,7 @@ def analyze_website(url: str) -> str:
 
 
 def get_container(url: str):
-    """
-    Analyzes a webpage to find potential container elements that hold link content.
+    """Analyzes a webpage to find potential container elements that hold link content.
 
     This function scrapes a webpage and searches for HTML elements that likely contain
     meaningful link content based on various heuristics like text length, presence of links,
@@ -439,8 +438,7 @@ def get_page_info(
     url: str = None,
     root_path: str = None
 ):
-    """
-    Analyzes webpage pagination to extract URL patterns and page number information.
+    """Analyzes webpage pagination to extract URL patterns and page number information.
 
     Fetches a webpage and analyzes its pagination links to determine the URL structure
     used for pagination. It searches for pagination-related elements within navigation
@@ -463,10 +461,12 @@ def get_page_info(
             If no pagination is found, returns (None, None, None, None, None)
 
     Examples:
-        >>> url = "https://example.com/blog"
-        >>> prefix, suffix, max_page, page_init_val, multiplier = get_page_info(url)
-        >>> print(f"{prefix}5{suffix}")
-        https://example.com/blog/page/5/
+        ::
+
+            url = "https://example.com/blog"
+            prefix, suffix, max_page, page_init_val, multiplier = get_page_info(url)
+            print(f"{prefix}5{suffix}")
+            https://example.com/blog/page/5/
     """
     pagination_candidates = ["pg", "pagination", "page", "pag"]
     response = requests.get(url, headers=headers)
@@ -551,8 +551,7 @@ def get_page_info(
     
 
 def final_answer(text: str = None):
-    """
-    Parses and processes the final inference result from Musubi agent.
+    """Parses and processes the final inference result from Musubi agent.
 
     This function takes the raw text output from Musubi agent inference,
     strips any whitespace, and attempts to parse it as JSON. The parsed 
@@ -603,8 +602,7 @@ def pipeline_tool(
     implementation: str = None,
     start_page: Optional[int] = 0
 ):
-    """
-    Main function to add new website into config json file and scrape website articles.
+    """Main function to add new website into config json file and scrape website articles.
 
     Args:
         dir_ (`str`, *optional*):
@@ -612,7 +610,7 @@ def pipeline_tool(
         name (`str`, *optional*):
             Subfolder name under the website.
         class_ (`str`, *optional*):
-                The type of data in the website. The most general case to use this argument is using the main language of website name, e.g., English, 中文,...
+            The type of data in the website. The most general case to use this argument is using the main language of website name, e.g., English, 中文,...
         prefix (`str`):
             Main prefix of website. The url Musubi crawling will be formulaized as "prefix1" + str((page_inint_val + pages) * multiplier) + "suffix".
         suffix (`str`, *optional*):

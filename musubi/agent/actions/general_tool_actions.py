@@ -53,8 +53,7 @@ def update_all(
     update_pages: Optional[int] = None,
     save_dir: Optional[str] = None
 ):
-    """
-    Crawls all websites listed in the website configuration JSON file.
+    """Crawls all websites listed in the website configuration JSON file.
 
     This function initializes a `Pipeline` instance and calls `start_all()` to update 
     or fully crawl all websites in the configuration file, starting from `start_idx`.
@@ -72,7 +71,9 @@ def update_all(
             Directory where `link.json` and articles will be saved. If None, defaults to `"data"`.
 
     Example:
-        >>> update_all(start_idx=2, update_pages=50)
+        :: 
+
+            update_all(start_idx=2, update_pages=50)
     """
     pipeline = Pipeline(website_config_path=website_config_path)
     pipeline.start_all(start_idx=start_idx, update_pages=update_pages, save_dir=save_dir)
@@ -84,8 +85,7 @@ def update_by_idx(
     update_pages: Optional[int] = None,
     save_dir: Optional[str] = None,
 ):
-    """
-    Crawls articles from a website specified by `idx` in `websites.json` or `imgtxt_webs.json` 
+    """Crawls articles from a website specified by `idx` in `websites.json` or `imgtxt_webs.json` 
     in update mode.
 
     This function initializes a `Pipeline` instance and calls `start_by_idx()` to crawl a 
@@ -108,7 +108,9 @@ def update_by_idx(
         ValueError: If `idx` is None, since an index must be specified to crawl a website.
 
     Example:
-        >>> update_by_idx(idx=3, update_pages=5)
+        ::
+
+            update_by_idx(idx=3, update_pages=5)
     """
     pipeline = Pipeline(website_config_path=website_config_path)
     pipeline.start_by_idx(idx=idx, update_pages=update_pages, save_dir=save_dir)
@@ -136,10 +138,12 @@ def upload_data_folder(
         Exception: If no Hugging Face token is found in the environment variables.
 
     Examples:
-        >>> upload_data_folder(
-        ...     repo_id="username/repo-name",
-        ...     folder_path="path/to/folder"
-        ... )
+        ::
+
+            upload_data_folder(
+                repo_id="username/repo-name",
+                folder_path="path/to/folder"
+            )
     """
     load_dotenv()
     if os.getenv("HF_TOKEN") is None:
@@ -172,10 +176,12 @@ def del_web_config_by_idx(
         - If the file becomes empty, it will be cleared rather than containing empty lines
 
     Examples:
-        >>> delete_website_config_by_idx(2)  # Deletes configuration at index 2
-        >>> delete_website_config_by_idx(
-        ...     idx=1,
-        ...     website_config_path=Path("custom/config/websites.json")
-        ... )
+        ::
+
+            delete_website_config_by_idx(2)  # Deletes configuration at index 2
+            delete_website_config_by_idx(
+                idx=1,
+                website_config_path=Path("custom/config/websites.json")
+            )
     """
     delete_website_config_by_idx(idx=idx, website_config_path=website_config_path)

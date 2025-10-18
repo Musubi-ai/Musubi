@@ -9,6 +9,13 @@ from .actions.pipeline_tool_actions import pipeline_tool
 
 
 class BaseAgent(ABC):
+    """Base class for agent implementations that interact with language models and execute actions.
+
+    This abstract base class provides the core functionality for agents that can:
+    - Execute a series of actions through language model interactions
+    - Parse and process action dictionaries from model responses
+    - Manage conversation turns with configurable limits
+    """
     def __init__(
         self,
         actions: List[Callable],
@@ -32,6 +39,21 @@ class BaseAgent(ABC):
         self.model_type = self.model.model_type
 
     def extract_action_dict(self, text: str):
+        """Initializes the BaseAgent with actions and model configuration.
+
+        Args:
+            actions (List[Callable]): List of callable functions that the agent can execute.
+            model_source (str, optional): Source of the language model. Must be one of the keys
+                in MODEL_NAMES. Defaults to "openai".
+            api_key (Optional[str], optional): API key for the model service. Defaults to None.
+            model_type (Optional[str], optional): Specific model type/version to use. 
+                Defaults to None.
+            max_turns (Optional[int], optional): Maximum number of turns in a conversation. 
+                Defaults to 10.
+
+        Raises:
+            ValueError: If model_source is not in MODEL_NAMES keys.
+        """
         start_idx = text.find("<action>")
         end_idx = text.find("</action>")
         
@@ -56,6 +78,18 @@ class BaseAgent(ABC):
         prompt: str,
         **generate_kwargs
     ):
+        """Executes the agent's main logic with the given prompt.
+
+        Abstract method that must be implemented by subclasses to define the
+        agent's execution behavior.
+
+        Args:
+            prompt (str): Input prompt or query for the agent to process.
+            **generate_kwargs: Additional keyword arguments for text generation.
+
+        Returns:
+            Implementation-dependent return value.
+        """
         ...
 
     @abstractmethod
@@ -63,10 +97,28 @@ class BaseAgent(ABC):
         self,
         actions: List[Callable]
     ):
+        """Generates a system prompt based on available actions.
+
+        Abstract method that must be implemented by subclasses to create an
+        appropriate system prompt that describes the agent's capabilities.
+
+        Args:
+            actions (List[Callable]): List of available action functions.
+
+        Returns:
+            str: Generated system prompt.
+        """
         ...
 
 
 class MusubiAgent:
+    """Agent that delegates tasks to specialized candidate agents based on LLM reasoning.
+
+    MusubiAgent acts as a coordinator that analyzes user prompts and selects the most
+    appropriate candidate agent to handle the task. It uses a language model to reason
+    about which agent is best suited for a given prompt, then delegates execution to
+    that agent.
+    """
     def __init__(
         self, 
         candidates: List[Callable],
@@ -74,6 +126,22 @@ class MusubiAgent:
         api_key: Optional[str] = None,
         model_type: Optional[str] = None
     ):
+        """Initializes the MusubiAgent with candidate agents and model configuration.
+
+        Args:
+            candidates (List[Callable]): List of candidate agent instances that can be
+                delegated to. Each candidate should have a class name and docstring
+                that describes its capabilities.
+            model_source (str, optional): Source of the language model. Must be one of
+                the keys in MODEL_NAMES. Defaults to "openai".
+            api_key (Optional[str], optional): API key for the model service. 
+                Defaults to None.
+            model_type (Optional[str], optional): Specific model type/version to use.
+                Defaults to None.
+
+        Raises:
+            ValueError: If model_source is not in MODEL_NAMES keys.
+        """
         self.candidates = candidates
         self.candidates_dict = {candidate.__class__.__name__: candidate for candidate in candidates}
         self.system_prompt = self.get_system_prompt(self.candidates)
@@ -94,6 +162,23 @@ class MusubiAgent:
         temperature: float = 0.3,
         **generate_kwargs
     ):
+        """Executes task delegation by reasoning about and selecting the best candidate agent.
+
+        Analyzes the input prompt using the language model to determine which candidate
+        agent is most suitable, then delegates the task to that agent. Displays reasoning
+        and assignment information in formatted panels.
+
+        Args:
+            prompt (str): Input prompt or query to be processed.
+            temperature (float, optional): Sampling temperature for model generation.
+                Lower values make output more deterministic. Defaults to 0.3.
+            **generate_kwargs: Additional keyword arguments passed to the model's
+                generation method.
+
+        Raises:
+            ValueError: If action tags cannot be found or parsed from model response.
+            KeyError: If the selected agent type is not found in candidates_dict.
+        """
         res, step_tokens = self.model(prompt, temperature=temperature, **generate_kwargs) 
         action_subtitle = "model_type: {}, step_token_use: {}".format(self.model_type, step_tokens)
         print(Panel(
@@ -117,6 +202,22 @@ class MusubiAgent:
         chosen_agent.execute(prompt)
             
     def extract_action_dict(self, text: str):
+        """Extracts and parses an action dictionary from text enclosed in <action> tags.
+
+        Searches for content between <action> and </action> tags, then parses it as
+        a Python dictionary using ast.literal_eval for safe evaluation.
+
+        Args:
+            text (str): Input text containing <action> tags with dictionary content.
+
+        Returns:
+            dict: Parsed action dictionary containing at least 'action_name' and 
+                'agent_type' keys.
+
+        Raises:
+            ValueError: If <action> tags are not found in the text.
+            ValueError: If the content cannot be parsed as a valid Python dictionary.
+        """
         start_idx = text.find("<action>")
         end_idx = text.find("</action>")
         
@@ -137,6 +238,18 @@ class MusubiAgent:
         self,
         candidates: List[Callable]
     ):
+        """Generates a system prompt describing available candidate agents.
+
+        Creates a formatted system prompt by populating a template with candidate agent
+        names and descriptions extracted from their class names and docstrings.
+
+        Args:
+            candidates (List[Callable]): List of candidate agent instances. Each must
+                have a __class__.__name__ and __class__.__doc__ attribute.
+
+        Returns:
+            str: Formatted system prompt with agent names and descriptions.
+        """
         template = MUSUBI_AGENT_PROMPT
         values = {
             "agent_names": ", ".join([candidate.__class__.__name__ for candidate in candidates]), 
@@ -163,6 +276,22 @@ class PipelineAgent(BaseAgent):
         model_type: Optional[str] = None,
         max_turns: Optional[int] = 10
     ):
+        """Initializes the PipelineAgent with actions and model configuration.
+
+        Args:
+            actions (List[Callable]): List of callable functions that the agent can execute
+                during the pipeline process. Should include a 'final_answer' action.
+            model_source (str, optional): Source of the language model. Must be one of the keys
+                in MODEL_NAMES. Defaults to "openai".
+            api_key (Optional[str], optional): API key for the model service. Defaults to None.
+            model_type (Optional[str], optional): Specific model type/version to use. 
+                Defaults to None.
+            max_turns (Optional[int], optional): Maximum number of execution steps before
+                terminating. Defaults to 10.
+
+        Raises:
+            ValueError: If model_source is not in MODEL_NAMES keys.
+        """
         super().__init__(actions, model_source, api_key, model_type, max_turns)
 
     def execute(
@@ -171,6 +300,39 @@ class PipelineAgent(BaseAgent):
         temperature: float = 0.3,
         **generate_kwargs
     ):
+        """Executes the pipeline agent's iterative action loop until completion.
+
+        Processes the input prompt through multiple steps, where each step involves:
+        1. Generating a response from the language model
+        2. Extracting and parsing the chosen action
+        3. Executing the action and observing results
+        4. Updating the prompt with observations for the next step
+
+        The loop terminates when either the 'final_answer' action is called or the
+        maximum number of turns is reached. Upon completion with 'final_answer',
+        the pipeline_tool is executed with the final arguments.
+
+        Args:
+            prompt (str): Input prompt or query to be processed through the pipeline.
+            temperature (float, optional): Sampling temperature for model generation.
+                Lower values make output more deterministic. Defaults to 0.3.
+            **generate_kwargs: Additional keyword arguments passed to the model's
+                generation method.
+
+        Returns:
+            dict: The final action arguments when 'final_answer' is called, containing
+                parameters for the pipeline_tool function.
+
+        Raises:
+            ValueError: If action tags cannot be found or parsed from model response.
+            KeyError: If the selected action name is not found in actions_dict.
+
+        Note:
+            Displays formatted panels for each action step and observation, showing:
+            - Action reasoning and token usage
+            - Chosen action name and arguments
+            - Observation results
+        """
         done = False
         step = 1
         while (not done) or (step <= self.max_turns):
@@ -220,6 +382,19 @@ class PipelineAgent(BaseAgent):
         self,
         actions: List[Callable]
     ):
+        """Generates a system prompt for the pipeline agent based on available actions.
+
+        Creates a formatted system prompt by populating the PIPELINE_TOOL_SYSTEM_PROMPT
+        template with pipeline_tool description and available action descriptions.
+
+        Args:
+            actions (List[Callable]): List of available action functions. Each must have
+                a __name__ attribute and __doc__ docstring.
+
+        Returns:
+            str: Formatted system prompt with pipeline_tool description, action names,
+                and detailed action descriptions for guiding the language model.
+        """
         template = PIPELINE_TOOL_SYSTEM_PROMPT
         values = {
             "pipeline_tool_description": pipeline_tool.__doc__, 
@@ -244,6 +419,21 @@ class GeneralAgent(BaseAgent):
         api_key: Optional[str] = None,
         model_type: Optional[str] = None,
     ):
+        """Initializes the GeneralAgent with actions and model configuration.
+
+        Args:
+            actions (List[Callable]): List of callable functions that the agent can execute.
+                May include special actions like 'domain_analyze' and 'type_analyze' that
+                return structured results.
+            model_source (str, optional): Source of the language model. Must be one of the keys
+                in MODEL_NAMES. Defaults to "openai".
+            api_key (Optional[str], optional): API key for the model service. Defaults to None.
+            model_type (Optional[str], optional): Specific model type/version to use. 
+                Defaults to None.
+
+        Raises:
+            ValueError: If model_source is not in MODEL_NAMES keys.
+        """
         super().__init__(actions, model_source, api_key, model_type)
 
     def execute(
@@ -252,6 +442,35 @@ class GeneralAgent(BaseAgent):
         temperature: float = 0.3,
         **generate_kwargs
     ):
+        """Executes a single action based on the input prompt.
+
+        Processes the prompt through the following steps:
+        1. Generates a response from the language model to select an action
+        2. Extracts and parses the chosen action and its arguments
+        3. Executes the selected action
+        4. Displays results in a formatted panel
+
+        For analysis actions ('domain_analyze', 'type_analyze'), displays a detailed
+        completion report with key-value results. For other actions, displays a simple
+        completion message.
+
+        Args:
+            prompt (str): Input prompt or query describing the task to be executed.
+            temperature (float, optional): Sampling temperature for model generation.
+                Lower values make output more deterministic. Defaults to 0.3.
+            **generate_kwargs: Additional keyword arguments passed to the model's
+                generation method.
+
+        Raises:
+            ValueError: If action tags cannot be found or parsed from model response.
+            KeyError: If the selected action name is not found in actions_dict.
+
+        Note:
+            Displays three types of formatted panels:
+            - Action panel: Shows the model's reasoning and token usage
+            - Observation panel: Shows the action being executed
+            - Completion/Report panel: Shows task completion status and results
+        """
         res, step_tokens = self.model(prompt, temperature=temperature, **generate_kwargs) 
         action_title = "Action"
         action_subtitle = "model_type: {}, step_token_use: {}".format(self.model_type, step_tokens)
@@ -297,6 +516,20 @@ class GeneralAgent(BaseAgent):
         self,
         actions: List[Callable]
     ):
+        """Generates a system prompt for the general agent based on available actions.
+
+        Creates a formatted system prompt by populating the GENERAL_ACTIONS_SYSTEM_PROMPT
+        template with action names and descriptions to guide the language model in
+        selecting appropriate actions.
+
+        Args:
+            actions (List[Callable]): List of available action functions. Each must have
+                a __name__ attribute and __doc__ docstring.
+
+        Returns:
+            str: Formatted system prompt with action names and detailed descriptions
+                for guiding action selection.
+        """
         template = GENERAL_ACTIONS_SYSTEM_PROMPT
         values = {
             "action_names": ", ".join([func.__name__ for func in actions]), 
@@ -310,7 +543,10 @@ class GeneralAgent(BaseAgent):
 class SchedulerAgent(BaseAgent):
     """A specialized assistant for implementing and managing scheduled tasks.
 
-    The Scheduler Agent handles all aspects of task scheduling management, including creating, monitoring, pausing, and removing scheduled tasks. It follows a structured reasoning process before taking actions.
+    The Scheduler Agent handles all aspects of task scheduling management, including 
+    creating, monitoring, pausing, and removing scheduled tasks. It follows a structured 
+    reasoning process before taking actions and provides formatted feedback throughout 
+    the execution process.
     """
     def __init__(
         self, 
@@ -319,6 +555,21 @@ class SchedulerAgent(BaseAgent):
         api_key: Optional[str] = None,
         model_type: Optional[str] = None,
     ):
+        """Initializes the SchedulerAgent with scheduling actions and model configuration.
+
+        Args:
+            actions (List[Callable]): List of callable functions for task scheduling
+                operations. Typically includes actions for creating, monitoring, pausing,
+                and removing scheduled tasks.
+            model_source (str, optional): Source of the language model. Must be one of the keys
+                in MODEL_NAMES. Defaults to "openai".
+            api_key (Optional[str], optional): API key for the model service. Defaults to None.
+            model_type (Optional[str], optional): Specific model type/version to use. 
+                Defaults to None.
+
+        Raises:
+            ValueError: If model_source is not in MODEL_NAMES keys.
+        """
         super().__init__(actions, model_source, api_key, model_type)
 
     def execute(
@@ -327,6 +578,34 @@ class SchedulerAgent(BaseAgent):
         temperature: float = 0.3,
         **generate_kwargs
     ):
+        """Executes a scheduling action based on the input prompt.
+
+        Processes the prompt through the following steps:
+        1. Generates a response from the language model to determine the appropriate
+        scheduling action
+        2. Extracts and parses the chosen action and its arguments
+        3. Executes the selected scheduling action
+        4. Displays completion status
+
+        Args:
+            prompt (str): Input prompt or query describing the scheduling task to be
+                executed (e.g., create a daily task, pause task X, show all tasks).
+            temperature (float, optional): Sampling temperature for model generation.
+                Lower values make output more deterministic. Defaults to 0.3.
+            **generate_kwargs: Additional keyword arguments passed to the model's
+                generation method.
+
+        Raises:
+            ValueError: If action tags cannot be found or parsed from model response.
+            KeyError: If the selected action name is not found in actions_dict.
+
+        Note:
+            Displays three types of formatted panels:
+            
+            - Action panel: Shows the model's reasoning and token usage (yellow border)
+            - Observation panel: Shows the action being executed (green border)
+            - Completion panel: Shows task completion status (cyan border)
+        """
         res, step_tokens = self.model(prompt, temperature=temperature, **generate_kwargs) 
         action_title = "Action"
         action_subtitle = "model_type: {}, step_token_use: {}".format(self.model_type, step_tokens)
@@ -362,6 +641,21 @@ class SchedulerAgent(BaseAgent):
         self,
         actions: List[Callable]
     ):
+        """Generates a system prompt for the scheduler agent based on available actions.
+
+        Creates a formatted system prompt by populating the SCHEDULER_ACTIONS_SYSTEM_PROMPT
+        template with scheduling action names and descriptions to guide the language model
+        in managing scheduled tasks.
+
+        Args:
+            actions (List[Callable]): List of available scheduling action functions. Each
+                must have a __name__ attribute and __doc__ docstring describing its
+                scheduling functionality.
+
+        Returns:
+            str: Formatted system prompt with action names and detailed descriptions
+                for guiding scheduling task management.
+        """
         template = SCHEDULER_ACTIONS_SYSTEM_PROMPT
         values = {
             "action_names": ", ".join([func.__name__ for func in actions]), 

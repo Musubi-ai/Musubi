@@ -25,6 +25,20 @@ from ..agent.actions import (
 
 
 def agent_command_parser(subparsers=None):
+    """Create and configure argument parser for agent command.
+
+    This function creates an argument parser for the Musubi agent command,
+    either as a standalone parser or as a subparser of an existing parser.
+    It configures all necessary command-line arguments for agent execution.
+
+    Args:
+        subparsers: An argparse subparsers object to add this parser to.
+            If None, creates a standalone ArgumentParser. Defaults to None.
+
+    Returns:
+        argparse.ArgumentParser: The configured argument parser with all
+            agent-related arguments and defaults set.
+    """
     if subparsers is not None:
         parser = subparsers.add_parser("agent")
     else:
@@ -48,6 +62,28 @@ def agent_command_parser(subparsers=None):
 
 
 def agent_command(args):
+    """Execute the agent command with specified configuration.
+
+    This function initializes three specialized agents (PipelineAgent,
+    GeneralAgent, and SchedulerAgent) with their respective actions,
+    combines them into a main MusubiAgent, and executes the provided prompt.
+
+    Args:
+        args: An argparse.Namespace object containing the following attributes:
+            prompt (str): The prompt/command to execute.
+            model_source (str): The source of the AI model (e.g., "openai").
+            api_key (str): API key for the model service.
+            model_type (str): Specific model type to use.
+
+    Returns:
+        None: This function executes the agent and returns nothing.
+
+    Note:
+        The function creates three types of agents:
+        - PipelineAgent: Handles web search and analysis actions
+        - GeneralAgent: Manages domain and implementation analysis
+        - SchedulerAgent: Controls task scheduling operations
+    """
     actions = [search_url, analyze_website, get_container, get_page_info, final_answer]
     pipeline_agent = PipelineAgent(
         actions=actions,

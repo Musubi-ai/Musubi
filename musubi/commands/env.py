@@ -5,6 +5,20 @@ from ..utils.env import create_env_file
 
 
 def env_command_parser(subparsers=None):
+    """Create and configure argument parser for env command.
+
+    This function creates an argument parser for the Musubi env command,
+    which is used to configure environment variables including API tokens
+    for various AI services and notification systems.
+
+    Args:
+        subparsers: An argparse subparsers object to add this parser to.
+            If None, creates a standalone ArgumentParser. Defaults to None.
+
+    Returns:
+        argparse.ArgumentParser: The configured argument parser with all
+            environment configuration arguments and defaults set.
+    """
     if subparsers is not None:
         parser = subparsers.add_parser("env")
     else:
@@ -40,6 +54,35 @@ def env_command_parser(subparsers=None):
 
 
 def env_command(args):
+    """Execute the env command to configure environment variables.
+
+    This function creates or updates a .env file with API tokens and
+    credentials for various services. Only non-None arguments are written
+    to the environment file, allowing selective updates.
+
+    Args:
+        args: An argparse.Namespace object containing the following attributes:
+            google_app_password (str): Google app password for Gmail notifications. Optional.
+            hf_token (str): Hugging Face API token. Optional.
+            openai (str): OpenAI API key. Optional.
+            groq (str): Groq API key. Optional.
+            xai (str): XAI API key. Optional.
+            deepseek (str): Deepseek API key. Optional.
+            anthropic (str): Anthropic API key. Optional.
+            gemini (str): Gemini API key. Optional.
+
+    Returns:
+        None: This function updates the .env file and returns nothing.
+
+    Note:
+        - Creates a new .env file if it doesn't exist
+        - Only updates keys that are provided (non-None values)
+        - Environment variable names are standardized:
+            * GOOGLE_APP_PASSWORD for Gmail notifications
+            * HF_TOKEN for Hugging Face
+            * OPENAI_API_KEY, GROQ_API_KEY, XAI_API_KEY, etc. for AI services
+        - Logs completion message after updating the file
+    """
     env_path = create_env_file()
     if args.google_app_password is not None:
         set_key(env_path, key_to_set="GOOGLE_APP_PASSWORD", value_to_set=args.google_app_password)

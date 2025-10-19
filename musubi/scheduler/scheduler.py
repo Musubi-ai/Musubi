@@ -31,6 +31,18 @@ scheduler_info = SchedulerInfo(active_tasks={})
 
 
 class Scheduler:
+    """Scheduler server for managing web crawling tasks with API endpoints.
+
+    This class provides functionality to launch the scheduler, run a FastAPI
+    server with task management endpoints, and keep track of active tasks.
+
+    Args:
+        config_dir (Optional[str]): Directory to store scheduler configuration files.
+        website_config_path (Optional[str]): Path to website configuration JSON file.
+        host (Optional[str]): Host address for the FastAPI server. Defaults to "127.0.0.1".
+        port (Optional[int]): Port number for the FastAPI server. Defaults to 5000.
+        log_path (Optional[str]): Path to log file. Optional.
+    """
     def __init__(
         self,
         config_dir: Optional[str] = None,
@@ -49,6 +61,16 @@ class Scheduler:
             logger.add(log_path, level="INFO", encoding="utf-8", enqueue=True) 
 
     def run(self):
+        """Start the scheduler server using FastAPI and uvicorn.
+
+        If `host` or `port` are not specified, defaults are used.
+
+        Returns:
+            None
+
+        Notes:
+            Logs the server startup and starts listening for incoming API requests.
+        """
         if self.host is None:
             self.host = "127.0.0.1"
         if self.port is None:
@@ -59,10 +81,21 @@ class Scheduler:
 
 @app.get("/")
 async def check():
+    """Health check endpoint for the scheduler server.
+
+    Returns:
+        PlainTextResponse: A plain text message indicating the scheduler is running.
+    """
     return PlainTextResponse("Scheduler server is running.")
 
 @app.get("/tasks")
 async def retrieve_task_list():
+    """Retrieve a list of all active scheduled tasks.
+
+    Returns:
+        ORJSONResponse: JSON response containing task IDs, names, and status.
+            If no tasks are scheduled, returns a message indicating so.
+    """
     task_response = TasksResponse()
     try:
         for task_id, task_name in active_tasks.items():
@@ -83,6 +116,19 @@ async def retrieve_task_list():
 
 @app.post("/start_task")
 async def start_task(request_data: GeneralRequest):
+    """Start a specific scheduled task by task_id.
+
+    Args:
+        request_data (GeneralRequest): Request object containing the `task_id` to start.
+
+    Returns:
+        ORJSONResponse: JSON response containing the task configuration and status message.
+
+    Notes:
+        - Validates that exactly one task matches the task_id in the tasks.json file.
+        - Supports task types `"update_all"` and `"by_idx"`.
+        - Logs actions and warnings.
+    """
     tasks_path = Path(scheduler_info.config_dir) / "tasks.json"
     tasks_path.touch(mode=0o600, exist_ok=True)
     response_data = StartTaskResponse()
@@ -137,6 +183,14 @@ async def start_task(request_data: GeneralRequest):
 
 @app.post("/pause")
 async def pause_task(request_data: GeneralRequest):
+    """Pause a currently running task.
+
+    Args:
+        request_data (GeneralRequest): Request object containing the `task_id` to pause.
+
+    Returns:
+        ORJSONResponse: JSON response indicating success or failure.
+    """
     response_data = GeneralResponse()
     try:
         if request_data.task_id in active_tasks:
@@ -154,6 +208,14 @@ async def pause_task(request_data: GeneralRequest):
 
 @app.post("/resume")
 async def resume_task(request_data: GeneralRequest):
+    """Resume a paused task.
+
+    Args:
+        request_data (GeneralRequest): Request object containing the `task_id` to resume.
+
+    Returns:
+        ORJSONResponse: JSON response indicating success or failure.
+    """
     response_data = GeneralResponse()
     try:
         if request_data.task_id in active_tasks:
@@ -171,6 +233,14 @@ async def resume_task(request_data: GeneralRequest):
 
 @app.post("/remove")
 def remove_task(request_data: GeneralRequest):
+    """Remove a task from the scheduler.
+
+    Args:
+        request_data (GeneralRequest): Request object containing the `task_id` to remove.
+
+    Returns:
+        ORJSONResponse: JSON response indicating success or failure.
+    """
     response_data = GeneralResponse()
     try:
         if request_data.task_id in active_tasks:
@@ -188,6 +258,15 @@ def remove_task(request_data: GeneralRequest):
 
 @app.post("/shutdown")
 async def shutdown_scheduler():
+    """Shut down the scheduler server immediately.
+
+    Returns:
+        PlainTextResponse: A message indicating the scheduler has been shut down.
+
+    Notes:
+        - Calls `os._exit(0)` to terminate the process.
+        - Logs the shutdown action.
+    """
     os._exit(0)
     message = "The scheduler has been shut down."
     logger.info(message)

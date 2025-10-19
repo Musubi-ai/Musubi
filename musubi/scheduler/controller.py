@@ -8,6 +8,20 @@ from .scheduler import Scheduler
 
 
 class Controller:
+    """Controller class for managing the web crawling scheduler and tasks.
+
+    This class provides an interface to control the crawling scheduler server,
+    including launching, shutting down, checking status, and managing scheduled tasks.
+    It supports adding, pausing, resuming, and removing scheduled crawling jobs
+    defined in the configuration files.
+
+    Args:
+        host (Optional[str]): The host address of the scheduler server. Defaults to "127.0.0.1".
+        port (Optional[int]): The port number of the scheduler server. Defaults to 5000.
+        config_dir (Optional[str]): Directory to store configuration files. Defaults to "config".
+        website_config_path (Optional[str]): Path to the website configuration file. Optional.
+        log_path (Optional[str]): File path to save log output. Optional.
+    """
     def __init__(
         self,
         host: Optional[str] = None,
@@ -33,6 +47,14 @@ class Controller:
         self.website_config_path = website_config_path
 
     def launch_scheduler(self):
+        """Launch the crawling scheduler.
+
+        This method initializes and starts the scheduler service,
+        allowing background crawling tasks to be executed according to the defined schedule.
+
+        Returns:
+            None
+        """
         self.scheduler = Scheduler(
             config_dir = str(self.config_dir),
             website_config_path = self.website_config_path,
@@ -43,6 +65,14 @@ class Controller:
         self.scheduler.run()
 
     def shutdown_scheduler(self):
+        """Shut down the running scheduler.
+
+        Sends a shutdown request to the scheduler server API.
+
+        Returns:
+            tuple[int, str] or None: A tuple containing the response status code and message text.
+                Returns None if the connection fails.
+        """
         api = self.root_path + "/shutdown"
         try:
             res = requests.post(api)
@@ -51,6 +81,15 @@ class Controller:
             logger.info("The scheduler has been shut down due to connection error.")
 
     def check_status(self):
+        """Check the running status of the scheduler.
+
+        Sends a GET request to the scheduler root endpoint to verify
+        if the scheduler server is active.
+
+        Returns:
+            Union[tuple[int, str], str]: A tuple of HTTP status code and message if successful,
+            otherwise a failure message string.
+        """
         api = self.root_path
         try:
             res = requests.get(api)
@@ -60,6 +99,14 @@ class Controller:
             return "Failed to retrieve the status of the scheduler server."
 
     def retrieve_task_list(self):
+        """Retrieve all registered tasks from the scheduler.
+
+        Fetches a list of all scheduled tasks currently managed by the scheduler.
+
+        Returns:
+            Union[tuple[int, dict], str]: A tuple containing the HTTP status code
+            and the JSON response (task list) if successful, or an error message string otherwise.
+        """
         api = self.root_path + "/tasks"
         try:
             res = requests.get(api)
@@ -83,6 +130,32 @@ class Controller:
         sender_email: Optional[str] = None,
         recipient_email: Optional[str] = None
     ):
+        """Add a new crawling task to the scheduler.
+
+        This function creates a new task configuration and sends it to the scheduler
+        to be executed periodically based on the provided cron parameters.
+
+        Args:
+            task_type (str): Type of the task. Must be either `"update_all"` or `"by_idx"`.
+            task_name (Optional[str]): Name of the task. Defaults to "update_all_task" or "by_idx_task".
+            update_pages (Optional[int]): Number of pages to update in update mode. Optional.
+            save_dir (Optional[str]): Directory to save the crawled data. Optional.
+            start_idx (Optional[int]): Starting index in the website configuration. Defaults to 0.
+            idx (Optional[int]): Specific website index for `"by_idx"` task type. Defaults to 0.
+            cron_params (dict): Cron trigger parameters for scheduling. See:
+                https://apscheduler.readthedocs.io/en/3.x/modules/triggers/cron.html
+            send_notification (Optional[bool]): Whether to send email notification after task completion.
+            app_password (Optional[str]): Application-specific password for the sender email.
+            sender_email (Optional[str]): Sender email address. Optional.
+            recipient_email (Optional[str]): Recipient email address. Optional.
+
+        Returns:
+            Union[tuple[int, dict], None]: A tuple with the HTTP status code and JSON response if successful,
+            or None if the scheduler request fails.
+
+        Raises:
+            ValueError: If `task_type` is not one of `"update_all"` or `"by_idx"`.
+        """
         # For legal cron_params arguments, reference https://apscheduler.readthedocs.io/en/3.x/modules/triggers/cron.html.
         task_params = {}
         if task_type == "update_all":
@@ -137,6 +210,15 @@ class Controller:
         self,
         task_id: str
     ):
+        """Start a task from an existing task configuration file.
+
+        Args:
+            task_id (str): Unique identifier of the task to start.
+
+        Returns:
+            Union[tuple[int, dict], None]: A tuple with HTTP status code and JSON response,
+            or None if the request fails.
+        """
         api = self.root_path + "/start_task"
         data = {"task_id": task_id}
         try:
@@ -149,6 +231,15 @@ class Controller:
         self,
         task_id: str
     ):
+        """Pause a running task.
+
+        Args:
+            task_id (str): The unique task identifier to pause.
+
+        Returns:
+            Union[tuple[int, dict], None]: A tuple containing HTTP status code and JSON response,
+            or None if the request fails.
+        """
         api = self.root_path + "/pause"
         data = {"task_id": task_id}
         try:
@@ -161,6 +252,15 @@ class Controller:
         self,
         task_id: str
     ):
+        """Resume a paused task.
+
+        Args:
+            task_id (str): The unique task identifier to resume.
+
+        Returns:
+            Union[tuple[int, dict], None]: A tuple containing HTTP status code and JSON response,
+            or None if the request fails.
+        """
         api = self.root_path + "/resume"
         data = {"task_id": task_id}
         try:
@@ -173,6 +273,15 @@ class Controller:
         self,
         task_id: str
     ):
+        """Remove a task from the scheduler.
+
+        Args:
+            task_id (str): The unique task identifier to remove.
+
+        Returns:
+            Union[tuple[int, dict], None]: A tuple containing HTTP status code and JSON response,
+            or None if the request fails.
+        """
         api = self.root_path + "/remove"
         data = {"task_id": task_id}
         try:

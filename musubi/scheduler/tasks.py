@@ -11,6 +11,26 @@ load_dotenv()
 
 
 class Task:
+    """Represents a scheduled crawling task with optional email notifications.
+
+    This class wraps the Musubi crawling pipeline and provides methods
+    to execute scheduled tasks either for all websites or a specific
+    website index. It can also send email notifications before and after
+    the task execution.
+
+    Args:
+        send_notification (Optional[bool]): Whether to send email notifications.
+            Defaults to False.
+        app_password (Optional[str]): Gmail app password for sending notifications.
+            Required if `send_notification` is True.
+        sender_email (Optional[str]): Email address to send notifications from.
+        recipient_email (Optional[str]): Email address to send notifications to.
+            Defaults to `sender_email` if not provided.
+        config_dir (Optional[str]): Directory to store task configuration files.
+            Defaults to `"config"`.
+        website_config_path (Optional[str]): Path to website configuration JSON file.
+            Defaults to `"config/websites.json"`.
+    """
     def __init__(
         self,
         send_notification: Optional[bool] = False,
@@ -56,6 +76,21 @@ class Task:
         update_pages: int = 10,
         save_dir: Optional[str] = None
     ):
+        """Execute a scheduled update task for all websites.
+
+        Sends optional email notifications before and after executing the
+        full update task using the Musubi pipeline.
+
+        Args:
+            task_name (str): Name of the task. Defaults to `"update_all_task"`.
+            start_idx (Optional[int]): Starting index in the website configuration
+                to begin crawling. Defaults to 0.
+            update_pages (int): Number of pages to update per website. Defaults to 10.
+            save_dir (Optional[str]): Directory to save extracted data. Optional.
+
+        Returns:
+            None
+        """
         if self.send_notification:
             self.notify.send_gmail(
                 subject="Musubi: Start scheduled updating",
@@ -81,6 +116,22 @@ class Task:
         update_pages: Optional[int] = None,
         save_dir: Optional[str] = None,
     ):
+        """Execute a scheduled task for a specific website by index.
+
+        Sends optional email notifications before and after executing the
+        crawling task for the website at the specified index using the
+        Musubi pipeline.
+
+        Args:
+            task_name (str): Name of the task. Defaults to `"by_idx_task"`.
+            idx (Optional[int]): Index of the website in the configuration.
+                Defaults to 0.
+            update_pages (Optional[int]): Number of pages to update. Optional.
+            save_dir (Optional[str]): Directory to save extracted data. Optional.
+
+        Returns:
+            None
+        """
         if self.notify:
             self.notify.send_gmail(
                 subject="Musubi: Start scheduled crawling",

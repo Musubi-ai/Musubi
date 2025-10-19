@@ -104,7 +104,8 @@ guide/guide
 api/Pipeline
 api/Crawl link
 api/Crawl content
-api/Agent
-api/CLI
+api/agent/Agent
+api/commands/CLI
+api/scheduler/Scheduler
 api/Utils
 ```

@@ -13,11 +13,11 @@
 :hidden:
 :caption: COMMANDS
 
-commands/Agent
-commands/Analyze
-commands/Crawl
-commands/Env
-commands/Get
-commands/Pipeline
-commands/Start
+Agent
+Analyze
+Crawl
+Env
+Get
+Pipeline
+Start
 ```

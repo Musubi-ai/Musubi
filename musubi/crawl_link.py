@@ -141,7 +141,10 @@ class Scan(BaseCrawl):
               the page URL.
         """
         link_list = []
-        r = requests.get(page, headers=headers)
+        try:
+            r = requests.get(page, headers=headers, timeout=120)
+        except:
+            blocks = []
         soup = BeautifulSoup(r.text, features="html.parser")
         if self.block2:
             blocks = soup.find(self.block1[0], class_=self.block1[1])
@@ -498,14 +501,17 @@ class OnePage(BaseCrawl):
               the prefix URL.
         """
         link_list = []
-        r = requests.get(self.prefix, headers=headers)
-        soup = BeautifulSoup(r.text, features="html.parser")
+        try:
+            r = requests.get(self.prefix, headers=headers, timeout=120)
+            soup = BeautifulSoup(r.text, features="html.parser")
 
-        if self.block2:
-            blocks = soup.find(self.block1[0], class_=self.block1[1])
-            blocks = blocks.find_all(self.block2[0], class_=self.block2[1])
-        else:
-            blocks = soup.find_all(self.block1[0], class_=self.block1[1])
+            if self.block2:
+                blocks = soup.find(self.block1[0], class_=self.block1[1])
+                blocks = blocks.find_all(self.block2[0], class_=self.block2[1])
+            else:
+                blocks = soup.find_all(self.block1[0], class_=self.block1[1])
+        except:
+            blocks = []
 
         for block in blocks:
             if self.root_path:

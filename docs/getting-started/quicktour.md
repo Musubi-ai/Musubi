@@ -5,4 +5,8 @@ Musubi-scrape provides convenient methods for crawling web text data. As the dem
 This quick tour introduces the main features of Musubi-scrape and demonstrates how to easily crawl web text data using the library.
 
 ## Pipeline
-...
+Musubi-scrape provides `pipeline` function to efficiently crawl article text in the certain website. The overall crawling process can be generally split into two stages: the link-crawling stage and the content-crawling stage. In the link-crawling stage, Musubi extracts all links in the specified block on the website. For the link-crawling stage, Musubi provides four main crawling methods based on the website format to extract links of news, documents, and blogs: scan, scroll, click, and onepage. Next, the corresponding text content of each link is crawled and transformed into markdown format. 
+
+Let's dig into the practical example. Suppose we want to crawl articles from the News and Culture category on Literary Hub, a website that provides up-to-date literary news. Now, to crawl with Musuibi-scrape, import `pipeline` function and specify the following arguments:
+
+- `aaaa`: aaaaa

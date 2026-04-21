@@ -15,9 +15,7 @@ scrape_journal.py
 b.py
 
 # For testing
-test.py
-test2.py
-test_pipeline.py
+test*.py
 
 # For building
 dist

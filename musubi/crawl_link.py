@@ -210,22 +210,22 @@ class Scan(BaseCrawl):
         Returns:
             None: Prints the first extracted URL to stdout.
         """
-        is_url_path = os.path.isfile(self.url_path)
+        is_url_path = self.url_path is not None and os.path.isfile(self.url_path)
         if is_url_path:
             url_list = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["link"].to_list()
         else:
             url_list = None
 
-        
         for i in tqdm(range(start_page, self.length), desc="Crawling urls..."):
             page = self.pages_lst[i]
             link_list = self.get_urls(page=page)
             for link in link_list:
-                if url_list and link in url_list:
+                if (url_list is not None) and (link in url_list):
                     continue 
-                dictt = {"link": link}
-                with open(self.url_path, "ab") as file:
-                    file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
+                if self.url_path is not None:
+                    dictt = {"link": link}
+                    with open(self.url_path, "ab") as file:
+                        file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
     def check_link_result(self):
         page = self.pages_lst[0]
@@ -362,7 +362,7 @@ class Scroll(BaseCrawl):
             - Skips duplicate URLs if url_path already exists.
             - Each URL is saved as a JSON object with a 'link' field.
         """
-        is_url_path = os.path.isfile(self.url_path)
+        is_url_path = self.url_path is not None and os.path.isfile(self.url_path)
         if is_url_path:
             url_list = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["link"].to_list()
         else:
@@ -396,10 +396,11 @@ class Scroll(BaseCrawl):
                             url = root_path + "/" + url
                 if url_list and (url in url_list):
                     continue 
-                dictt = {"link": url}
 
-                with open(self.url_path, "ab") as file:
-                    file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
+                if self.url_path is not None:
+                    dictt = {"link": url}
+                    with open(self.url_path, "ab") as file:
+                        file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
     def check_link_result(self):
         """Check and print extracted URLs from a single scroll action.
@@ -579,7 +580,7 @@ class OnePage(BaseCrawl):
             - Unlike Scan class, this method does not iterate through multiple
               pages or show a progress bar.
         """
-        is_url_path = os.path.isfile(self.url_path)
+        is_url_path = self.url_path is not None and os.path.isfile(self.url_path)
         if is_url_path:
             url_list = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["link"].to_list()
         else:
@@ -589,9 +590,10 @@ class OnePage(BaseCrawl):
         for link in link_list:
             if url_list and link in url_list:
                 continue 
-            dictt = {"link": link}
-            with open(self.url_path, "ab") as file:
-                file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
+            if self.url_path is not None:
+                dictt = {"link": link}
+                with open(self.url_path, "ab") as file:
+                    file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
     def check_link_result(self):
         """Check and print all extracted URLs from the page.
@@ -721,7 +723,7 @@ class Click(BaseCrawl):
         n = 0
         click_time = click_time if click_time is not None else self.click_time
 
-        is_url_path = os.path.isfile(self.url_path)
+        is_url_path = self.url_path is not None and os.path.isfile(self.url_path)
         if is_url_path:
             url_list = pd.read_json(self.url_path, lines=True, engine="pyarrow", dtype_backend="pyarrow")["link"].to_list()
         else:
@@ -751,10 +753,10 @@ class Click(BaseCrawl):
                                 url = root_path + "/" + url
                     if url_list and (url in url_list):
                         continue 
-                    dictt = {"link": url}
-
-                    with open(self.url_path, "ab") as file:
-                        file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
+                    if self.url_path is not None:
+                        dictt = {"link": url}
+                        with open(self.url_path, "ab") as file:
+                            file.write(orjson.dumps(dictt, option=orjson.OPT_NON_STR_KEYS) + b"\n")
 
                 button = self.driver.find_element(By.CLASS_NAME, self.block2[1])
                 try:

@@ -130,7 +130,6 @@ class Pipeline:
             indices = self.website_df["idx"].to_list()
             if idx not in indices:
                 raise ValueError("In update mode but assigned index does not exist in website.json file.")
-        
         urls_folder_path = Path(self.urls_dir)
         urls_folder_path.mkdir(parents=True, exist_ok=True)
         contents_folder_path = Path(self.save_dir)

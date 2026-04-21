@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from typing import List, Optional
 import orjson
 import time
+import random
 from tqdm import tqdm
 from .utils import get_root_path
 
@@ -19,6 +20,28 @@ headers = {
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
                   "Chrome/120.0.0.0 Safari/537.36"
 }
+
+RETRYABLE_STATUS = {429, 500, 502, 503, 504}
+
+
+def _get_with_retry(url: str, max_retries: int = 3) -> requests.Response:
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, headers=headers, timeout=120)
+            if response.status_code in RETRYABLE_STATUS:
+                if attempt == max_retries - 1:
+                    response.raise_for_status()
+                wait = 2 ** attempt + random.random()
+                logger.warning(f"Status {response.status_code} for {url}, retrying in {wait:.1f}s (attempt {attempt + 1}/{max_retries})")
+                time.sleep(wait)
+                continue
+            return response
+        except requests.RequestException as e:
+            if attempt == max_retries - 1:
+                raise
+            wait = 2 ** attempt + random.random()
+            logger.warning(f"Request failed for {url}: {e}, retrying in {wait:.1f}s (attempt {attempt + 1}/{max_retries})")
+            time.sleep(wait)
 
 
 class BaseCrawl(ABC):
@@ -142,9 +165,10 @@ class Scan(BaseCrawl):
         """
         link_list = []
         try:
-            r = requests.get(page, headers=headers, timeout=120)
-        except:
-            blocks = []
+            r = _get_with_retry(page)
+        except Exception as e:
+            logger.error(f"Failed to fetch {page}: {e}")
+            return link_list
         soup = BeautifulSoup(r.text, features="html.parser")
         if self.block2:
             blocks = soup.find(self.block1[0], class_=self.block1[1])
@@ -503,7 +527,7 @@ class OnePage(BaseCrawl):
         """
         link_list = []
         try:
-            r = requests.get(self.prefix, headers=headers, timeout=120)
+            r = _get_with_retry(self.prefix)
             soup = BeautifulSoup(r.text, features="html.parser")
 
             if self.block2:
@@ -511,7 +535,8 @@ class OnePage(BaseCrawl):
                 blocks = blocks.find_all(self.block2[0], class_=self.block2[1])
             else:
                 blocks = soup.find_all(self.block1[0], class_=self.block1[1])
-        except:
+        except Exception as e:
+            logger.error(f"Failed to fetch {self.prefix}: {e}")
             blocks = []
 
         for block in blocks:

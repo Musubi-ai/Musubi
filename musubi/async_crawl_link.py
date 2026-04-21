@@ -52,9 +52,24 @@ class AsyncScan:
         self.length = len(self.pages_lst)
         self.plural_a_tag = (self.block1[0] == "a") or (self.block2 and self.block2[0] == "a")
 
-    async def fetch(self, session: aiohttp.ClientSession, url):
-        async with session.get(url, headers=headers) as response:
-            return await response.text()
+    async def fetch(self, session: aiohttp.ClientSession, url: str, max_retries: int = 3) -> str:
+        for attempt in range(max_retries):
+            try:
+                async with session.get(url, headers=headers) as response:
+                    if response.status in {429, 500, 502, 503, 504}:
+                        if attempt == max_retries - 1:
+                            response.raise_for_status()
+                        wait = 2 ** attempt + random.random()
+                        logger.warning(f"Status {response.status} for {url}, retrying in {wait:.1f}s (attempt {attempt + 1}/{max_retries})")
+                        await asyncio.sleep(wait)
+                        continue
+                    return await response.text()
+            except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+                if attempt == max_retries - 1:
+                    raise
+                wait = 2 ** attempt + random.random()
+                logger.warning(f"Request failed for {url}: {e}, retrying in {wait:.1f}s (attempt {attempt + 1}/{max_retries})")
+                await asyncio.sleep(wait)
         
     async def get_urls(
         self, 

@@ -9,6 +9,8 @@ import orjson
 from tqdm import tqdm
 import pandas as pd
 import time
+import random
+from loguru import logger
 
 
 headers = {
@@ -17,12 +19,33 @@ headers = {
                   "Chrome/120.0.0.0 Safari/537.36"
 }
 
+RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 
 
-def get_content(url):
+def _get_with_retry(url: str, max_retries: int = 3, **kwargs) -> requests.Response:
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, headers=headers, timeout=120, **kwargs)
+            if response.status_code in RETRYABLE_STATUS:
+                if attempt == max_retries - 1:
+                    response.raise_for_status()
+                wait = 2 ** attempt + random.random()
+                logger.warning(f"Status {response.status_code} for {url}, retrying in {wait:.1f}s (attempt {attempt + 1}/{max_retries})")
+                time.sleep(wait)
+                continue
+            return response
+        except requests.RequestException as e:
+            if attempt == max_retries - 1:
+                raise
+            wait = 2 ** attempt + random.random()
+            logger.warning(f"Request failed for {url}: {e}, retrying in {wait:.1f}s (attempt {attempt + 1}/{max_retries})")
+            time.sleep(wait)
+
+
+def get_content(url: str, max_retries: int = 3):
     if url.endswith(".pdf"):
-        request = requests.get(url, headers=headers)
-        filestream = io.BytesIO(request.content)
+        response = _get_with_retry(url, max_retries=max_retries)
+        filestream = io.BytesIO(response.content)
         with pymupdf.open(stream=filestream, filetype="pdf") as doc:
             result = pymupdf4llm.to_markdown(doc)
     else:
@@ -33,10 +56,11 @@ def get_content(url):
 
 def get_image_text_pair(
     url: str = None,
-    img_txt_block: list = None
+    img_txt_block: list = None,
+    max_retries: int = 3
 ):
-    request = requests.get(url, headers=headers)
-    content = request.text
+    response = _get_with_retry(url, max_retries=max_retries)
+    content = response.text
     soup = BeautifulSoup(content, "html.parser")
     soup = soup.find(img_txt_block[0], class_=img_txt_block[1])
     img_list = []

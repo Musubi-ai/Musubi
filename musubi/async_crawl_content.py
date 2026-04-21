@@ -11,6 +11,7 @@ import aiohttp
 import asyncio
 from functools import partial
 from loguru import logger
+import random
 
 
 headers = {
@@ -19,11 +20,33 @@ headers = {
                   "Chrome/120.0.0.0 Safari/537.36"
 }
 
+RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 
-async def get_content(url: str = None, session: aiohttp.ClientSession = None):
+
+async def _fetch_with_retry(session: aiohttp.ClientSession, url: str, max_retries: int = 3) -> bytes:
+    for attempt in range(max_retries):
+        try:
+            async with session.get(url, headers=headers) as response:
+                if response.status in RETRYABLE_STATUS:
+                    if attempt == max_retries - 1:
+                        response.raise_for_status()
+                    wait = 2 ** attempt + random.random()
+                    logger.warning(f"Status {response.status} for {url}, retrying in {wait:.1f}s (attempt {attempt + 1}/{max_retries})")
+                    await asyncio.sleep(wait)
+                    continue
+                return await response.read()
+        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+            if attempt == max_retries - 1:
+                raise
+            wait = 2 ** attempt + random.random()
+            logger.warning(f"Request failed for {url}: {e}, retrying in {wait:.1f}s (attempt {attempt + 1}/{max_retries})")
+            await asyncio.sleep(wait)
+
+
+async def get_content(url: str = None, session: aiohttp.ClientSession = None, max_retries: int = 3):
     if url.endswith(".pdf"):
-        async with session.get(url, headers=headers) as request:
-            filestream = io.BytesIO(await request.read())
+        raw = await _fetch_with_retry(session, url, max_retries)
+        filestream = io.BytesIO(raw)
         with pymupdf.open(stream=filestream.getvalue(), filetype="pdf") as doc:
             result = pymupdf4llm.to_markdown(doc)
     else:
@@ -33,9 +56,9 @@ async def get_content(url: str = None, session: aiohttp.ClientSession = None):
         result = await loop.run_in_executor(None, extract_with_args)
     return result, url
 
-async def fetch(session: aiohttp.ClientSession, url):
-    async with session.get(url, headers=headers) as response:
-        return await response.text()
+async def fetch(session: aiohttp.ClientSession, url: str, max_retries: int = 3) -> str:
+    raw = await _fetch_with_retry(session, url, max_retries)
+    return raw.decode("utf-8", errors="replace")
 
 async def get_image_text_pair(
     url: str = None,

@@ -43,7 +43,7 @@ class SearchCrawler:
         invalid_patterns = [
             '圖片', 'Images', 'image', 'img',
             '過去一天', '過去一週', '過去一個月', 'Past 24 hours', 'Past week', 'Past month',
-            '繁體中文', '简体中文', '中文', 'Traditional Chinese', 'Simplified Chinese',
+            'Traditional Chinese', 'Simplified Chinese',
             '廣告', 'Ad', 'Advertisement', 'Sponsored',
             'All', 'More', 'Tools', 'Settings', 
             'Privacy', 'Terms', 'Safe Search', 'Advanced Search'
@@ -67,21 +67,21 @@ class SearchCrawler:
     
     def _extract_real_url(self, yahoo_url: str) -> str:
         """Extract the real URL from Yahoo's wrapped URL
-        
+
         Args:
             yahoo_url: Yahoo wrapped URL
-            
+
         Returns:
-            Real destination URL
+            Real destination URL, or empty string if it's a Yahoo internal URL
         """
         if not yahoo_url:
             return yahoo_url
-            
+
         try:
             # Yahoo wraps URLs in different formats:
             # Format 1: /RU=https%3a%2f%2fwww.example.com%2f/RK=2/RS=...
             # Format 2: https://r.search.yahoo.com/...RU=https%3a%2f%2fwww.example.com%2f/RK=2/RS=...
-            
+
             if '/RU=' in yahoo_url:
                 # Extract the part after /RU=
                 ru_part = yahoo_url.split('/RU=')[1]
@@ -90,17 +90,16 @@ class SearchCrawler:
                     encoded_url = ru_part.split('/RK=')[0]
                 else:
                     encoded_url = ru_part
-                
+
                 # URL decode the extracted part
                 real_url = urllib.parse.unquote(encoded_url)
-                
+
                 # Sometimes there are multiple levels of encoding
-                # Try to decode again if it still looks encoded
                 if '%' in real_url:
                     real_url = urllib.parse.unquote(real_url)
-                
+
                 return real_url
-            
+
             # If it's not a wrapped URL, return as is
             return yahoo_url
 
@@ -132,15 +131,15 @@ class SearchCrawler:
             response.raise_for_status()
 
             soup = BeautifulSoup(response.text, 'html.parser')
-            search_results = soup.find_all('div', {'class': ['dd', 'algo']})
-            
+            # Use exact class match to get only organic search results (not nav/filter divs)
+            search_results = soup.find_all('div', class_='algo')
+
             # Try alternative selectors if first attempt fails
             if not search_results:
-                search_results = soup.find_all('div', {'class': 'compDlink'})
+                search_results = soup.find_all('div', class_='Sr')
             if not search_results:
-                search_results = soup.find_all('div', {'class': 'Sr'})
+                search_results = soup.find_all('div', class_='compDlink')
             if not search_results:
-                # Try more generic approach for Yahoo
                 search_results = soup.find_all('div', attrs={'data-bkt': True})
             
             valid_count = 0
@@ -209,7 +208,7 @@ def search_url(query: str):
     Examples:
         ::
 
-            url, root_path = search("The New York Times")
+            url, root_path = search_url("The New York Times")
             print(url)
                 'https://www.nytimes.com/international/'
             print(root_path)

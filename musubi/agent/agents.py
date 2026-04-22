@@ -335,7 +335,7 @@ class PipelineAgent(BaseAgent):
         """
         done = False
         step = 1
-        while (not done) or (step <= self.max_turns):
+        while (not done) and (step <= self.max_turns):
             res, step_tokens = self.model(prompt, temperature=temperature, **generate_kwargs) 
             action_title = "Action {}".format(str(step))
             action_subtitle = "model_type: {}, step_token_use: {}".format(self.model_type, step_tokens)

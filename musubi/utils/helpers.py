@@ -121,7 +121,7 @@ def add_new_website(
         dir_list = df["dir_"].to_list()
         name_list = df["name"].to_list()
 
-        if not idx:
+        if idx is None:
             idx = max(exist_idx_list) + 1
 
         if idx in exist_idx_list:

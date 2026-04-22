@@ -149,7 +149,8 @@ class AsyncScan:
         else:
             url_list = None
 
-        async with aiohttp.ClientSession() as session:
+        timeout = aiohttp.ClientTimeout(total=30)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
             tasks = []
             for i in range(start_page, self.length):
                 page = self.pages_lst[i]

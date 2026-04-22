@@ -64,7 +64,8 @@ async def get_image_text_pair(
     url: str = None,
     img_txt_block: list = None
 ):
-    async with aiohttp.ClientSession() as session:
+    timeout = aiohttp.ClientTimeout(total=30)
+    async with aiohttp.ClientSession(timeout=timeout) as session:
         content = await fetch(session, url)
         soup = BeautifulSoup(content, "html.parser")
         soup = soup.find(img_txt_block[0], class_=img_txt_block[1])

@@ -267,7 +267,7 @@ async def shutdown_scheduler():
         - Calls `os._exit(0)` to terminate the process.
         - Logs the shutdown action.
     """
-    os._exit(0)
     message = "The scheduler has been shut down."
     logger.info(message)
+    os._exit(0)
     return PlainTextResponse(message)

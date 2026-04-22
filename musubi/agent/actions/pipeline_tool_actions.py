@@ -21,7 +21,7 @@ headers = {
 }
 
 
-class SearchCrawler:
+class YahooSearchCrawler:
     def __init__(self):
         """Initialize Yahoo Search Crawler with proper headers to simulate real browser"""
         self.headers = headers
@@ -193,29 +193,132 @@ class SearchCrawler:
         return results
     
 
+class DuckSearchCrawler:
+    def __init__(self):
+        """Initialize DuckDuckGo Search Crawler with proper headers to simulate real browser"""
+        self.headers = {
+            **headers,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Referer': 'https://duckduckgo.com/',
+        }
+        self.session = requests.Session()
+        self.session.headers.update(self.headers)
+        # Acquire session cookies required to access the HTML search endpoint
+        try:
+            self.session.get('https://duckduckgo.com/', timeout=10)
+        except Exception as e:
+            logger.warning(f"Could not pre-fetch DuckDuckGo cookies: {e}")
+
+    def _extract_real_url(self, ddg_href: str) -> str:
+        """Extract the real URL from DuckDuckGo's redirect href.
+
+        DDG wraps URLs as: //duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.example.com%2F&rut=...
+        """
+        if not ddg_href:
+            return ""
+        try:
+            # Normalise protocol-relative URL
+            if ddg_href.startswith("//"):
+                ddg_href = "https:" + ddg_href
+            parsed = urlparse(ddg_href)
+            params = urllib.parse.parse_qs(parsed.query)
+            if "uddg" in params:
+                return urllib.parse.unquote(params["uddg"][0])
+            return ddg_href
+        except Exception as e:
+            logger.error(f"Error extracting real URL from {ddg_href}: {e}")
+            return ddg_href
+
+    def search(self, query: str, num_results: int = 10) -> List[Dict[str, str]]:
+        """Search DuckDuckGo HTML endpoint and return results.
+
+        Args:
+            query: Search keyword
+            num_results: Number of results to retrieve
+
+        Returns:
+            List of dicts with keys: title, url, root_path, rank
+        """
+        results = []
+        encoded_query = urllib.parse.quote(query)
+        search_url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
+
+        try:
+            logger.info(f"Searching: {query}")
+            logger.info(f"URL: {search_url}")
+
+            response = self.session.get(search_url, timeout=10)
+            response.raise_for_status()
+
+            soup = BeautifulSoup(response.text, 'html.parser')
+            search_results = soup.find_all('div', class_='result')
+
+            for i, result in enumerate(search_results):
+                if len(results) >= num_results:
+                    break
+                try:
+                    a = result.find('a', class_='result__a')
+                    if not a:
+                        continue
+                    title = a.get_text(strip=True)
+                    href = a.get('href', '')
+                    real_url = self._extract_real_url(href)
+                    if not real_url:
+                        continue
+                    parsed = urlparse(real_url)
+                    root_path = parsed.scheme + "://" + parsed.netloc
+                    results.append({
+                        'title': title,
+                        'url': real_url,
+                        'root_path': root_path,
+                        'rank': len(results) + 1
+                    })
+                    logger.info(f"Result {len(results)}: {title[:50]}...")
+                except Exception as e:
+                    logger.error(f"Error parsing result {i+1}: {e}")
+                    continue
+
+            logger.info(f"Total results: {len(results)}")
+
+        except requests.RequestException as e:
+            logger.error(f"Request error: {e}")
+        except Exception as e:
+            logger.error(f"Other error: {e}")
+
+        return results
+
+
 def search_url(query: str):
-    """Search URL using the provided query and returns the first result URL.
-    This function performs a url search using the Custom Search API.
-    
+    """Search for a URL using the provided query and return the first result.
+    Primarily uses DuckDuckGo; falls back to Yahoo Search if DuckDuckGo fails
+    or returns an empty result.
+
     Args:
-        query: The search query string to be sent to Google.
-    
+        query: The search query string (e.g. the website name).
+
     Returns:
         A tuple containing:
             - The URL of the first search result.
             - The root domain of that URL (scheme + domain).
-    
+
     Examples:
         ::
 
             url, root_path = search_url("The New York Times")
             print(url)
-                'https://www.nytimes.com/international/'
+                'https://www.nytimes.com/'
             print(root_path)
                 'https://www.nytimes.com'
     """
-    search_engine = SearchCrawler()
-    result = search_engine.search(query, num_results=1)[0]    
+    try:
+        results = DuckSearchCrawler().search(query, num_results=1)
+        if not results:
+            raise ValueError("DuckDuckGo returned empty results")
+    except Exception as e:
+        logger.warning(f"DuckDuckGo search failed ({e}), falling back to Yahoo")
+        results = YahooSearchCrawler().search(query, num_results=1)
+    result = results[0]
     return (result["url"], result["root_path"])
 
 

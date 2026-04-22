@@ -56,6 +56,9 @@ class Task:
                 sender_email=sender_email,
                 recipient_email=recipient_email
             )
+        else:
+            self.send_notification = False
+            self.notify = None
 
         if config_dir is not None:
             self.config_dir = Path(config_dir)
@@ -103,7 +106,7 @@ class Task:
             save_dir=save_dir
         )
 
-        if self.notify:
+        if self.notify is not None:
             self.notify.send_gmail(
                 subject="Musubi: Finished scheduled updating",
                 body="Finished scheduled task '{}' at {}".format(task_name, datetime.now())
